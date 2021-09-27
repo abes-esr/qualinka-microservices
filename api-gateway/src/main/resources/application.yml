@@ -1,0 +1,17 @@
+spring:
+  profiles:
+    active: localhost
+  config:
+    import: optional:configserver:http://localhost:8888
+
+  application:
+    name: api-gateway
+  cloud:
+    config:
+      profile: localhost
+
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
