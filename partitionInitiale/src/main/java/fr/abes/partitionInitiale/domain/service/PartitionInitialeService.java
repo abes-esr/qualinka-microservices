@@ -15,6 +15,7 @@ import fr.abes.partitionInitiale.domain.entity.Resu;
 import fr.abes.partitionInitiale.domain.entity.XmlRootRecord;
 import fr.abes.partitionInitiale.domain.repository.ReferenceAutoriteProxy;
 
+import fr.abes.partitionInitiale.domain.repository.ReferenceContextuelProxy;
 import fr.abes.partitionInitiale.domain.utils.MapStructMapper;
 import io.netty.channel.ChannelException;
 import io.netty.handler.timeout.ReadTimeoutException;
@@ -41,6 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -50,6 +52,7 @@ public class PartitionInitialeService {
 
     private final WebClient.Builder webClientBuilder;
     private final ReferenceAutoriteProxy referenceAutoriteProxy;
+    private final ReferenceContextuelProxy referenceContextuelProxy;
     private final MapStructMapper mapStructMapper;
 
 
@@ -68,6 +71,7 @@ public class PartitionInitialeService {
         PartitionInitialeDto partitionInitialeDto = new PartitionInitialeDto();
         ArrayList<String> targets = new ArrayList<>();
         ArrayList<PartitionInitialeLink> initialLinks = new ArrayList<>();
+        ArrayList<String> sources = new ArrayList<>();
 
         WebClient webClient = webClientBuilder.baseUrl("https://www-test.sudoc.fr/services/generic/").build();
 
@@ -76,9 +80,9 @@ public class PartitionInitialeService {
         ObjectMapper mapper = new ObjectMapper();
 
         return referenceAutoriteProxy.findraExchangeProxy(firstName, lastName)
-              //.retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(2)))
-              //.doOnError(e -> log.warn( "Can not fetch info from Findra service" ))
-              //.onErrorResume(v -> Mono.empty())
+              .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(2)))
+              .doOnError(e -> log.warn( "Can not fetch info from Findra service" ))
+              .onErrorResume(v -> Mono.empty())
                 //.map(mapStructMapper::ReferenceProxyToDto)
                 .flatMapMany(v -> Flux.fromIterable(v.getReferenceAutorite()))
                 .distinct(ReferenceAutorite::getPpn)
@@ -149,29 +153,35 @@ public class PartitionInitialeService {
                             })
                             .flatMapMany(Flux::fromIterable)
                             .map(t -> {
-                                System.out.println("t.getResu().getPPNBIBLIO() "+t.getResu().getPpnbiblio());
+                                //System.out.println("t.getResu().getPPNBIBLIO() "+t.getResu().getPpnbiblio());
                                 //t.getResu().getPPNBIBLIO()
                                 initialLinks.add(new PartitionInitialeLink("sudoc:"+t.getResu().getPpnbiblio(),"sameAs",f.getPpn()));
-
+                                sources.add("sudoc:"+t.getResu().getPpnbiblio());
+                                partitionInitialeDto.setSources(sources);
                                 partitionInitialeDto.setInitialLinks(initialLinks);
                                 return partitionInitialeDto;
                             }).last();
-
-
-
-                    //Avec find2 on a une partie des sources
-
-                    //https://paprika.idref.fr/ws/qualinca/partitionattr/partatt?prenom=yann&nom=nicolas
-                    //initialLinks:[{source:"sudoc:229023274-1",type:"sameAs",target:"idref:229012132"},...]
-                    //sources:["sudoc:071625739-1",...]
-                    //"scenario":"","supports":"",
-                    //"targets":["idref:229012132",...]
-
-                    //return partitionInitialeDto;
                 }
                 )
-
                 .last()
+                .flatMap( t -> {
+                        return referenceContextuelProxy.findrcExchangeProxy(firstName, lastName)
+                                .flatMapMany(v -> Flux.fromIterable(v.getReferenceAutorite()))
+                                .distinct(ReferenceAutorite::getPpn)
+                                .map(f -> {
+                                    //System.out.println("FindRC : "+f.getPpn());
+                                    //On a les sources non liées, avec find2 (findRC)
+                                    sources.add("sudoc:"+f.getPpn());
+                                    partitionInitialeDto.setSources(sources);
+
+                                    //Pour enlever les doublons dans les sources
+                                    partitionInitialeDto.setSources(partitionInitialeDto.getSources().stream().distinct().collect(Collectors.toList()));
+
+                                    return partitionInitialeDto;
+                                })
+                                .last();
+                     }
+                )
                 .doOnError(e -> log.warn( "Name not found or failed to parsing XML from SUDOC Server" + e.getMessage()))
                 .onErrorResume(x -> Mono.just(new PartitionInitialeDto("","",new ArrayList<>(),new ArrayList<>(),new ArrayList<>())));
     }
