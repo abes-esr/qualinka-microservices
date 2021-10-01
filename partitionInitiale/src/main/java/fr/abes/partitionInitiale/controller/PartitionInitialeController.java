@@ -42,7 +42,7 @@ public class PartitionInitialeController {
                 log.info("Loading propertie file => {}", getFile);
             }*/
 
-            return partitionInitialeService.findAllRC(firstName,lastName);
+            return partitionInitialeService.partition(firstName,lastName);
         }
 
     }

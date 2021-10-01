@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PartitionInitialeLink {
+public class PartitionInitialeLinkDto {
     String source;
     String type;
     String target;
