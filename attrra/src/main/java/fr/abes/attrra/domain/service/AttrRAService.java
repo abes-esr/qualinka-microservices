@@ -58,7 +58,7 @@ public class AttrRAService {
                     .queryParam("q", "ppn_z:"+ppn)
                     .queryParam("start", "0")
                     .queryParam("rows", "1")
-                    .queryParam("fl", "ppn_z,A100-a-pos0-7_AS,A300.A300Sa_AS,A900.A900Sa_AS,A901.A901Sa_AS,A103-a-pos1-4_AS,A103-b-pos1-4_AS,A700-7-pos4-5_AS,A102.A102Sa_AS,A810.A810Sa_AS")
+                    .queryParam("fl", "*")
                     .queryParam("wt", "json")
                     .build()
                 )
@@ -89,6 +89,7 @@ public class AttrRAService {
                             ra.setDeath(ref.getDeath());
                             ra.setGender(ref.getGender());
                             ra.setCountry(ref.getCountry());
+                            ra.setBioNote(ref.getBioNote());
                             ra.setSource(ref.getSource());
                         }
                         return ra;

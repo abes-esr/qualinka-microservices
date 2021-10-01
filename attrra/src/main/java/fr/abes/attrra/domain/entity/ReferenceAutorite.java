@@ -1,5 +1,6 @@
 package fr.abes.attrra.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -35,7 +36,12 @@ public class ReferenceAutorite {
     String death;
     String gender;
     String country;
-    String source;
+
+    @JsonSetter("A340.A340Sa_AS")
+    List<String> bioNote;
+
+    @JsonSetter("A810.A810Sa_AS")
+    List<String> source;
 
     @JsonSetter("A100-a-pos0-7_AS")
     public void setValueInternalDateCreationNoticeRA(JsonNode valueInternal) {
@@ -73,7 +79,7 @@ public class ReferenceAutorite {
         }
     }
 
-    @JsonSetter("A700-7-pos4-5_AS")
+    @JsonSetter("A120.A120Sa_AS")
     public void setValueInternalGenderRA(JsonNode valueInternal) {
         if (valueInternal != null) {
             if (valueInternal.isArray()) {
@@ -90,17 +96,5 @@ public class ReferenceAutorite {
             }
         }
     }
-
-    @JsonSetter("A810.A810Sa_AS")
-    public void setValueInternalSourceRA(JsonNode valueInternal) {
-        if (valueInternal != null) {
-            if (valueInternal.isArray()) {
-                this.source = valueInternal.get(0).asText();
-            }
-        }
-    }
-
-
-
 
 }

@@ -20,11 +20,11 @@ public class RADto {
     List<String> noteGen;
     String preferedform;
     List<String> variantform;
-    List<String> parallelform;//902$a
+    //List<String> parallelform;//902$a pas fait dans l'ancienne version ?
     String birth;
     String death;
     String gender;
     String country;
-    String bioNote;//340$a
-    String source;
+    List<String> bioNote;
+    List<String> source;
 }
