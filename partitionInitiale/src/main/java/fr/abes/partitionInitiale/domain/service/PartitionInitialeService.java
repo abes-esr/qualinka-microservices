@@ -83,7 +83,6 @@ public class PartitionInitialeService {
               .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(2)))
               .doOnError(e -> log.warn( "Can not fetch info from Findra service" ))
               .onErrorResume(v -> Mono.empty())
-                //.map(mapStructMapper::ReferenceProxyToDto)
                 .flatMapMany(v -> Flux.fromIterable(v.getReferenceAutorite()))
                 .distinct(ReferenceAutorite::getPpn)
                 .flatMap(f -> {
@@ -133,7 +132,6 @@ public class PartitionInitialeService {
                             .retrieve()
                             .bodyToMono(String.class).map(jsonNode -> {
                                     try {
-                                        //System.out.println("XX==>"+jsonNode);
                                         return ((JsonNode) mapper.readValue(jsonNode, JsonNode.class)).findValue("ppns");
                                     } catch (JsonProcessingException e) {
                                         System.out.println("Exception:"+e.getMessage());
@@ -141,7 +139,6 @@ public class PartitionInitialeService {
                                     }
                             })
                             .map(v -> {
-                                //System.out.println("====>"+v.size());
                                 ObjectReader reader = mapper.readerFor(new TypeReference<List<Resu>>(){});
                                 try {
                                     return reader.<List<Resu>>readValue(v);
@@ -154,7 +151,6 @@ public class PartitionInitialeService {
                             .flatMapMany(Flux::fromIterable)
                             .map(t -> {
                                 //System.out.println("t.getResu().getPPNBIBLIO() "+t.getResu().getPpnbiblio());
-                                //t.getResu().getPPNBIBLIO()
                                 initialLinks.add(new PartitionInitialeLink("sudoc:"+t.getResu().getPpnbiblio(),"sameAs",f.getPpn()));
                                 sources.add("sudoc:"+t.getResu().getPpnbiblio());
                                 partitionInitialeDto.setSources(sources);
@@ -182,61 +178,8 @@ public class PartitionInitialeService {
                                 .last();
                      }
                 )
-                .doOnError(e -> log.warn( "Name not found or failed to parsing XML from SUDOC Server" + e.getMessage()))
+                .doOnError(e -> log.warn( "Erreur : " + e.getMessage()))
                 .onErrorResume(x -> Mono.just(new PartitionInitialeDto("","",new ArrayList<>(),new ArrayList<>(),new ArrayList<>())));
     }
 
-    private Flux<ReferenceAutorite> referenceAutoriteDtoMono(String ppn) {
-
-        AtomicInteger counter = new AtomicInteger(0);
-        WebClient webClient = webClientBuilder.baseUrl("https://www.sudoc.fr/").build();
-
-        return webClient.get().uri( uriBuilder -> uriBuilder
-                        .path(ppn + ".abes")
-                        .build() )
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
-            .accept(MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML)
-            .retrieve()
-            .bodyToMono(XmlRootRecord.class)
-            .doOnError(v -> log.error("ERROR => {}", v.getMessage()))
-            .onErrorResume(v -> Mono.empty())
-            .flatMapIterable(XmlRootRecord::getDatafieldList)
-            .parallel().runOn(Schedulers.boundedElastic())
-            .filter(v -> v.getTag().startsWith("70"))
-            .doOnEach(v -> counter.getAndIncrement())
-            .filter(v -> v.getSubfieldList()
-                    .stream()
-                    .noneMatch(t -> t.getCode().equals("3"))
-            )
-            .map(v -> {
-                /*log.info("Execute by Thread : " + Thread.currentThread().getName());
-                System.out.println("TAG = " + v.getTag());
-                System.out.println("PPN = " + ppn);
-                System.out.println("POS = " + counter.get());*/
-                ReferenceAutorite referenceAutoriteDto = new ReferenceAutorite();
-                v.getSubfieldList().forEach(t -> {
-                        //System.out.println(t.getCode() + " : " + t.getSubfield());
-                        referenceAutoriteDto.setPpn(ppn + "-" + counter.get());
-                        if (t.getCode().equals("a")) {
-                           referenceAutoriteDto.setLastName(t.getSubfield());
-                        }
-                        if (t.getCode().equals("b")) {
-                            referenceAutoriteDto.setFirstName(t.getSubfield());
-                        }
-                    }
-                );
-                /*System.out.println("==================================");*/
-                return referenceAutoriteDto;
-            })
-            .sequential()
-            .onErrorResume(v -> Flux.just(new ReferenceAutorite()));
-    }
-
-    //Utility function ( Check doublon with key of Java Stream() )
-    public static <T> Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor)
-    {
-        Map<Object, Boolean> map = new ConcurrentHashMap<>();
-        return t -> map.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
-
-    }
 }
