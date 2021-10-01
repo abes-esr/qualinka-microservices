@@ -1,4 +1,4 @@
-package fr.abes.findrc.exception;
+package fr.abes.attrra.exception;
 
 import org.springframework.boot.autoconfigure.web.ResourceProperties;
 import org.springframework.boot.autoconfigure.web.WebProperties;

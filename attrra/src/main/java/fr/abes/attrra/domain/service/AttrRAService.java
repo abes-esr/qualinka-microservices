@@ -44,8 +44,6 @@ public class AttrRAService {
     public Mono<RADto> attributs(String ppn) {
 
         RADto ra = new RADto();
-        ArrayList<String> notesGen = new ArrayList<>();
-        ArrayList<String> variantForms = new ArrayList<>();
 
         WebClient webClient = webClientBuilder.baseUrl(this.solrBaseUrl)
                  //.filter(logRequestWebclient()) // <== Use this for see WebClient request
