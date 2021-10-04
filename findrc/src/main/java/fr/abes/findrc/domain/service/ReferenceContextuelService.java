@@ -2,8 +2,10 @@ package fr.abes.findrc.domain.service;
 
 import com.google.common.base.Strings;
 import fr.abes.findrc.domain.dto.ReferenceAutoriteDto;
+import fr.abes.findrc.domain.dto.ReferenceAutoriteDtoProxy;
 import fr.abes.findrc.domain.entity.ReferenceAutorite;
 import fr.abes.findrc.domain.entity.ReferenceAutoriteFromOracle;
+import fr.abes.findrc.domain.entity.XmlRootRecord;
 import fr.abes.findrc.domain.repository.ReferenceAutoriteOracle;
 import fr.abes.findrc.domain.repository.ReferenceAutoriteProxy;
 import fr.abes.findrc.domain.utils.LuceneSearch;
@@ -11,11 +13,14 @@ import fr.abes.findrc.domain.utils.MapStructMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.queryparser.classic.ParseException;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import reactor.util.retry.Retry;
 
 import java.time.Duration;
@@ -63,7 +68,7 @@ public class ReferenceContextuelService {
                 .map(mapStructMapper::ReferenceProxyToDto)
                 .flatMapMany(v -> Flux.fromIterable(v.getReferenceContextuel()))
                 .distinct(ReferenceAutorite::getPpn)
-                .flatMap(x -> referenceAutoriteDtoMonoFromDatabase(x.getPpn()))
+                .flatMap(x -> referenceAutoriteMonoFromDatabase(x.getPpn()))
                 .doOnError(e -> {
                     log.error(e.getLocalizedMessage());
                     e.printStackTrace();
@@ -103,32 +108,32 @@ public class ReferenceContextuelService {
                 .onErrorResume(x -> Mono.just(new ReferenceAutoriteDto(0, new ArrayList<>())));
     }
 
-    /*public Mono<ReferenceAutoriteDtoProxy> findAllRC(String fileName, String firstName, String lastName) {
+    /*public Mono<ReferenceAutoriteDto> findAllRC(String fileName, String firstName, String lastName) {
 
         List<ReferenceAutorite> referenceAutoriteDtoList = new ArrayList<>();
-        ReferenceAutoriteDtoProxy referenceAutoriteGetDto = new ReferenceAutoriteDtoProxy();
+        ReferenceAutoriteDto referenceAutoriteGetDto = new ReferenceAutoriteDto();
         AtomicInteger ppnCount = new AtomicInteger();
 
-        return referenceAutoriteProxy.findraExchangeProxy("fromFindrc", fileName, firstName, lastName)
+        return Mono.defer(() -> referenceAutoriteProxy.findraExchangeProxy("fromFindrc", fileName, firstName, lastName))
                 .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(2)))
                 .doOnError(e -> log.warn("Can not fetch info from Findra service"))
                 .onErrorResume(v -> Mono.empty())
                 .map(mapStructMapper::ReferenceProxyToDto)
                 .flatMapMany(v -> Flux.fromIterable(v.getReferenceContextuel()))
                 .distinct(ReferenceAutorite::getPpn)
-                .flatMap(x -> referenceAutoriteDtoMono(x.getPpn()))
+                .flatMap(x -> referenceAutoriteMono(x.getPpn()))
                 .filter(x -> {
                     try {
                         return
-                                !Strings.isNullOrEmpty(x.getLastName())
-                                        &&
-                                        (LuceneSearch.Search(x.getLastName(), lastName.replace("-", " ") + "~0.8") > 0)
-                                        &&
-                                        (
-                                                LuceneSearch.Search(x.getFirstName(), firstName.replace("-", " ") + "~0.8") > 0
-                                                        || LuceneSearch.Search(x.getFirstName(), firstName.charAt(0) + "*" + "~0.8") > 0
-                                                        || (firstName.replace(".", "").length() == 1 && x.getFirstName().equals(firstName))
-                                        );
+                            !Strings.isNullOrEmpty(x.getLastName())
+                            &&
+                            (LuceneSearch.Search(x.getLastName(), lastName.replace("-", " ") + "~0.8") > 0)
+                            &&
+                            (
+                            LuceneSearch.Search(x.getFirstName(), firstName.replace("-", " ") + "~0.8") > 0
+                            || LuceneSearch.Search(x.getFirstName(), firstName.charAt(0) + "*" + "~0.8") > 0
+                            || (firstName.replace(".", "").length() == 1 && x.getFirstName().equals(firstName))
+                            );
                     } catch (ParseException e) {
                         e.printStackTrace();
                         return false;
@@ -138,17 +143,17 @@ public class ReferenceContextuelService {
                 .map(e -> {
                     //System.out.println(e.getPpn() + ":" + e.getFirstName() + ":" + e.getLastName());
                     referenceAutoriteDtoList.add(e);
-                    referenceAutoriteGetDto.setReferenceAutorite(referenceAutoriteDtoList);
+                    referenceAutoriteGetDto.setReferenceContextuel(referenceAutoriteDtoList);
                     referenceAutoriteGetDto.setPpnCounter(ppnCount.getAndIncrement() + 1);
 
                     return referenceAutoriteGetDto;
                 })
                 .last()
                 .doOnError(e -> log.warn("Name not found or failed to parsing XML from SUDOC Server"))
-                .onErrorResume(x -> Mono.just(new ReferenceAutoriteDtoProxy(0, new ArrayList<>())));
-    }*/
+                .onErrorResume(x -> Mono.just(new ReferenceAutoriteDto(0, new ArrayList<>())));
+    }
 
-    /*private Flux<ReferenceAutorite> referenceAutoriteDtoMono(String ppn) {
+    private Flux<ReferenceAutorite> referenceAutoriteMono(String ppn) {
 
         AtomicInteger counter = new AtomicInteger(0);
         WebClient webClient = webClientBuilder.baseUrl("https://www.sudoc.fr/").build();
@@ -164,7 +169,6 @@ public class ReferenceContextuelService {
                 .doOnError(v -> log.error("ERROR => {}", v.getMessage()))
                 .onErrorResume(v -> Mono.empty())
                 .flatMapIterable(XmlRootRecord::getDatafieldList)
-                .parallel().runOn(Schedulers.boundedElastic())
                 .filter(v -> v.getTag().startsWith("70"))
                 .doOnEach(v -> counter.getAndIncrement())
                 .filter(v -> v.getSubfieldList()
@@ -172,30 +176,31 @@ public class ReferenceContextuelService {
                         .noneMatch(t -> t.getCode().equals("3"))
                 )
                 .map(v -> {
-                *//*log.info("Execute by Thread : " + Thread.currentThread().getName());
-                System.out.println("TAG = " + v.getTag());
+                //log.info("Execute by Thread : " + Thread.currentThread().getName());
+                *//*System.out.println("TAG = " + v.getTag());
                 System.out.println("PPN = " + ppn);
                 System.out.println("POS = " + counter.get());*//*
                     ReferenceAutorite referenceAutoriteDto = new ReferenceAutorite();
                     v.getSubfieldList().forEach(t -> {
-                                //System.out.println(t.getCode() + " : " + t.getSubfield());
-                                referenceAutoriteDto.setPpn(ppn + "-" + counter.get());
-                                if (t.getCode().equals("a")) {
-                                    referenceAutoriteDto.setLastName(t.getSubfield());
-                                }
-                                if (t.getCode().equals("b")) {
-                                    referenceAutoriteDto.setFirstName(t.getSubfield());
-                                }
+
+                            //System.out.println(t.getCode() + " : " + t.getSubfield());
+                            referenceAutoriteDto.setPpn(ppn + "-" + counter.get());
+                            if (t.getCode().equals("a")) {
+                                referenceAutoriteDto.setLastName(t.getSubfield());
                             }
+                            if (t.getCode().equals("b")) {
+                                referenceAutoriteDto.setFirstName(t.getSubfield());
+                            }
+                        }
                     );
                     *//*System.out.println("==================================");*//*
                     return referenceAutoriteDto;
                 })
-                .sequential()
+                .doOnEach(v -> counter.set(0))
                 .onErrorResume(v -> Flux.just(new ReferenceAutorite()));
     }*/
 
-    private Flux<ReferenceAutorite> referenceAutoriteDtoMonoFromDatabase(String ppn) {
+    private Flux<ReferenceAutorite> referenceAutoriteMonoFromDatabase(String ppn) {
 
         List<ReferenceAutorite> referenceAutoriteList = new ArrayList<>();
         AtomicInteger counter = new AtomicInteger(0);

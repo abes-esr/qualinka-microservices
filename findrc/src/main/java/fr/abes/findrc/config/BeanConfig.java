@@ -3,6 +3,7 @@ package fr.abes.findrc.config;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
+import io.netty.resolver.DefaultAddressResolverGroup;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
@@ -31,6 +32,8 @@ public class BeanConfig {
                 .build())
             .clientConnector(
             new ReactorClientHttpConnector(HttpClient.create()  // <== Create new reactor client for the connection
+                    .compress(true)
+                    .resolver(DefaultAddressResolverGroup.INSTANCE)
                     .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000) // <== Wait server response TCP connection Client/Server
                     .responseTimeout(Duration.ofSeconds(5))  // <== Wait server response after send packet
                     .doOnConnected(connection -> connection

@@ -31,7 +31,7 @@ public class OracleR2dbcConfig extends AbstractR2dbcConfiguration {
     private String password;
 
     @Override
-    @Bean("r2dbcConnectionFactory")
+    @Bean
     public ConnectionFactory connectionFactory() {
 
         /*String descriptor = "(DESCRIPTION=" +

@@ -35,7 +35,7 @@ services:
   findra:
     image: 4duytran/microservice-findra:0.0.1-SNAPSHOT
     ports:
-      - '8080:8080'
+      - '8780:8780'
     depends_on:
       - spring-config-server
       - eureka-naming-server
@@ -52,7 +52,7 @@ services:
   findrc:
     image: 4duytran/microservice-findrc:0.0.1-SNAPSHOT
     ports:
-      - '8081:8081'
+      - '8781:8781'
     depends_on:
       - spring-config-server
       - eureka-naming-server
