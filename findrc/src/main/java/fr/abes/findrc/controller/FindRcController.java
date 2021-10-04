@@ -42,7 +42,7 @@ public class FindRcController {
                 log.info("Loading propertie file => {}", getFile);
             }
 
-            return referenceContextuelService.findAllRCFromDatabase(getFile,firstName,lastName);
+            return referenceContextuelService.findAllRC(getFile,firstName,lastName);
         }
 
     }

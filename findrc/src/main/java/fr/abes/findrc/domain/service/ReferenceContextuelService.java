@@ -108,7 +108,7 @@ public class ReferenceContextuelService {
                 .onErrorResume(x -> Mono.just(new ReferenceAutoriteDto(0, new ArrayList<>())));
     }
 
-    /*public Mono<ReferenceAutoriteDto> findAllRC(String fileName, String firstName, String lastName) {
+    public Mono<ReferenceAutoriteDto> findAllRC(String fileName, String firstName, String lastName) {
 
         List<ReferenceAutorite> referenceAutoriteDtoList = new ArrayList<>();
         ReferenceAutoriteDto referenceAutoriteGetDto = new ReferenceAutoriteDto();
@@ -177,9 +177,9 @@ public class ReferenceContextuelService {
                 )
                 .map(v -> {
                 //log.info("Execute by Thread : " + Thread.currentThread().getName());
-                *//*System.out.println("TAG = " + v.getTag());
+                System.out.println("TAG = " + v.getTag());
                 System.out.println("PPN = " + ppn);
-                System.out.println("POS = " + counter.get());*//*
+                System.out.println("POS = " + counter.get());
                     ReferenceAutorite referenceAutoriteDto = new ReferenceAutorite();
                     v.getSubfieldList().forEach(t -> {
 
@@ -193,12 +193,12 @@ public class ReferenceContextuelService {
                             }
                         }
                     );
-                    *//*System.out.println("==================================");*//*
+                    System.out.println("==================================");
                     return referenceAutoriteDto;
                 })
                 .doOnEach(v -> counter.set(0))
                 .onErrorResume(v -> Flux.just(new ReferenceAutorite()));
-    }*/
+    }
 
     private Flux<ReferenceAutorite> referenceAutoriteMonoFromDatabase(String ppn) {
 
