@@ -1,6 +1,7 @@
 package fr.abes.findra.config;
 
 import io.netty.channel.ChannelOption;
+import io.netty.handler.logging.LogLevel;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,8 @@ public class BeanConfig {
                 .build())
             .clientConnector(
             new ReactorClientHttpConnector(HttpClient.create()  // <== Create new reactor client for the connection
+                .compress(true)
+                .resolver(spec -> spec.queryTimeout(Duration.ofMillis(500)).trace("DNS", LogLevel.DEBUG)) // <== Bypass resolve DNS
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000) // <== Wait server response TCP connection Client/Server
                 .responseTimeout(Duration.ofSeconds(5))  // <== Wait server response after send packet
                 .doOnConnected(connection -> connection
