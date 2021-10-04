@@ -18,6 +18,8 @@ services:
 
   api-gateway:
     image: 4duytran/microservice-api-gateway:0.0.1-SNAPSHOT
+    expose:
+      - 8765
     ports:
       - '8765:8765'
     depends_on:
