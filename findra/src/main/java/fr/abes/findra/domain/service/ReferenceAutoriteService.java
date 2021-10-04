@@ -105,7 +105,13 @@ public class ReferenceAutoriteService {
                 .map(mapStructMapper::referenceAutoriteToreferenceAutoriteDto)
                 .sequential()
                 .distinct(ReferenceAutoriteDto::getPpn)
-                .filter(x -> ( !Strings.isNullOrEmpty(x.getFirstName()) && !Strings.isNullOrEmpty(x.getLastName()) ))
+                .filter(x -> ( !Strings.isNullOrEmpty(x.getLastName()) ))
+                .filter(x ->
+                    Strings.isNullOrEmpty(x.getFirstName()) ||
+                    (( x.getFirstName().split(" ").length >= firstName.split("-").length ) ||
+                    ( x.getFirstName().split("-").length >= firstName.split("-").length ) ||
+                    ( x.getFirstName().split("\\.").length >= firstName.split("-").length ))
+                )
                 .map(x -> {
                     referenceAutoriteGetDto.setPpnCounter(ppnCount.getAndIncrement()+1);
                     referenceAutoriteDtoList.add(x);

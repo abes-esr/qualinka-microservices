@@ -5,6 +5,7 @@ import fr.abes.findra.config.PropertiesLoader;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -66,7 +67,7 @@ public class StringOperator {
         }
 
         // Print le HashMap avec le nom et le prénom dans la console
-        //initMap.forEach( (k,v) -> System.out.printf("Key = %s : Value = %s%n", k,v));
+        initMap.forEach( (k,v) -> System.out.printf("Key = %s : Value = %s%n", k,v));
 
         return initMap;
     }
@@ -87,7 +88,7 @@ public class StringOperator {
 
         // Ajouter seulement les clés avec une valeur NON null dans un nouveau HahMap
         Map<String, String> mapWithNameNotNull = mapWithName.entrySet().stream().filter(v -> v.getValue() != null)
-                .collect(Collectors.toMap(k -> "${"+k.getKey()+"}", Map.Entry::getValue, (prev, next) -> next, LinkedHashMap::new));
+            .collect(Collectors.toMap(k -> "${"+k.getKey()+"}", Map.Entry::getValue, (prev, next) -> next, LinkedHashMap::new));
 
         // Ajouter une liste avec seulement les clés NON null
         /*List<String> requestNumbersMatch = mapWithName.entrySet().stream().filter(v -> v.getValue() != null)
@@ -95,22 +96,49 @@ public class StringOperator {
                 .map(x -> "${"+x+"}")
                 .collect(Collectors.toList());*/
 
+        // Ajouter une liste de NOM avec seulement les clés NON null ( 4 premiers elements )
+        List<String> requestLastNameNumbersMatch = mapWithName.entrySet().stream().limit(4).filter(v -> v.getValue() != null)
+            .map(Map.Entry::getKey)
+            .map(x -> "${"+x+"}")
+            .collect(Collectors.toList());
+
+        // Ajouter une liste de PRENOM avec seulement les clés NON null ( 5 et 6 ) ==> except la clé {7}
+        List<String> requestFirstNameNumbersMatch = mapWithName.entrySet().stream().filter(v ->
+                                                        (v.getValue() != null & v.getKey().equals(5)) ||
+                                                        v.getValue() != null & v.getKey().equals(6)
+                                                    )
+                                                    .map(Map.Entry::getKey)
+                                                    .map(x -> "${"+x+"}")
+                                                    .collect(Collectors.toList());
+
         // Ajouter une liste avec seulement les clés null
         List<String> requestNumbersNotMatch = mapWithName.entrySet().stream().filter(v -> v.getValue() == null)
-                .map(Map.Entry::getKey)
-                .map(x -> "${"+x+"}")
-                .collect(Collectors.toList());
+            .map(Map.Entry::getKey)
+            .map(x -> "${"+x+"}")
+            .collect(Collectors.toList());
+
+        Predicate<String> filterNameCase5And6And7 = e -> (requestNumbersNotMatch.stream().noneMatch(e::contains) &&
+                                                    requestLastNameNumbersMatch.stream().allMatch(e::contains) &&
+                                                    requestFirstNameNumbersMatch.stream().allMatch(e::contains)) ||
+                                                    (requestNumbersNotMatch.stream().noneMatch(e::contains) &&
+                                                    requestLastNameNumbersMatch.stream().allMatch(e::contains) &&
+                                                    e.contains("{7}") );
 
         // Check tous les éléments dans la liste que l'on obtient dans le fichier properties
         // on prend seulement les valeurs qui ne contiennent pas les clés qui sont avec les valeurs null dans le HashMap mapWithName
         // Ensuite, on injecte les noms et les prénoms dans chaque élément (String) de la liste avec les memes numéros de la clé dans initMap
 
+        /*allSolrRequest.stream()
+            .filter(v -> requestNumbersNotMatch.stream().noneMatch(v::contains) &&
+                    requestNameNumbersMatch.stream().allMatch(v::contains))
+                    .forEach(System.out::println);*/
+
         return allSolrRequest.stream()
-                .filter(v -> requestNumbersNotMatch.stream().noneMatch(v::contains))
-                .map(x -> mapWithNameNotNull.entrySet()
-                        .stream()
-                        .reduce(x,(s, e) -> s.replace( e.getKey(), e.getValue() ),(s1, s2) ->  null))
-                .collect(Collectors.toList());
+            .filter(filterNameCase5And6And7)
+            .map(x -> mapWithNameNotNull.entrySet()
+                .stream()
+                .reduce(x,(s, e) -> s.replace( e.getKey(), e.getValue() ),(s1, s2) ->  null))
+            .collect(Collectors.toList());
 
     }
 
