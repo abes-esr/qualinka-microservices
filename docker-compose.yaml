@@ -18,8 +18,6 @@ services:
 
   api-gateway:
     image: 4duytran/microservice-api-gateway:0.0.1-SNAPSHOT
-    expose:
-      - 8765
     ports:
       - '8765:8765'
     depends_on:
@@ -27,7 +25,7 @@ services:
       - eureka-naming-server
     environment:
       SPRING.PROFILES.ACTIVE: localhost
-      SPRING.CONFIG.IMPORT: optional:configserver:http://spring-config-server:8888
+      SPRING.CLOUD.CONFIG.URI: optional:configserver:http://spring-config-server:8888
       SPRING.CLOUD.CONFIG.PROFILE: localhost
       EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://eureka-naming-server:8761/eureka
       SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
@@ -43,7 +41,7 @@ services:
       - eureka-naming-server
     environment:
       SPRING.PROFILES.ACTIVE: localhost
-      SPRING.CONFIG.IMPORT: optional:configserver:http://spring-config-server:8888
+      SPRING.CLOUD.CONFIG.URI: optional:configserver:http://spring-config-server:8888
       SPRING.CLOUD.CONFIG.PROFILE: localhost
       EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://eureka-naming-server:8761/eureka
       SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
@@ -61,7 +59,7 @@ services:
       - findra
     environment:
       SPRING.PROFILES.ACTIVE: localhost
-      SPRING.CONFIG.IMPORT: optional:configserver:http://spring-config-server:8888
+      SPRING.CLOUD.CONFIG.URI: optional:configserver:http://spring-config-server:8888
       SPRING.CLOUD.CONFIG.PROFILE: localhost
       EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://eureka-naming-server:8761/eureka
       SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
