@@ -23,11 +23,9 @@ services:
     depends_on:
       - spring-config-server
       - eureka-naming-server
-    command:
-      - '/bin/sh'
-      - '-c'
-      - '/bin/sleep 5 && /prog "Waiting"'
+    command: ["./wait-for-it.sh", "spring-config-server:8888"]
     environment:
+      SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
       SPRING.PROFILES.ACTIVE: localhost
       SPRING.CONFIG.IMPORT: optional:configserver:http://spring-config-server:8888
       SPRING.CLOUD.CONFIG.PROFILE: localhost
@@ -43,11 +41,9 @@ services:
     depends_on:
       - spring-config-server
       - eureka-naming-server
-    command:
-      - '/bin/sh'
-      - '-c'
-      - '/bin/sleep 5 && /prog "Waiting"'
+    command: ["./wait-for-it.sh", "spring-config-server:8888"]
     environment:
+      SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
       SPRING.PROFILES.ACTIVE: localhost
       SPRING.CONFIG.IMPORT: optional:configserver:http://spring-config-server:8888
       SPRING.CLOUD.CONFIG.PROFILE: localhost
@@ -65,11 +61,9 @@ services:
       - spring-config-server
       - eureka-naming-server
       - findra
-    command:
-      - '/bin/sh'
-      - '-c'
-      - '/bin/sleep 5 && /prog "Waiting"'
+    command: ["./wait-for-it.sh", "spring-config-server:8888"]
     environment:
+      SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
       SPRING.PROFILES.ACTIVE: localhost
       SPRING.CONFIG.IMPORT: optional:configserver:http://spring-config-server:8888
       SPRING.CLOUD.CONFIG.PROFILE: localhost
