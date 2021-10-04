@@ -26,7 +26,7 @@ services:
     command:
       - '/bin/sh'
       - '-c'
-      - '/bin/sleep 10'
+      - '/bin/sleep 5 && /prog "Waiting"'
     environment:
       SPRING.PROFILES.ACTIVE: localhost
       SPRING.CONFIG.IMPORT: optional:configserver:http://spring-config-server:8888
@@ -46,7 +46,7 @@ services:
     command:
       - '/bin/sh'
       - '-c'
-      - '/bin/sleep 10'
+      - '/bin/sleep 5 && /prog "Waiting"'
     environment:
       SPRING.PROFILES.ACTIVE: localhost
       SPRING.CONFIG.IMPORT: optional:configserver:http://spring-config-server:8888
@@ -68,7 +68,7 @@ services:
     command:
       - '/bin/sh'
       - '-c'
-      - '/bin/sleep 15'
+      - '/bin/sleep 5 && /prog "Waiting"'
     environment:
       SPRING.PROFILES.ACTIVE: localhost
       SPRING.CONFIG.IMPORT: optional:configserver:http://spring-config-server:8888
