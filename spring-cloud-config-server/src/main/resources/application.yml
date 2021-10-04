@@ -7,5 +7,4 @@ spring:
     config:
       server:
         git:
-          uri: D:\ABES\microservice-qualica\spring-cloud-config-git
-        #uri: https://github.com/abes-esr/spring-cloud-config-server.git
+          uri: https://github.com/abes-esr/spring-cloud-config-server.git
