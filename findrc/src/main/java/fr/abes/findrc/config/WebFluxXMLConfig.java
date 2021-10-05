@@ -6,7 +6,7 @@ import org.springframework.web.reactive.accept.RequestedContentTypeResolverBuild
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 
 @Configuration
-public class WebFluxConfig implements WebFluxConfigurer {
+public class WebFluxXMLConfig implements WebFluxConfigurer {
 
     public void configureContentTypeResolver(RequestedContentTypeResolverBuilder builder) {
         builder.parameterResolver().parameterName("format").mediaType("xml", MediaType.APPLICATION_XML);

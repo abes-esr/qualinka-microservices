@@ -177,9 +177,9 @@ public class ReferenceContextuelService {
                 )
                 .map(v -> {
                 //log.info("Execute by Thread : " + Thread.currentThread().getName());
-                System.out.println("TAG = " + v.getTag());
+                /*System.out.println("TAG = " + v.getTag());
                 System.out.println("PPN = " + ppn);
-                System.out.println("POS = " + counter.get());
+                System.out.println("POS = " + counter.get());*/
                     ReferenceAutorite referenceAutoriteDto = new ReferenceAutorite();
                     v.getSubfieldList().forEach(t -> {
 
@@ -193,7 +193,7 @@ public class ReferenceContextuelService {
                             }
                         }
                     );
-                    System.out.println("==================================");
+                    /*System.out.println("==================================");*/
                     return referenceAutoriteDto;
                 })
                 .doOnEach(v -> counter.set(0))
@@ -206,6 +206,10 @@ public class ReferenceContextuelService {
         AtomicInteger counter = new AtomicInteger(0);
 
         return referenceAutoriteOracle.getEntityWithPos(ppn)
+                .doOnError(e -> {
+                    log.error(e.getLocalizedMessage());
+                    e.printStackTrace();
+                })
                 .collectSortedList(Comparator.comparing(ReferenceAutoriteFromOracle::getPosfield))
                 .map(v ->
                         v.stream().collect(Collectors.groupingBy(ReferenceAutoriteFromOracle::getPosfield))
