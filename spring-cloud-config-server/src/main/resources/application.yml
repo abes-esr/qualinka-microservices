@@ -7,4 +7,4 @@ spring:
     config:
       server:
         git:
-          uri: file://C:/Users/charot/git/qualinka-spring-cloud-config-server
+          uri: https://github.com/abes-esr/spring-cloud-config-server.git
