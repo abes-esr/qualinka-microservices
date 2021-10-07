@@ -9,11 +9,13 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@XmlRootElement(name = "result")
 public class RCDto {
     String id;
     String dateCreationNotice;
