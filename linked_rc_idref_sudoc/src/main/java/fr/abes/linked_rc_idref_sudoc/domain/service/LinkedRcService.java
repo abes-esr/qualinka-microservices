@@ -1,17 +1,15 @@
 package fr.abes.linked_rc_idref_sudoc.domain.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import com.google.common.base.Strings;
 import fr.abes.linked_rc_idref_sudoc.domain.dto.LinkedRcDto;
 import fr.abes.linked_rc_idref_sudoc.domain.dto.LinkedRcGetDto;
 import fr.abes.linked_rc_idref_sudoc.domain.entity.ReferenceAutorite;
+import fr.abes.linked_rc_idref_sudoc.domain.entity.ReferenceAutoriteFromOracle;
 import fr.abes.linked_rc_idref_sudoc.domain.entity.ReferenceContextuelle;
-import fr.abes.linked_rc_idref_sudoc.domain.utils.MapStructMapper;
-import fr.abes.linked_rc_idref_sudoc.domain.utils.StringOperator;
+import fr.abes.linked_rc_idref_sudoc.domain.repository.ReferenceAutoriteOracle;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,27 +20,25 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Slf4j
 @Service
 public class LinkedRcService {
 
-
+    private final ReferenceAutoriteOracle referenceAutoriteOracle;
     private final WebClient.Builder webClientBuilder;
-    private final MapStructMapper mapStructMapper;
-    private final StringOperator stringOperator;
-
 
     @Value("${solr.base-url}")
     private String solrBaseUrl;
@@ -69,7 +65,6 @@ public class LinkedRcService {
 
         ObjectMapper mapper = new ObjectMapper();
 
-
         return webClient.get().uri(builder -> builder
                         .path("/solr/sudoc/select")
                         .queryParam("q", "ppn_z:"+ra_id)
@@ -93,7 +88,7 @@ public class LinkedRcService {
                 .map(v -> {
                     ObjectReader reader = mapper.readerFor(new TypeReference<List<ReferenceAutorite>>(){});
                     try {
-                        ArrayList<ReferenceAutorite> liste = reader.<ArrayList<ReferenceAutorite>>readValue(v);
+                        ArrayList<ReferenceAutorite> liste = reader.readValue(v);
                         ReferenceAutorite ref = liste.get(0);
 
                         linkedRc.setFirstName(ref.getFirstName());
@@ -125,28 +120,75 @@ public class LinkedRcService {
                             .doOnError(e -> log.error( "ERROR => {}", e.getMessage() ))
                             .onErrorResume(e -> Mono.empty())
                             .map(jsonNode -> jsonNode.findValue("docs"))
-                            .map(x -> {
-                                ObjectReader reader = mapper.readerFor(new TypeReference<List<ReferenceAutorite>>(){});
+                            .map(v -> {
+                                ObjectReader reader = mapper.readerFor(new TypeReference<List<ReferenceContextuelle>>(){});
                                 try {
-                                    System.out.println("ici : "+reader.<List<LinkedRcDto>>readValue(x).size());
-                                    monLinkedRc.setIds(reader.<List<LinkedRcDto>>readValue(x));
-                                    return monLinkedRc;
+                                    return reader.<List<ReferenceContextuelle>>readValue(v);
                                 } catch (IOException e) {
-                                    System.out.println(e.getMessage());
-                                    return monLinkedRc;
+                                    e.printStackTrace();
+                                    return new ArrayList<ReferenceContextuelle>();
                                 }
-                            });
+                            })
+                            .flatMapMany(Flux::fromIterable)
+                            .distinct(ReferenceContextuelle::getPpn)
+                            .flatMap(x -> referenceContextuelleMonoFromDatabase(x.getPpn(),ra_id))
+                            .doOnError(e -> {
+                                log.error(e.getLocalizedMessage());
+                                e.printStackTrace();
+                            })
+                            .onErrorResume(v -> Mono.empty())
+                            .map(e -> {
+                                //System.out.println(e.getPpn());
+                                LinkedRcDto link = new LinkedRcDto(e.getPpn());
+                                links.add(link);
+                                monLinkedRc.setIds(links);
+                                monLinkedRc.setCount(links.size());
+                                return monLinkedRc;
+                            })
+                            .last();
                 })
                 .doOnError(e -> log.warn( "Erreur : " + e.getMessage()))
                 .onErrorResume(x -> Mono.just(new LinkedRcGetDto()));
     }
 
+    private Flux<ReferenceContextuelle> referenceContextuelleMonoFromDatabase(String ppn, String ra_id) {
+        List<ReferenceContextuelle> referenceContextuelleList = new ArrayList<>();
+        AtomicInteger counter = new AtomicInteger(0);
+
+        return referenceAutoriteOracle.getEntityWithPos(ppn)
+                .doOnError(e -> {
+                    log.error(e.getLocalizedMessage());
+                    e.printStackTrace();
+                })
+                .collectSortedList(Comparator.comparing(ReferenceAutoriteFromOracle::getPosfield))
+                .map(v ->
+                        v.stream().collect(Collectors.groupingBy(ReferenceAutoriteFromOracle::getPosfield))
+                                .entrySet().stream().peek(s -> counter.getAndIncrement())
+                                .filter(t -> t.getValue().stream().anyMatch(e -> e.getTag().contains("$3")))
+                                .reduce(referenceContextuelleList, (s, e) -> {
+                                    ReferenceContextuelle referenceContextuelle = new ReferenceContextuelle();
+                                    e.getValue().forEach(t -> {
+                                        if (t.getTag().contains("$3") && t.getDatas().contains(ra_id)) {
+                                            referenceContextuelle.setPpn(t.getPpn() + "-" + counter.get());
+                                        }
+                                        else {
+                                            counter.get();
+                                        }
+                                    });
+                                    if (referenceContextuelle.getPpn()!=null) {
+                                        s.add(referenceContextuelle);
+                                    }
+                                    return s;
+                                }, (s1, s2) -> null)
+                )
+                .flatMapMany(Flux::fromIterable)
+                .onErrorResume(v -> Flux.just(new ReferenceContextuelle()));
+    }
 
     //Utility function ( Check doublon with key of Java Stream() )
     public static <T> Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor)
     {
         Map<Object, Boolean> map = new ConcurrentHashMap<>();
         return t -> map.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
-
     }
 }
