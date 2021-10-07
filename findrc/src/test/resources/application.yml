@@ -1,0 +1,19 @@
+### Oracle
+database:
+  host: ENC(dzEvfdzS3C4l+94WMdwF1CeBBeSsgR3udqhA+xbpRwlhgVnMIUDkEDdNzMslAfG7030TLekjJW5jOok9+6fXLg==)
+  port: 1521
+  serviceName: ENC(02RMhlCIEQq4Fe4Xre8kmAZtqFGK0+ELNOV8CSFGiujBkAVzM1VOadaLBkv4+fRF)
+  user: ENC(EHQ94F01KgeC4jqqOHY4if+2FIFdfTz23lEiJHz0V60YjuaRFHBqnXV3P8P6Ejaw)
+  password: ENC(po9Kmx2mYRAgWEN8edcov+iTr/RLfFVd0s2sRORWvCTJ3Jm5u/glq/sf+HHcg0Ex)
+
+spring:
+  profiles:
+    active: localhost
+  config:
+    import: optional:configserver:http://localhost:8888
+
+  application:
+    name: findrc
+  cloud:
+    config:
+      profile: localhost

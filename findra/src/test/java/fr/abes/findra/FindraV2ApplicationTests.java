@@ -311,11 +311,9 @@ class FindraV2ApplicationTests {
         System.out.println("La liste du fichier propertie contient les éléments qui n'ont pas les clés null et on injecte les noms et les prénom");
         allSolrRequest.stream()
                 .filter(v -> requestNumbersNotMatch.stream().noneMatch(v::contains))
-                .map(x -> {
-                    return mapWithName.entrySet()
-                            .stream()
-                            .reduce(x,(s, e) -> s.replace( e.getKey(), e.getValue() ),(s1, s2) -> null);
-                })
+                .map(x -> mapWithName.entrySet()
+                        .stream()
+                        .reduce(x,(s, e) -> s.replace( e.getKey(), e.getValue() ),(s1, s2) -> null))
                 .forEach(System.out::println);
 
 

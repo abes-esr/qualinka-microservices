@@ -1,0 +1,86 @@
+version: '3.9'
+
+services:
+
+  spring-config-server:
+    image: 4duytran/microservice-spring-cloud-config-server:0.0.1-SNAPSHOT
+    ports:
+      - '8888:8888'
+    networks:
+      - microservice
+
+  eureka-naming-server:
+    image: 4duytran/microservice-eureka-naming-server:0.0.1-SNAPSHOT
+    ports:
+      - '8761:8761'
+    networks:
+      - microservice
+
+  api-gateway:
+    image: 4duytran/microservice-api-gateway:0.0.1-SNAPSHOT
+    ports:
+      - '8765:8765'
+    depends_on:
+      - spring-config-server
+      - eureka-naming-server
+    command: ["./wait-for-it.sh", "spring-config-server:8888"]
+    environment:
+      SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
+      SPRING.PROFILES.ACTIVE: localhost
+      SPRING.CONFIG.IMPORT: optional:configserver:http://spring-config-server:8888
+      SPRING.CLOUD.CONFIG.PROFILE: localhost
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://eureka-naming-server:8761/eureka
+      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+    networks:
+      - microservice
+
+  findra:
+    image: 4duytran/microservice-findra:0.0.1-SNAPSHOT
+    ports:
+      - '8780:8780'
+    depends_on:
+      - spring-config-server
+      - eureka-naming-server
+    command: ["./wait-for-it.sh", "spring-config-server:8888"]
+    environment:
+      SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
+      SPRING.PROFILES.ACTIVE: localhost
+      SPRING.CONFIG.IMPORT: optional:configserver:http://spring-config-server:8888
+      SPRING.CLOUD.CONFIG.PROFILE: localhost
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://eureka-naming-server:8761/eureka
+      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+      JASYPT.ENCRYPTOR.PASSWORD: ${MASTER_PASSWORD}
+    networks:
+      - microservice
+
+  findrc:
+    image: 4duytran/microservice-findrc:0.0.1-SNAPSHOT
+    ports:
+      - '8781:8781'
+    depends_on:
+      - spring-config-server
+      - eureka-naming-server
+      - findra
+    command: ["./wait-for-it.sh", "spring-config-server:8888"]
+    environment:
+      SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
+      SPRING.PROFILES.ACTIVE: localhost
+      SPRING.CONFIG.IMPORT: optional:configserver:http://spring-config-server:8888
+      SPRING.CLOUD.CONFIG.PROFILE: localhost
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://eureka-naming-server:8761/eureka
+      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+      JAVA_OPTS: "-Doracle.jdbc.timezoneAsRegion=false -Duser.timezone=CEST"
+      JASYPT.ENCRYPTOR.PASSWORD: ${MASTER_PASSWORD}
+    networks:
+      - microservice
+
+  zipkin-server:
+    image: openzipkin/zipkin:2.23
+    ports:
+      - "9411:9411"
+    networks:
+      - microservice
+
+networks:
+  microservice:
+
