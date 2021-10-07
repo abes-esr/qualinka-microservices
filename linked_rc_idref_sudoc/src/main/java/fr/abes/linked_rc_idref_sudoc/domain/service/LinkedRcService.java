@@ -94,27 +94,26 @@ public class LinkedRcService {
                     ObjectReader reader = mapper.readerFor(new TypeReference<List<ReferenceAutorite>>(){});
                     try {
                         ArrayList<ReferenceAutorite> liste = reader.<ArrayList<ReferenceAutorite>>readValue(v);
-
-                        //On peut pas mapper automatiquement ??
                         ReferenceAutorite ref = liste.get(0);
 
                         linkedRc.setFirstName(ref.getFirstName());
                         linkedRc.setLastName(ref.getLastName());
 
                         return linkedRc;
-
                     } catch (IOException e) {
                         e.printStackTrace();
                         return linkedRc;
                     }
-                }).map(w ->  webClient.get().uri( uriBuilder -> uriBuilder
-                                                .path("/solr/sudoc/select")
-                                                .queryParam("q", "B700.B700S3_BS:" + ra_id + " OR B701.B701S3_BS:" + ra_id + " OR B702.B702S3_BS:" + ra_id)
-                                                .queryParam("start", "0")
-                                                .queryParam("rows", "3000")
-                                                .queryParam("fl", "ppn_z")
-                                                .queryParam("wt", "json")
-                                                .build(w) )
+                })
+                .flatMap(monLinkedRc -> {
+                    return webClient.get().uri( uriBuilder -> uriBuilder
+                            .path("/solr/sudoc/select")
+                            .queryParam("q", "B700.B700S3_BS:" + ra_id + " OR B701.B701S3_BS:" + ra_id + " OR B702.B702S3_BS:" + ra_id)
+                            .queryParam("start", "0")
+                            .queryParam("rows", "3000")
+                            .queryParam("fl", "ppn_z")
+                            .queryParam("wt", "json")
+                            .build() )
                             .accept(MediaType.APPLICATION_JSON)
                             .retrieve()
                             .onStatus(HttpStatus::isError,
@@ -129,17 +128,17 @@ public class LinkedRcService {
                             .map(x -> {
                                 ObjectReader reader = mapper.readerFor(new TypeReference<List<ReferenceAutorite>>(){});
                                 try {
-                                    return reader.<List<LinkedRcDto>>readValue(x);
+                                    System.out.println("ici : "+reader.<List<LinkedRcDto>>readValue(x).size());
+                                    monLinkedRc.setIds(reader.<List<LinkedRcDto>>readValue(x));
+                                    return monLinkedRc;
                                 } catch (IOException e) {
-                                    e.printStackTrace();
-                                    return new ArrayList<LinkedRcDto>();
+                                    System.out.println(e.getMessage());
+                                    return monLinkedRc;
                                 }
-                            })
-                            .map(y -> {
-                                return Mono.just(linkedRc);
-                            })
-                );
-
+                            });
+                })
+                .doOnError(e -> log.warn( "Erreur : " + e.getMessage()))
+                .onErrorResume(x -> Mono.just(new LinkedRcGetDto()));
     }
 
 
