@@ -1,0 +1,15 @@
+spring:
+
+  profiles:
+    active: localhost
+
+  config:
+    import: optional:configserver:http://localhost:8888
+
+  application:
+    name: linked-rc-idref-sudoc
+
+  cloud:
+    config:
+      profile: localhost
+
