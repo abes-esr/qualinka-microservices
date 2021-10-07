@@ -1,23 +1,19 @@
 package fr.abes.attrra.domain.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
 import fr.abes.attrra.domain.dto.RADto;
 
-import fr.abes.attrra.domain.entity.ReferenceAutorite;
+import fr.abes.attrra.domain.entity.XmlRootRecord;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,58 +40,89 @@ public class AttrRAService {
     public Mono<RADto> attributs(String ppn) {
 
         RADto ra = new RADto();
-
-        WebClient webClient = webClientBuilder.baseUrl(this.solrBaseUrl)
-                 //.filter(logRequestWebclient()) // <== Use this for see WebClient request
-                .build();
-
+        WebClient webClient = webClientBuilder.baseUrl("https://www.idref.fr/").build();
         ObjectMapper mapper = new ObjectMapper();
 
-        return webClient.get().uri(builder -> builder
-                    .path("/solr/sudoc/select")
-                    .queryParam("q", "ppn_z:"+ppn)
-                    .queryParam("start", "0")
-                    .queryParam("rows", "1")
-                    .queryParam("fl", "*")
-                    .queryParam("wt", "json")
-                    .build()
-                )
-                .accept(MediaType.APPLICATION_JSON)
+        List<String> noteGen = new ArrayList<>();
+        List<String> variantform = new ArrayList<>();
+        List<String> bioNote = new ArrayList<>();
+        List<String> source = new ArrayList<>();
+        ra.setId(ppn);
+
+        return webClient.get().uri( uriBuilder -> uriBuilder
+                .path(ppn + ".xml")
+                .build() )
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
+                .accept(MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML)
                 .retrieve()
-                .onStatus(HttpStatus::isError,
-                        response -> Mono.error(
-                                new IllegalStateException("Failed to get from the site!")
-                        )
-                )
-                .bodyToMono(JsonNode.class)
-                .doOnError(e -> log.error( "ERROR => {}", e.getMessage() ))
-                .onErrorResume(e -> Mono.empty())
-                .map(jsonNode -> jsonNode.findValue("docs"))
+                .bodyToMono(XmlRootRecord.class)
+                .doOnError(v -> log.error("ERROR => {}", v.getMessage()))
+                .onErrorResume(v -> Mono.empty())
+                //.flatMapIterable(XmlRootRecord::getDatafieldList)
                 .map(v -> {
-                    ObjectReader reader = mapper.readerFor(new TypeReference<List<ReferenceAutorite>>(){});
-                    try {
-                        ArrayList<ReferenceAutorite> liste = reader.<ArrayList<ReferenceAutorite>>readValue(v);
-                        if (liste.size()>0) {
-                            //On peut pas mapper automatiquement ??
-                            ReferenceAutorite ref = liste.get(0);
-                            ra.setId(ref.getId());
-                            ra.setDateCreationNotice(ref.getDateCreationNotice());
-                            ra.setNoteGen(ref.getNoteGen());
-                            ra.setPreferedform(ref.getPreferedform());
-                            ra.setVariantform(ref.getVariantform());
-                            ra.setBirth(ref.getBirth());
-                            ra.setDeath(ref.getDeath());
-                            ra.setGender(ref.getGender());
-                            ra.setCountry(ref.getCountry());
-                            ra.setBioNote(ref.getBioNote());
-                            ra.setSource(ref.getSource());
+
+                    v.getControlfieldList().stream().forEach(c -> {
+                        if (c.getTag().equals("004")){
+                            ra.setDateCreationNotice(c.getValue());
                         }
-                        return ra;
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        return ra;
-                    }
-                });
+                    });
+
+                    v.getDatafieldList().stream().forEach(d -> {
+                        d.getSubfieldList().stream().forEach(s -> {
+                            //System.out.println(d.getTag() + " : " + s.getCode() + " : " + s.getSubfield());
+                            if (d.getTag().equals("300") && s.getCode().equals("a")){
+                                noteGen.add(s.getSubfield());
+                                ra.setNoteGen(noteGen);
+                            }
+
+                            if (d.getTag().equals("901") && s.getCode().equals("a")) {
+                                variantform.add(s.getSubfield());
+                                ra.setVariantform(variantform);
+                            }
+
+                            if (d.getTag().equals("900") && s.getCode().equals("a")) {
+                                ra.setPreferedform(s.getSubfield());
+                            }
+
+                            if (d.getTag().equals("103") && s.getCode().equals("a")) {
+                                String dateBirth = s.getSubfield().trim();
+                                if (dateBirth.length()>4) {
+                                    dateBirth = dateBirth.substring(0,4);
+                                }
+                                ra.setBirth(dateBirth);
+                            }
+
+                            if (d.getTag().equals("103") && s.getCode().equals("b")) {
+                                String dateDeath = s.getSubfield().trim();
+                                if (dateDeath.length()>4) {
+                                    dateDeath = dateDeath.substring(0,4);
+                                }
+                                ra.setDeath(dateDeath);
+                            }
+
+                            if (d.getTag().equals("120") && s.getCode().equals("a")) {
+                                ra.setGender(s.getSubfield());
+                            }
+
+                            if (d.getTag().equals("102") && s.getCode().equals("a")) {
+                                ra.setCountry(s.getSubfield());
+                            }
+
+                            if (d.getTag().equals("340") && s.getCode().equals("a")) {
+                                bioNote.add(s.getSubfield());
+                                ra.setBioNote(bioNote);
+                            }
+
+                            if (d.getTag().equals("810") && s.getCode().equals("a")) {
+                                source.add(s.getSubfield());
+                                ra.setSource(source);
+                            }
+                        });
+                    });
+
+                    return ra;
+                })
+                .onErrorResume(v -> Mono.just(new RADto()));
     }
 
 }
