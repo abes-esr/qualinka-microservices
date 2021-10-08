@@ -14,6 +14,7 @@ import java.util.List;
 public class ReferenceAutoriteGetDtoModeDebug {
 
 
+    private String numberOfRequest;
     private String SolrRequest;
     private int found;
     private List<ReferenceAutoriteDto> results;

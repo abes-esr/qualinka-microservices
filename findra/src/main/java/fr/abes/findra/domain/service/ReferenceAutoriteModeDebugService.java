@@ -57,18 +57,18 @@ public class ReferenceAutoriteModeDebugService {
 
         String flParams = (from != null && from.equals("fromFindrc")) ? "id,ppn_z,B700.B700Sa_BS,B700.B700Sb_BS" : "id,ppn_z,A200.A200Sa_AS,A200.A200Sb_AS";
         List<String> requests = stringOperator.listOfSolrRequestFromPropertieFile(fileName, firstName, lastName);
-
-
-        return Flux.fromIterable(requests)
+        Map<String,String> mapOfRequestSolr = stringOperator.listOfRequestSolrForDebug(fileName, firstName, lastName);
+        return Flux.fromIterable(mapOfRequestSolr.entrySet())
                     .flatMap(v -> referenceAutoriteGetDtoModeDebugMono(v, flParams, firstName,  lastName));
     }
 
 
-    private Mono<ReferenceAutoriteGetDtoModeDebug> referenceAutoriteGetDtoModeDebugMono(String solrRequest, String params, String firstName, String lastName) {
+    private Mono<ReferenceAutoriteGetDtoModeDebug> referenceAutoriteGetDtoModeDebugMono(Map.Entry<String,String> mapSolrRequets, String params, String firstName, String lastName) {
 
         WebClient webClient = webClientBuilder.baseUrl(this.solrBaseUrl)
                 //.filter(logRequestWebclient()) // <== Use this for see WebClient request
                 .build();
+
         ObjectMapper mapper = new ObjectMapper();
         List<ReferenceAutoriteDto> referenceAutoriteDtoList = new ArrayList<>();
         ReferenceAutoriteGetDtoModeDebug referenceAutoriteGetDtoModeDebug = new ReferenceAutoriteGetDtoModeDebug();
@@ -81,7 +81,7 @@ public class ReferenceAutoriteModeDebugService {
                 .queryParam("rows", "3000")
                 .queryParam("fl", "{flParams}")
                 .queryParam("wt", "json")
-                .build(solrRequest, params)
+                .build(mapSolrRequets.getValue(), params)
             )
             .accept(MediaType.APPLICATION_JSON)
             .retrieve()
@@ -115,13 +115,14 @@ public class ReferenceAutoriteModeDebugService {
             )
             .map(v -> {
                 referenceAutoriteDtoList.add(v);
-                referenceAutoriteGetDtoModeDebug.setSolrRequest(solrRequest);
+                referenceAutoriteGetDtoModeDebug.setNumberOfRequest(mapSolrRequets.getKey());
+                referenceAutoriteGetDtoModeDebug.setSolrRequest(mapSolrRequets.getValue());
                 referenceAutoriteGetDtoModeDebug.setFound(ppnCounter.getAndIncrement()+1);
                 referenceAutoriteGetDtoModeDebug.setResults(referenceAutoriteDtoList);
                 return referenceAutoriteGetDtoModeDebug;
             })
             .last()
-            .onErrorResume(x -> Mono.just(new ReferenceAutoriteGetDtoModeDebug(solrRequest, 0, new ArrayList<>())));
+            .onErrorResume(x -> Mono.just(new ReferenceAutoriteGetDtoModeDebug(mapSolrRequets.getKey(),mapSolrRequets.getValue(), 0, new ArrayList<>())));
     }
 
 
