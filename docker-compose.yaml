@@ -4,8 +4,8 @@ services:
 
   spring-config-server:
     image: 4duytran/microservice-spring-cloud-config-server:0.0.1-SNAPSHOT
-    ports:
-      - '8888:8888'
+    expose:
+      - 8888
     networks:
       - microservice
 
@@ -36,8 +36,8 @@ services:
 
   findra:
     image: 4duytran/microservice-findra:0.0.1-SNAPSHOT
-    ports:
-      - '8780:8780'
+    expose:
+      - 8780
     depends_on:
       - spring-config-server
       - eureka-naming-server
@@ -55,8 +55,8 @@ services:
 
   findrc:
     image: 4duytran/microservice-findrc:0.0.1-SNAPSHOT
-    ports:
-      - '8781:8781'
+    expose:
+      - 8781
     depends_on:
       - spring-config-server
       - eureka-naming-server
@@ -76,8 +76,8 @@ services:
 
   linkedrc:
     image: 4duytran/microservice-linked_rc_idref_sudoc:0.0.1-SNAPSHOT
-    ports:
-      - '8782:8782'
+    expose:
+      - 8782
     depends_on:
       - spring-config-server
       - eureka-naming-server
@@ -96,8 +96,8 @@ services:
 
   attrra:
     image: 4duytran/microservice-attrra:0.0.1-SNAPSHOT
-    ports:
-      - '8783:8783'
+    expose:
+      - 8783
     depends_on:
       - spring-config-server
       - eureka-naming-server
@@ -115,8 +115,8 @@ services:
 
   attrrc:
     image: 4duytran/microservice-attrrc:0.0.1-SNAPSHOT
-    ports:
-      - '8784:8784'
+    expose:
+      - 8784
     depends_on:
       - spring-config-server
       - eureka-naming-server
