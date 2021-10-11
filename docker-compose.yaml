@@ -34,8 +34,8 @@ services:
     networks:
       - microservice
 
-  findra:
-    image: 4duytran/microservice-findra:0.0.1-SNAPSHOT
+  find-ra-idref:
+    image: 4duytran/microservice-find-ra-idref:0.0.1-SNAPSHOT
     expose:
       - 8780
     depends_on:
@@ -53,14 +53,14 @@ services:
     networks:
       - microservice
 
-  findrc:
-    image: 4duytran/microservice-findrc:0.0.1-SNAPSHOT
+  find-nonlinked-rc-sudoc:
+    image: 4duytran/microservice-find-nonlinked-rc-sudoc:0.0.1-SNAPSHOT
     expose:
       - 8781
     depends_on:
       - spring-config-server
       - eureka-naming-server
-      - findra
+      - find-ra-idref
     command: ["./wait-for-it.sh", "spring-config-server:8888"]
     environment:
       SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
@@ -136,6 +136,7 @@ services:
     image: openzipkin/zipkin:2.23
     ports:
       - "9411:9411"
+    restart: always
     networks:
       - microservice
 

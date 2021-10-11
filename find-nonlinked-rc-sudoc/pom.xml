@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>fr.abes</groupId>
-    <artifactId>findrc</artifactId>
+    <artifactId>find-nonlinked-rc-sudoc</artifactId>
     <version>${revision}</version>
     <packaging>jar</packaging>
-    <name>findrc</name>
+    <name>find-nonlinked-rc-sudoc</name>
     <description>Application Refeferece Contextuel</description>
     <properties>
         <spring-cloud.version>2020.0.4</spring-cloud.version>

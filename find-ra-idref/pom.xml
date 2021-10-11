@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>fr.abes</groupId>
-    <artifactId>findra</artifactId>
+    <artifactId>find-ra-idref</artifactId>
     <version>${revision}</version>
     <packaging>jar</packaging>
-    <name>findra</name>
+    <name>find-ra-idref</name>
     <description>Application Reference Autorite</description>
     <properties>
         <spring-cloud.version>2020.0.4</spring-cloud.version>

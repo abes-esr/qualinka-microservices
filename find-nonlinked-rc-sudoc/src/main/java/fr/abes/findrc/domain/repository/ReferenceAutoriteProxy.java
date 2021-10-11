@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import reactivefeign.spring.config.ReactiveFeignClient;
 import reactor.core.publisher.Mono;
 
-@ReactiveFeignClient(name="findra")
+@ReactiveFeignClient(name="find-ra-idref")
 public interface ReferenceAutoriteProxy {
 
     @GetMapping("api/v2/req")

@@ -5,7 +5,7 @@ spring:
     import: optional:configserver:http://localhost:8888
 
   application:
-    name: findrc
+    name: find-nonlinked-rc-sudoc
   cloud:
     config:
       profile: localhost
