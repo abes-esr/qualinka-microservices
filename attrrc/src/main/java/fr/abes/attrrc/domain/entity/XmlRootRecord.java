@@ -11,6 +11,9 @@ import java.util.List;
 @Getter
 @XmlRootElement(name="record")
 public class XmlRootRecord {
+    @XmlElement(name = "controlfield")
+    private List<Controlfield> controlfieldList;
+
     @XmlElement(name = "datafield")
     private List<Datafield> datafieldList;
 }
