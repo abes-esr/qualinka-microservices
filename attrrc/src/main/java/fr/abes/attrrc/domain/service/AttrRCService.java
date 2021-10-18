@@ -219,7 +219,7 @@ public class AttrRCService {
 
                     // Set Domain_code & Domain lib
 
-                    /*List<String> domainCode = new ArrayList<>();
+                    List<String> domainCode = new ArrayList<>();
                     List<String> domainLib = new ArrayList<>();
 
                     referenceAutoriteOracle.getDomainAndCodeWithPpn(ppnVal).doOnNext(t -> {
@@ -228,7 +228,7 @@ public class AttrRCService {
                     }).blockLast();
 
                     rcDto.setDomain_code(domainCode);
-                    rcDto.setDomain_lib(domainLib);*/
+                    rcDto.setDomain_lib(domainLib);
 
                     // Set OtherIdDoc
 
@@ -260,7 +260,6 @@ public class AttrRCService {
                         rcDto.setRole_en(t.getEn());
                     })
                     .subscribe();
-
 
                     return rcDto;
 
@@ -314,12 +313,6 @@ public class AttrRCService {
                 .filter(subfieldPredicate)
                 .findFirst();
     }
-
-    /*private Mono<RCDto> setDomain(String ppn) {
-
-        return referenceAutoriteOracle.getDomainAndCodeWithPpn(ppn).flatMap(t -> {
-        })
-    }*/
 
 
 }
