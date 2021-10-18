@@ -83,8 +83,6 @@ public class ReferenceAutoriteOracle {
                         .flatMap(result -> result.map( (row, rowMetadata) ->
                                 CodeLang.builder().fr(row.get(1, String.class)).en(row.get(2, String.class)).build())
                         )
-
-
                 )
                 .last()
                 .doOnError(e -> log.warn("No result from SQL with the code lang {}", code));

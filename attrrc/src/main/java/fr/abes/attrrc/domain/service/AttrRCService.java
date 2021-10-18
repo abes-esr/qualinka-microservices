@@ -7,16 +7,15 @@ import fr.abes.attrrc.domain.entity.XmlRootRecord;
 import fr.abes.attrrc.domain.repository.ReferenceAutoriteOracle;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -43,11 +42,12 @@ public class AttrRCService {
 
     public Mono<RCDto> attributs(String ppn) {
 
+        RCDto rcDto = new RCDto();
         String ppnVal = ppn.substring(0, ppn.indexOf("-"));
         int posVal = Integer.parseInt(ppn.substring(ppn.indexOf("-") + 1));
+
         return referenceAutoriteOracle.getEntityWithPpn(ppnVal)
                 .map(v -> {
-                    RCDto rcDto = new RCDto();
 
                     Predicate<Datafield> datafieldPredicateTag035 = t -> t.getTag().equals("035");
                     Predicate<Datafield> datafieldPredicateTag101 = t -> t.getTag().equals("101");
@@ -113,6 +113,7 @@ public class AttrRCService {
                             .map(Object::toString)
                             .collect(Collectors.joining());
                     rcDto.setRole_code(roleCode);
+
 
                     // Set Rameau
 
@@ -218,7 +219,7 @@ public class AttrRCService {
 
                     // Set Domain_code & Domain lib
 
-                    List<String> domainCode = new ArrayList<>();
+                    /*List<String> domainCode = new ArrayList<>();
                     List<String> domainLib = new ArrayList<>();
 
                     referenceAutoriteOracle.getDomainAndCodeWithPpn(ppnVal).doOnNext(t -> {
@@ -227,7 +228,7 @@ public class AttrRCService {
                     }).blockLast();
 
                     rcDto.setDomain_code(domainCode);
-                    rcDto.setDomain_lib(domainLib);
+                    rcDto.setDomain_lib(domainLib);*/
 
                     // Set OtherIdDoc
 
@@ -252,14 +253,21 @@ public class AttrRCService {
                     findSubfield(v, datafieldPredicateTag210, subfieldPredicateCodeA)
                             .ifPresent(t -> rcDto.setPublisherPlace(t.getSubfield()));
 
-                    // Set Role_Lang
+                    // Set Code Lang
+
+                    referenceAutoriteOracle.getCodeLangFrEn(roleCode).doOnNext(t -> {
+                        rcDto.setRole_fr(t.getFr());
+                        rcDto.setRole_en(t.getEn());
+                    })
+                    .subscribe();
+
 
                     return rcDto;
 
                 })
-                .zipWhen(t -> referenceAutoriteOracle.getcitation(ppnVal))
+                .zipWith(referenceAutoriteOracle.getcitation(ppnVal))
                 .flatMap(t -> {
-                    t.getT1().setAppellation(t.getT2());
+                    t.getT1().setCitation(t.getT2());
                     return Mono.just(t.getT1());
                 });
 
@@ -306,6 +314,12 @@ public class AttrRCService {
                 .filter(subfieldPredicate)
                 .findFirst();
     }
+
+    /*private Mono<RCDto> setDomain(String ppn) {
+
+        return referenceAutoriteOracle.getDomainAndCodeWithPpn(ppn).flatMap(t -> {
+        })
+    }*/
 
 
 }
