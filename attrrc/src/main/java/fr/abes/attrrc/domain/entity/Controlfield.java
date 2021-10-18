@@ -6,13 +6,12 @@ import lombok.NoArgsConstructor;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlValue;
 
-@Getter
 @NoArgsConstructor
+@Getter
 public class Controlfield {
-
     @XmlAttribute(name="tag")
     private String tag;
-
     @XmlValue
     private String controlfield;
+
 }

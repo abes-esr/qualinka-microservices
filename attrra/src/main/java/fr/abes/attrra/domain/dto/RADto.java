@@ -1,5 +1,6 @@
 package fr.abes.attrra.domain.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,6 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @XmlRootElement(name = "result")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class RADto {
     String id;
     String dateCreationNotice;

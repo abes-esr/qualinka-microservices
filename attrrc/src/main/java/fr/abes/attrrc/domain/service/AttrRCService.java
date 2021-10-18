@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuples;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,16 +23,13 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+
 @RequiredArgsConstructor
 @Slf4j
 @Service
 public class AttrRCService {
 
-    private final WebClient.Builder webClientBuilder;
     private final ReferenceAutoriteOracle referenceAutoriteOracle;
-
-    @Value("${solr.base-url}")
-    private String solrBaseUrl;
 
     // This method returns filter function which will log request data
     // Using this for DEBUG mod
