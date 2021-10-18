@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 @SpringBootTest
 class FindrcApplicationTests {
 
-	/*@Autowired
-	ReferenceAutoriteOracle referenceAutoriteOracle;*/
+	@Autowired
+	ReferenceAutoriteOracle referenceAutoriteOracle;
 
 	/*@Test
 	void contextLoads() {

@@ -3,21 +3,21 @@ version: '3.9'
 services:
 
   spring-config-server:
-    image: 4duytran/microservice-spring-cloud-config-server:0.0.1-SNAPSHOT
+    image: abesesr/microservice-spring-cloud-config-server:0.0.1-SNAPSHOT
     expose:
       - 8888
     networks:
       - microservice
 
   eureka-naming-server:
-    image: 4duytran/microservice-eureka-naming-server:0.0.1-SNAPSHOT
+    image: abesesr/microservice-eureka-naming-server:0.0.1-SNAPSHOT
     ports:
       - '8761:8761'
     networks:
       - microservice
 
   api-gateway:
-    image: 4duytran/microservice-api-gateway:0.0.1-SNAPSHOT
+    image: abesesr/microservice-api-gateway:0.0.1-SNAPSHOT
     ports:
       - '8765:8765'
     depends_on:
@@ -35,7 +35,7 @@ services:
       - microservice
 
   find-ra-idref:
-    image: 4duytran/microservice-find-ra-idref:0.0.1-SNAPSHOT
+    image: abesesr/microservice-find-ra-idref:0.0.1-SNAPSHOT
     expose:
       - 8780
     depends_on:
@@ -54,7 +54,7 @@ services:
       - microservice
 
   find-nonlinked-rc-sudoc:
-    image: 4duytran/microservice-find-nonlinked-rc-sudoc:0.0.1-SNAPSHOT
+    image: abesesr/microservice-find-nonlinked-rc-sudoc:0.0.1-SNAPSHOT
     expose:
       - 8781
     depends_on:
@@ -75,7 +75,7 @@ services:
       - microservice
 
   linkedrc:
-    image: 4duytran/microservice-linked_rc_idref_sudoc:0.0.1-SNAPSHOT
+    image: abesesr/microservice-linked_rc_idref_sudoc:0.0.1-SNAPSHOT
     expose:
       - 8782
     depends_on:
@@ -95,7 +95,7 @@ services:
       - microservice
 
   attrra:
-    image: 4duytran/microservice-attrra:0.0.1-SNAPSHOT
+    image: abesesr/microservice-attrra:0.0.1-SNAPSHOT
     expose:
       - 8783
     depends_on:
@@ -114,7 +114,7 @@ services:
       - microservice
 
   attrrc:
-    image: 4duytran/microservice-attrrc:0.0.1-SNAPSHOT
+    image: abesesr/microservice-attrrc:0.0.1-SNAPSHOT
     expose:
       - 8784
     depends_on:
@@ -128,6 +128,7 @@ services:
       SPRING.CLOUD.CONFIG.PROFILE: localhost
       EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://eureka-naming-server:8761/eureka
       SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+      JAVA_OPTS: "-Doracle.jdbc.timezoneAsRegion=false -Duser.timezone=CEST"
       JASYPT.ENCRYPTOR.PASSWORD: ${MASTER_PASSWORD}
     networks:
       - microservice

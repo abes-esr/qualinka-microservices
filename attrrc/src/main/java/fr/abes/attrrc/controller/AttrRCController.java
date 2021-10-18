@@ -21,9 +21,7 @@ public class AttrRCController {
 
 
     @GetMapping("req")
-    public Mono<RCDto> getAll(
-                             @RequestParam(value="ppn") String ppn
-                            ) {
+    public Mono<RCDto> getAll(@RequestParam(value="ppn") String ppn) {
 
         log.info("Connect to AttrRC Service");
 

@@ -158,7 +158,31 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
-        
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-r2dbc</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.oracle.database.r2dbc</groupId>
+            <artifactId>oracle-r2dbc</artifactId>
+            <version>0.1.0</version>
+        </dependency>
+
+        <!-- For Oracle XML SQL -->
+        <!-- https://www.oracle.com/database/technologies/maven-central-guide.html -->
+        <dependency>
+            <groupId>com.oracle.database.xml</groupId>
+            <artifactId>xdb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.database.xml</groupId>
+            <artifactId>xmlparserv2</artifactId>
+        </dependency>
+
+
+
         <!--<dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
@@ -295,8 +319,16 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <image>
-                        <name>4duytran/microservice-${finalName}:${revision}</name>
+                        <name>abesesr/microservice-${finalName}:${revision}</name>
+                        <publish>true</publish>
                     </image>
+                    <docker>
+                        <publishRegistry>
+                            <username>${docker.user}</username>
+                            <password>${docker.password}</password>
+                            <url>https://hub.docker.com/</url>
+                        </publishRegistry>
+                    </docker>
                     <pullPolicy>IF_NOT_PRESENT</pullPolicy>
                 </configuration>
             </plugin>
