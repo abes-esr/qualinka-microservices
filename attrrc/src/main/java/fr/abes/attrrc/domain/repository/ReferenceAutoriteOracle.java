@@ -1,27 +1,21 @@
 package fr.abes.attrrc.domain.repository;
 
-import fr.abes.attrrc.domain.dto.RCDto;
 import fr.abes.attrrc.domain.entity.CodeLang;
 import fr.abes.attrrc.domain.entity.XmlRootRecord;
 import io.r2dbc.spi.ConnectionFactory;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import oracle.xdb.XMLType;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.r2dbc.repository.Query;
-import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 import java.io.StringReader;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Slf4j
