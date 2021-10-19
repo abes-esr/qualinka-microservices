@@ -114,7 +114,7 @@ services:
       - microservice
 
   attrrc:
-    image: 4duytran/microservice-attrrc:0.0.1-SNAPSHOT
+    image: abesesr/microservice-attrrc:0.0.1-SNAPSHOT
     expose:
       - 8784
     depends_on:
