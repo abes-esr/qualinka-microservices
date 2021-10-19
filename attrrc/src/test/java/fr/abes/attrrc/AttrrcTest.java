@@ -5,6 +5,7 @@ import com.ulisesbocchio.jasyptspringboot.configuration.EnableEncryptablePropert
 import fr.abes.attrrc.domain.entity.XmlRootRecord;
 import fr.abes.attrrc.domain.repository.ReferenceAutoriteOracle;
 import io.r2dbc.spi.ConnectionFactory;
+
 import lombok.extern.slf4j.Slf4j;
 import oracle.xdb.XMLType;
 import org.junit.jupiter.api.BeforeAll;
@@ -15,9 +16,9 @@ import org.springframework.context.annotation.Import;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Unmarshaller;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import java.io.StringReader;
 import java.sql.SQLException;
 import java.util.concurrent.CountDownLatch;
@@ -54,48 +55,34 @@ public class AttrrcTest {
                 }, System.out::println, countDownLatch::countDown);*/
 
         Mono.from(connectionFactory.create())
-            .flatMapMany(connection -> Flux.from(connection
-                                                    .createStatement("select DATA_XML from NOTICESBIBIO where ppn = '04853658X'")
-                                                    .execute())
-                                        .flatMap(result ->result.map((row, rowMetadata) -> row.get(0, XMLType.class)))
-                                        .doOnNext(v -> {
-                                            try {
+                .flatMapMany(connection -> Flux.from(connection
+                                .createStatement("select DATA_XML from NOTICESBIBIO where ppn = '04853658X'")
+                                .execute())
+                        .flatMap(result ->result.map((row, rowMetadata) -> row.get(0, XMLType.class)))
+                        .doOnNext(v -> {
+                            try {
 
-                                                String xmlString = v.getString();
-                                                JAXBContext jaxbContext = JAXBContext.newInstance(XmlRootRecord.class);
-                                                Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+                                String xmlString = v.getString();
+                                JAXBContext jaxbContext = JAXBContext.newInstance(XmlRootRecord.class);
+                                Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 
-                                                XmlRootRecord xmlRootRecord = (XmlRootRecord) jaxbUnmarshaller.unmarshal(new StringReader(xmlString));
+                                XmlRootRecord xmlRootRecord = (XmlRootRecord) jaxbUnmarshaller.unmarshal(new StringReader(xmlString));
 
-                                                xmlRootRecord.getDatafieldList().forEach(t -> {
-                                                    System.out.println("Tag = " + t.getTag());
-                                                    t.getSubfieldList().forEach(e -> {
-                                                        System.out.println(e.getCode() + ":" + e.getSubfield());
-                                                    });
-                                                });
+                                xmlRootRecord.getDatafieldList().forEach(t -> {
+                                    System.out.println("Tag = " + t.getTag());
+                                    t.getSubfieldList().forEach(e -> {
+                                        System.out.println(e.getCode() + ":" + e.getSubfield());
+                                    });
+                                });
 
-                                            } catch (SQLException | JAXBException e) {
-                                                e.printStackTrace();
-                                            }
-                                        })
-                                        .thenMany(connection.close()))
-            .subscribe();
+                            } catch (SQLException | JAXBException e) {
+                                e.printStackTrace();
+                            }
+                        })
+                        .thenMany(connection.close()))
+                .subscribe(System.out::println, System.out::println,countDownLatch::countDown);
 
-        //countDownLatch.await();
+        countDownLatch.await();
     }
 
-    @Test
-    void loadOracleFromService() throws InterruptedException {
-        referenceAutoriteOracle.getEntityWithPpn("04853658X").subscribe(t -> {
-            t.getDatafieldList().forEach(v -> {
-                System.out.println("Tag = " + v.getTag());
-                v.getSubfieldList().forEach(e -> {
-                    System.out.println(e.getCode() + ":" + e.getSubfield());
-                });
-            });
-        });
-
-        referenceAutoriteOracle.getDomainAndCodeWithPpn("04853658X").subscribe(System.out::println);
-
-    }
 }

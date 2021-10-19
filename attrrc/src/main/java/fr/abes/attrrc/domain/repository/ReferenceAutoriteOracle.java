@@ -3,19 +3,27 @@ package fr.abes.attrrc.domain.repository;
 import fr.abes.attrrc.domain.entity.CodeLang;
 import fr.abes.attrrc.domain.entity.XmlRootRecord;
 import io.r2dbc.spi.ConnectionFactory;
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Unmarshaller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import oracle.xdb.XMLType;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import java.io.StringReader;
 import java.sql.SQLException;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -24,8 +32,28 @@ import java.util.Map;
 public class ReferenceAutoriteOracle {
 
     private final ConnectionFactory connectionFactory ;
+    private final WebClient.Builder webClientBuilder;
+
+    public Mono<XmlRootRecord> getEntityWithPpnWebclient(String ppn) {
+
+        WebClient webClient = webClientBuilder.baseUrl("https://www.sudoc.fr/").build();
+
+        return webClient.get().uri(uriBuilder -> uriBuilder
+                        .path(ppn + ".abes")
+                        .build())
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
+                .accept(MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML)
+                .retrieve()
+                .bodyToMono(XmlRootRecord.class)
+                .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(2)))
+                .doOnError(v -> log.error("ERROR => {}", v.getMessage()))
+                .onErrorResume(v -> Mono.empty());
+
+
+    }
 
     public Mono<XmlRootRecord> getEntityWithPpn(String ppn) {
+
         return Mono.from(connectionFactory.create())
                 .flatMapMany(connection -> Flux.from(connection
                                                 .createStatement("select DATA_XML from NOTICESBIBIO where ppn = :ppn")
@@ -34,7 +62,9 @@ public class ReferenceAutoriteOracle {
                     .flatMap(result ->result.map((row, rowMetadata) -> row.get(0, XMLType.class)))
                     .map(v -> {
                         try {
+
                             String xmlString = v.getString();
+                            System.out.println(xmlString);
                             JAXBContext jaxbContext = JAXBContext.newInstance(XmlRootRecord.class);
                             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 
@@ -65,6 +95,22 @@ public class ReferenceAutoriteOracle {
                     return map;
                 })));
 
+    }
+
+    public Mono<String> getCode(String ppn, int pos) {
+        List<String> codeList = new ArrayList<>();
+         return Mono.from(connectionFactory.create())
+                .flatMapMany(connection -> Flux.from(connection
+                        .createStatement("select posfield,datas,tag from BIBLIO_TABLE_FRBR_EXTEND where ppn= :ppn and tag like '70%'  and tag like '%$4' order by to_number(posfield),possubfield asc")
+                        .bind("ppn", ppn)
+                        .execute())
+                    .flatMap(result -> result.map( ((row, rowMetadata) -> row.get(1, String.class))))
+                )
+                 .index()
+                 .filter(t -> t.getT1() == pos-1)
+                 .flatMap(t -> Mono.just(t.getT2()))
+                 .last()
+                 .doOnError(e -> log.warn("No result from SQL for the code lang with the PPN {}", ppn));
     }
 
     public Mono<CodeLang> getCodeLangFrEn(String code) {

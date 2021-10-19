@@ -9,12 +9,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuples;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -46,7 +45,9 @@ public class AttrRCService {
         String ppnVal = ppn.substring(0, ppn.indexOf("-"));
         int posVal = Integer.parseInt(ppn.substring(ppn.indexOf("-") + 1));
 
-        return referenceAutoriteOracle.getEntityWithPpn(ppnVal)
+        Mono<XmlRootRecord> xmlRootRecord = referenceAutoriteOracle.getEntityWithPpnWebclient(ppnVal);
+
+        return xmlRootRecord
                 .map(v -> {
 
                     Predicate<Datafield> datafieldPredicateTag035 = t -> t.getTag().equals("035");
@@ -219,17 +220,17 @@ public class AttrRCService {
 
                     // Set Domain_code & Domain lib
 
-                    List<String> domainCode = new ArrayList<>();
+                    /*List<String> domainCode = new ArrayList<>();
                     List<String> domainLib = new ArrayList<>();
 
                     referenceAutoriteOracle.getDomainAndCodeWithPpn(ppnVal).doOnNext(t -> {
                         domainCode.add(String.join("", t.keySet()));
                         domainLib.add(String.join("", t.values()));
-                    }).blockLast();
+                    });
 
                     rcDto.setDomain_code(domainCode);
                     rcDto.setDomain_lib(domainLib);
-
+*/
                     // Set OtherIdDoc
 
                     rcDto.setOtherIdDoc(v.getDatafieldList().stream().filter(datafieldPredicateTag035)
@@ -253,14 +254,6 @@ public class AttrRCService {
                     findSubfield(v, datafieldPredicateTag210, subfieldPredicateCodeA)
                             .ifPresent(t -> rcDto.setPublisherPlace(t.getSubfield()));
 
-                    // Set Code Lang
-
-                    referenceAutoriteOracle.getCodeLangFrEn(roleCode).doOnNext(t -> {
-                        rcDto.setRole_fr(t.getFr());
-                        rcDto.setRole_en(t.getEn());
-                    })
-                    .subscribe();
-
                     return rcDto;
 
                 })
@@ -268,9 +261,34 @@ public class AttrRCService {
                 .flatMap(t -> {
                     t.getT1().setCitation(t.getT2());
                     return Mono.just(t.getT1());
+                })
+                .zipWith(referenceAutoriteOracle.getCode(ppnVal,posVal))
+                .flatMap(t -> {
+                    t.getT1().setRole_code(t.getT2());
+                    return Mono.zip(Mono.just(t.getT1()), referenceAutoriteOracle.getCodeLangFrEn(t.getT2()))
+                            .flatMap(x -> {
+                                x.getT1().setRole_fr(x.getT2().getFr());
+                                x.getT1().setRole_en(x.getT2().getEn());
+                                return Mono.just(x.getT1());
+                            });
+                })
+                .zipWhen(t -> {
+                    Flux<Map<String,String>> mapCode = referenceAutoriteOracle.getDomainAndCodeWithPpn(ppnVal);
+                    return mapCode.collectList();
+                })
+                .flatMap(t -> {
+
+                    t.getT1().setDomain_code(t.getT2().stream().flatMap(v -> v.entrySet().stream())
+                            .map(Map.Entry::getKey)
+                            .collect(Collectors.toList()));
+                    t.getT1().setDomain_lib(t.getT2().stream().flatMap(v -> v.entrySet().stream())
+                            .map(Map.Entry::getValue)
+                            .collect(Collectors.toList()));
+                    return Mono.just(t.getT1());
                 });
 
     }
+
 
     private StringBuilder getReduceStringBuilderWith2Predicate(Predicate<Subfield> subfieldPredicateCode1,
                                                                Predicate<Subfield> subfieldPredicateCode2,

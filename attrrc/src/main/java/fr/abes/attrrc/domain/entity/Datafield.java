@@ -1,10 +1,12 @@
 package fr.abes.attrrc.domain.entity;
 
+
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import java.util.List;
 
 @NoArgsConstructor
