@@ -1,14 +1,13 @@
 package fr.abes.attrrc.domain.entity;
 
-import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 
 @Data
-@Builder
-public class CodeLang {
+public class LibRole {
 
     @Id
-    private String posfield;
-    private String datas;
+    private String code;
+    private String fr;
+    private String en;
 }

@@ -5,7 +5,6 @@ import com.ulisesbocchio.jasyptspringboot.configuration.EnableEncryptablePropert
 import fr.abes.attrrc.domain.entity.XmlRootRecord;
 import fr.abes.attrrc.domain.repository.ReferenceAutoriteOracle;
 import io.r2dbc.spi.ConnectionFactory;
-
 import lombok.extern.slf4j.Slf4j;
 import oracle.xdb.XMLType;
 import org.junit.jupiter.api.BeforeAll;

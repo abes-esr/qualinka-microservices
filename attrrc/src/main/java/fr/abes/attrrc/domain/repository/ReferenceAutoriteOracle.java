@@ -2,7 +2,9 @@ package fr.abes.attrrc.domain.repository;
 
 import fr.abes.attrrc.domain.entity.CodeLang;
 import fr.abes.attrrc.domain.entity.XmlRootRecord;
+import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactory;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import oracle.xdb.XMLType;
@@ -60,6 +62,7 @@ public class ReferenceAutoriteOracle {
                                                 .bind("ppn", ppn)
                                                 .execute())
                     .flatMap(result ->result.map((row, rowMetadata) -> row.get(0, XMLType.class)))
+                    .doFinally(t -> subscribeClose(connection))
                     .map(v -> {
                         try {
 
@@ -93,7 +96,8 @@ public class ReferenceAutoriteOracle {
                     Map<String,String> map = new HashMap<>();
                     map.put(row.get(0, String.class), row.get(1, String.class));
                     return map;
-                })));
+                }))
+                .doFinally(t -> subscribeClose(connection)));
 
     }
 
@@ -105,6 +109,7 @@ public class ReferenceAutoriteOracle {
                         .bind("ppn", ppn)
                         .execute())
                     .flatMap(result -> result.map( ((row, rowMetadata) -> row.get(1, String.class))))
+                    .doFinally(t -> subscribeClose(connection))
                 )
                  .index()
                  .filter(t -> t.getT1() == pos-1)
@@ -113,7 +118,7 @@ public class ReferenceAutoriteOracle {
                  .doOnError(e -> log.warn("No result from SQL for the code lang with the PPN {}", ppn));
     }
 
-    public Mono<CodeLang> getCodeLangFrEn(String code) {
+    /*public Mono<CodeLang> getCodeLangFrEn(String code) {
 
         return Mono.from(connectionFactory.create())
                 .flatMapMany(connection -> Flux.from(connection
@@ -123,12 +128,13 @@ public class ReferenceAutoriteOracle {
                         .flatMap(result -> result.map( (row, rowMetadata) ->
                                 CodeLang.builder().fr(row.get(1, String.class)).en(row.get(2, String.class)).build())
                         )
+                        .doFinally(t -> subscribeClose(connection))
                 )
                 .last()
                 .doOnError(e -> log.warn("No result from SQL with the code lang {}", code));
-    }
+    }*/
 
-    public Mono<String> getcitation(String ppn) {
+    /*public Mono<String> getcitation(String ppn) {
 
         return Mono.from(connectionFactory.create())
                 .flatMapMany(connection -> Flux.from(connection
@@ -138,8 +144,13 @@ public class ReferenceAutoriteOracle {
                         .flatMap(result -> result.map( (row, rowMetadata) ->
                                 row.get(0, String.class) + "/" + row.get(1, String.class))
                         )
+                        .doFinally(t -> subscribeClose(connection))
                 )
                 .last()
                 .doOnError(e -> log.warn("No result from SQL with the ppn {}", ppn));
+    }*/
+
+    private static void subscribeClose(Connection connection) {
+        Mono.from(connection.close()).subscribe();
     }
 }

@@ -1,7 +1,6 @@
 package fr.abes.attrrc.domain.entity;
 
 
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
