@@ -1,6 +1,8 @@
 package fr.abes.attrrc.domain.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -10,6 +12,7 @@ import java.util.List;
 
 @NoArgsConstructor
 @Getter
+@JsonIgnoreProperties(ignoreUnknown = true)
 @XmlRootElement(name="record")
 public class XmlRootRecord {
 

@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuples;
 
 import java.util.*;
@@ -41,14 +43,25 @@ public class AttrRCService {
 
     public Mono<RCDto> attributs(String ppn) {
 
+
         RCDto rcDto = new RCDto();
         String ppnVal = ppn.substring(0, ppn.indexOf("-"));
         int posVal = Integer.parseInt(ppn.substring(ppn.indexOf("-") + 1));
 
-        Mono<XmlRootRecord> xmlRootRecord = referenceAutoriteOracle.getEntityWithPpnWebclient(ppnVal);
+        List<String> domain_code = new ArrayList<>();
+        List<String> domain_lib = new ArrayList<>();
+
+        Flux<DomainCode> domainCodeFlux = domainCodeOracle.getCode(ppnVal);
+
+        domainCodeFlux.map(DomainCode::getCode).collectList().subscribe(domain_code::addAll);
+        domainCodeFlux.map(DomainCode::getValeure).collectList().subscribe(domain_lib::addAll);
+        rcDto.setDomain_code(domain_code);
+        rcDto.setDomain_lib(domain_lib);
+
+        Mono<XmlRootRecord> xmlRootRecord = referenceAutoriteOracle.getEntityWithPpn(ppnVal);
 
         return xmlRootRecord
-                .map(v -> {
+                .flatMap(v -> {
 
                     Predicate<Datafield> datafieldPredicateTag035 = t -> t.getTag().equals("035");
                     Predicate<Datafield> datafieldPredicateTag101 = t -> t.getTag().equals("101");
@@ -241,7 +254,8 @@ public class AttrRCService {
                     findSubfield(v, datafieldPredicateTag210, subfieldPredicateCodeA)
                             .ifPresent(t -> rcDto.setPublisherPlace(t.getSubfield()));
 
-                    return rcDto;
+
+                    return Mono.just(rcDto);
 
                 })
                 .zipWhen(t -> libRoleOracle.getLib(t.getRole_code()))
@@ -250,10 +264,7 @@ public class AttrRCService {
                     t.getT1().setRole_en(t.getT2().getEn());
                     return Mono.just(t.getT1());
                 })
-                .zipWhen(t -> {
-                    Flux<DomainCode> domainCodeFlux = domainCodeOracle.getCode(ppnVal);
-                    return domainCodeFlux.collectList();
-                })
+                /*.zipWhen(t -> domainCodeFlux.collectList())
                 .flatMap(t -> {
 
                     t.getT1().setDomain_code(t.getT2().stream()
@@ -263,12 +274,12 @@ public class AttrRCService {
                             .map(DomainCode::getValeure)
                             .collect(Collectors.toList()));
                     return Mono.just(t.getT1());
-                })
-                .zipWith(citationOracle.getCitation(ppnVal))
+                })*/
+                /*.zipWith(citationMono)
                 .flatMap(t -> {
                     t.getT1().setCitation(t.getT2().getCitation());
                     return Mono.just(t.getT1());
-                });
+                })*/;
 
     }
 

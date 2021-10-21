@@ -3,6 +3,9 @@ package fr.abes.attrrc;
 
 import com.ulisesbocchio.jasyptspringboot.configuration.EnableEncryptablePropertiesConfiguration;
 import fr.abes.attrrc.domain.entity.XmlRootRecord;
+import fr.abes.attrrc.domain.repository.CitationOracle;
+import fr.abes.attrrc.domain.repository.DomainCodeOracle;
+import fr.abes.attrrc.domain.repository.LibRoleOracle;
 import fr.abes.attrrc.domain.repository.ReferenceAutoriteOracle;
 import io.r2dbc.spi.ConnectionFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +35,13 @@ public class AttrrcTest {
 
     @Autowired
     ReferenceAutoriteOracle referenceAutoriteOracle;
+
+    @Autowired
+    private LibRoleOracle libRoleOracle;
+    @Autowired
+    private DomainCodeOracle domainCodeOracle;
+    @Autowired
+    private CitationOracle citationOracle;
 
 
     @BeforeAll
@@ -82,6 +92,26 @@ public class AttrrcTest {
                 .subscribe(System.out::println, System.out::println,countDownLatch::countDown);
 
         countDownLatch.await();
+    }
+
+    @Test
+    void testLoadOracleTime() throws InterruptedException {
+
+        /*CountDownLatch countDownLatch = new CountDownLatch(1);*/
+        /*long start1 = System.currentTimeMillis();
+        libRoleOracle.getLib("070").subscribe(System.out::println, System.out::println, () -> {
+            countDownLatch.countDown();
+            System.out.println(System.currentTimeMillis() - start1);
+        });
+*/
+
+       /* long start2 = System.currentTimeMillis();
+        domainCodeOracle.getCode("04853658X").subscribe(System.out::println, System.out::println, () -> {
+            countDownLatch.countDown();
+            System.out.println(System.currentTimeMillis() - start2);
+        });
+
+        countDownLatch.await();*/
     }
 
 }

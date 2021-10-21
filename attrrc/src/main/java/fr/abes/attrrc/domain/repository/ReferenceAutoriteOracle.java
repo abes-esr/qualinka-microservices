@@ -1,5 +1,11 @@
 package fr.abes.attrrc.domain.repository;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
 import fr.abes.attrrc.domain.entity.CodeLang;
 import fr.abes.attrrc.domain.entity.XmlRootRecord;
 import io.r2dbc.spi.Connection;
@@ -20,6 +26,7 @@ import reactor.util.retry.Retry;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import java.io.IOException;
 import java.io.StringReader;
 import java.sql.SQLException;
 import java.time.Duration;
@@ -65,19 +72,27 @@ public class ReferenceAutoriteOracle {
                     .doFinally(t -> subscribeClose(connection))
                     .map(v -> {
                         try {
-
-                            String xmlString = v.getString();
+                            /*String xmlString = v.getString();
                             System.out.println(xmlString);
                             JAXBContext jaxbContext = JAXBContext.newInstance(XmlRootRecord.class);
                             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 
-                            return (XmlRootRecord) jaxbUnmarshaller.unmarshal(new StringReader(xmlString));
+                            return (XmlRootRecord) jaxbUnmarshaller.unmarshal(new StringReader(xmlString));*/
 
-                        } catch (SQLException | JAXBException e) {
+
+                            String xmlString = v.getString();
+
+                            JacksonXmlModule xmlModule = new JacksonXmlModule();
+                            xmlModule.setDefaultUseWrapper(false);
+                            ObjectMapper objectMapper = new XmlMapper(xmlModule);
+                            objectMapper.registerModule(new JaxbAnnotationModule());
+
+                            return objectMapper.readValue(new StringReader(xmlString), XmlRootRecord.class);
+
+                        }  catch (SQLException | IOException e) {
                             e.printStackTrace();
                             return new XmlRootRecord();
                         }
-
                     }))
                     .last()
                     .doOnError(e -> log.warn("No result from SQL with ppn {}", ppn))
