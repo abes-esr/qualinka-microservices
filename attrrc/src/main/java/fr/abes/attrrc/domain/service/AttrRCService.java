@@ -47,7 +47,6 @@ public class AttrRCService {
         RCDto rcDto = new RCDto();
         String ppnVal = ppn.substring(0, ppn.indexOf("-"));
         int posVal = Integer.parseInt(ppn.substring(ppn.indexOf("-") + 1));
-
         List<String> domain_code = new ArrayList<>();
         List<String> domain_lib = new ArrayList<>();
 
@@ -256,11 +255,11 @@ public class AttrRCService {
 
                     return Mono.just(rcDto);
 
-                }).log()
+                })
+                .publishOn(Schedulers.boundedElastic()).log()
                 .flatMap(t -> citationOracle.getCitation(ppnVal)
                         .map(v -> {
                             t.setCitation(v.getCitation1() + "/" + v.getCitation3());
-                            System.out.println(v.getCitation1() + "/" + v.getCitation3());
                             return t;
                         })
                 ).log()
@@ -270,6 +269,17 @@ public class AttrRCService {
                                 t.setRole_en(v.getEn());
                                 return t;
                             })
+                ).log()
+                .flatMap(t -> domainCodeOracle.getCode(ppnVal).collectList()
+                        .map(v -> {
+                            t.setDomain_code(v.stream()
+                                    .map(DomainCode::getCode)
+                                    .collect(Collectors.toList()));
+                            t.setDomain_lib(v.stream()
+                                    .map(DomainCode::getValeure)
+                                    .collect(Collectors.toList()));
+                            return t;
+                        })
                 ).log()
 
 
