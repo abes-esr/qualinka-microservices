@@ -210,20 +210,20 @@ public class ReferenceContextuelService {
                     log.error(e.getLocalizedMessage());
                     e.printStackTrace();
                 })
-                .collectSortedList(Comparator.comparing(ReferenceAutoriteFromOracle::getPosfield))
+                .collectSortedList(Comparator.comparing(ReferenceAutoriteFromOracle::posfield))
                 .map(v ->
-                        v.stream().collect(Collectors.groupingBy(ReferenceAutoriteFromOracle::getPosfield))
+                        v.stream().collect(Collectors.groupingBy(ReferenceAutoriteFromOracle::posfield))
                                 .entrySet().stream().peek(s -> counter.getAndIncrement())
-                                .filter(t -> t.getValue().stream().noneMatch(e -> e.getTag().contains("$3")))
+                                .filter(t -> t.getValue().stream().noneMatch(e -> e.tag().contains("$3")))
                                 .reduce(referenceAutoriteList, (s, e) -> {
                                     ReferenceAutorite referenceAutorite = new ReferenceAutorite();
                                     e.getValue().forEach(t -> {
-                                        referenceAutorite.setPpn(t.getPpn() + "-" + counter.get());
-                                        if (t.getTag().contains("$a")) {
-                                            referenceAutorite.setLastName(t.getDatas());
+                                        referenceAutorite.setPpn(t.ppn() + "-" + counter.get());
+                                        if (t.tag().contains("$a")) {
+                                            referenceAutorite.setLastName(t.datas());
                                         }
-                                        if (t.getTag().contains("$b")) {
-                                            referenceAutorite.setFirstName(t.getDatas());
+                                        if (t.tag().contains("$b")) {
+                                            referenceAutorite.setFirstName(t.datas());
                                         }
                                     });
                                     s.add(referenceAutorite);

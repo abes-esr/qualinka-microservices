@@ -4,10 +4,10 @@ import fr.abes.attrrc.domain.dto.RCDto;
 import fr.abes.attrrc.domain.service.AttrRCService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
-import java.util.ArrayList;
+
+import java.sql.SQLException;
 
 @CrossOrigin(origins = "*")
 @Slf4j
@@ -17,14 +17,12 @@ import java.util.ArrayList;
 public class AttrRCController {
 
     private final AttrRCService attrRCService;
-    private final ResourceLoader resourceLoader;
 
 
     @GetMapping("req")
-    public Mono<RCDto> getAll(@RequestParam(value="ppn") String ppn) {
+    public Mono<RCDto> getAll(@RequestParam(value="ppn") String ppn) throws SQLException {
 
         log.info("Connect to AttrRC Service");
-
         return attrRCService.attributs(ppn);
 
 

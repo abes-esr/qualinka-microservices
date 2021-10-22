@@ -1,5 +1,6 @@
 package fr.abes.attrrc.domain.service;
 
+import fr.abes.attrrc.domain.dto.DomainCodeDto;
 import fr.abes.attrrc.domain.dto.RCDto;
 import fr.abes.attrrc.domain.entity.*;
 import fr.abes.attrrc.domain.repository.*;
@@ -11,6 +12,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.util.retry.Retry;
 
+import java.sql.SQLException;
 import java.time.Duration;
 import java.util.*;
 import java.util.function.Predicate;
@@ -25,7 +27,7 @@ import java.util.stream.Stream;
 @Service
 public class AttrRCService {
 
-    private final OracleProxy oracleProxy;
+    private final OracleReferenceAuth oracleReferenceAuth;
 
     // This method returns filter function which will log request data
     // Using this for DEBUG mod
@@ -37,16 +39,15 @@ public class AttrRCService {
         });
     }
 
-    public Mono<RCDto> attributs(String ppn) {
+    public Mono<RCDto> attributs(String ppn) throws SQLException {
 
 
         RCDto rcDto = new RCDto();
         String ppnVal = ppn.substring(0, ppn.indexOf("-"));
         int posVal = Integer.parseInt(ppn.substring(ppn.indexOf("-") + 1));
 
-        Mono<XmlRootRecord> xmlRootRecord = oracleProxy.getXmlRootRecord(ppnVal);
-
-        return xmlRootRecord.publishOn(Schedulers.boundedElastic())
+        return oracleReferenceAuth.getXmlRootRecordOracle(ppnVal)
+                .publishOn(Schedulers.boundedElastic())
                 .flatMap(v -> {
 
                     Predicate<Datafield> datafieldPredicateTag035 = t -> t.getTag().equals("035");
@@ -242,48 +243,28 @@ public class AttrRCService {
 
                     return Mono.just(rcDto);
 
-                }).publishOn(Schedulers.boundedElastic())
-                .flatMap(t ->
-                        Mono.zip(Mono.just(t),
-                            Mono.defer(() -> oracleProxy.getCitation(ppnVal))
-                                    .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(2)))
-                                    .doOnError(e -> log.warn("Can not fetch info from Findra service")),
-                            Mono.defer( () -> oracleProxy.getLibCode(t.getRole_code()))
-                                    .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(2)))
-                                    .doOnError(e -> log.warn("Can not fetch info from Findra service")),
-                            Mono.defer(() -> oracleProxy.getDomainCode(ppnVal).collectList())
-                                    .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(2)))
-                                    .doOnError(e -> log.warn("Can not fetch info from Findra service"))
-                        ).flatMap(v -> {
-                            v.getT1().setCitation(v.getT2().getCitation1() + "/" + v.getT2().getCitation3());
-                            v.getT1().setRole_fr(v.getT3().getFr());
-                            v.getT1().setRole_en(v.getT3().getEn());
-                            v.getT1().setDomain_code(v.getT4().stream().map(DomainCode::getCode).collect(Collectors.toList()));
-                            v.getT1().setDomain_lib(v.getT4().stream().map(DomainCode::getValeure).collect(Collectors.toList()));
-                            return Mono.just(v.getT1());
-                }));
-                /*.flatMap(t -> Mono.defer(() -> oracleProxy.getCitation(ppnVal))
-                        .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(2)))
-                        .doOnError(e -> log.warn("Can not fetch info from Findra service")).map(v -> {
-                    t.setCitation(v.getCitation1() + "/" +v.getCitation3());
-                    return t;
-                }))
-                .flatMap(t -> Mono.defer( () -> oracleProxy.getLibCode(t.getRole_code()))
-                        .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(2)))
-                        .doOnError(e -> log.warn("Can not fetch info from Findra service"))
-                        .map(v -> {
-                    t.setRole_fr(v.getFr());
-                    t.setRole_en(v.getEn());
-                    return t;
-                }))
-                .flatMap(t -> Mono.defer(() -> oracleProxy.getDomainCode(ppnVal).collectList())
-                        .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(2)))
-                        .doOnError(e -> log.warn("Can not fetch info from Findra service"))
-                        .map(v -> {
-                    t.setDomain_code(v.stream().map(DomainCode::getCode).collect(Collectors.toList()));
-                    t.setDomain_lib(v.stream().map(DomainCode::getValeure).collect(Collectors.toList()));
-                    return t;
-                }));*/
+                })
+                .publishOn(Schedulers.boundedElastic())
+                .flatMap(v -> oracleReferenceAuth.getCitationOracle(ppnVal)
+                        .map(t -> {
+                            v.setCitation(t.citation1() + "/" + t.citation3());
+                            return v;
+                        }))
+                .flatMap(v -> oracleReferenceAuth.getDomainCodeAndValue(ppnVal).collectList()
+                        .map(t -> {
+                            v.setDomain_code(t.stream().map(DomainCodeDto::code).collect(Collectors.toList()));
+                            v.setDomain_lib(t.stream().map(DomainCodeDto::valeure).collect(Collectors.toList()));
+                            return v;
+                        }))
+                .flatMap(v -> oracleReferenceAuth.getLibRoleOracle(v.getRole_code())
+                        .map(t -> {
+                            v.setRole_fr(t.fr());
+                            v.setRole_en(t.en());
+                            return v;
+                        }))
+                .doOnError(e -> log.warn("Not found resultat form SQL with the PPN {}", ppnVal))
+                .onErrorResume(t -> Mono.empty());
+
     }
 
 
