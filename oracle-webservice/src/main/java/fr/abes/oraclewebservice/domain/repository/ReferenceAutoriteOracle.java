@@ -1,20 +1,15 @@
-package fr.abes.attrrc.domain.repository;
+package fr.abes.oraclewebservice.domain.repository;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
-import fr.abes.attrrc.domain.entity.CodeLang;
-import fr.abes.attrrc.domain.entity.XmlRootRecord;
+import fr.abes.oraclewebservice.domain.entity.XmlRootRecord;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactory;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import oracle.xdb.XMLType;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Repository;
@@ -23,9 +18,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 import java.io.IOException;
 import java.io.StringReader;
 import java.sql.SQLException;

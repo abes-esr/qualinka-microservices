@@ -11,6 +11,7 @@ import reactivefeign.spring.config.EnableReactiveFeignClients;
 import java.io.IOException;
 
 @SpringBootApplication
+@EnableReactiveFeignClients
 @EnableEncryptableProperties
 public class AttrRCApplication {
 

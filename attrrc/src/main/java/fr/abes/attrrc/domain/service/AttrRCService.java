@@ -7,12 +7,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
-import reactor.util.function.Tuples;
+import reactor.util.retry.Retry;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -26,10 +25,7 @@ import java.util.stream.Stream;
 @Service
 public class AttrRCService {
 
-    private final ReferenceAutoriteOracle referenceAutoriteOracle;
-    private final LibRoleOracle libRoleOracle;
-    private final DomainCodeOracle domainCodeOracle;
-    private final CitationOracle citationOracle;
+    private final OracleProxy oracleProxy;
 
     // This method returns filter function which will log request data
     // Using this for DEBUG mod
@@ -47,19 +43,10 @@ public class AttrRCService {
         RCDto rcDto = new RCDto();
         String ppnVal = ppn.substring(0, ppn.indexOf("-"));
         int posVal = Integer.parseInt(ppn.substring(ppn.indexOf("-") + 1));
-        List<String> domain_code = new ArrayList<>();
-        List<String> domain_lib = new ArrayList<>();
 
-        /*Flux<DomainCode> domainCodeFlux = domainCodeOracle.getCode(ppnVal);
+        Mono<XmlRootRecord> xmlRootRecord = oracleProxy.getXmlRootRecord(ppnVal);
 
-        domainCodeFlux.map(DomainCode::getCode).collectList().subscribe(domain_code::addAll);
-        domainCodeFlux.map(DomainCode::getValeure).collectList().subscribe(domain_lib::addAll);
-        rcDto.setDomain_code(domain_code);
-        rcDto.setDomain_lib(domain_lib);*/
-
-        Mono<XmlRootRecord> xmlRootRecord = referenceAutoriteOracle.getEntityWithPpn(ppnVal);
-
-        return xmlRootRecord
+        return xmlRootRecord.publishOn(Schedulers.boundedElastic())
                 .flatMap(v -> {
 
                     Predicate<Datafield> datafieldPredicateTag035 = t -> t.getTag().equals("035");
@@ -255,57 +242,48 @@ public class AttrRCService {
 
                     return Mono.just(rcDto);
 
-                })
-                .publishOn(Schedulers.boundedElastic()).log()
-                .flatMap(t -> citationOracle.getCitation(ppnVal)
+                }).publishOn(Schedulers.boundedElastic())
+                .flatMap(t ->
+                        Mono.zip(Mono.just(t),
+                            Mono.defer(() -> oracleProxy.getCitation(ppnVal))
+                                    .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(2)))
+                                    .doOnError(e -> log.warn("Can not fetch info from Findra service")),
+                            Mono.defer( () -> oracleProxy.getLibCode(t.getRole_code()))
+                                    .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(2)))
+                                    .doOnError(e -> log.warn("Can not fetch info from Findra service")),
+                            Mono.defer(() -> oracleProxy.getDomainCode(ppnVal).collectList())
+                                    .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(2)))
+                                    .doOnError(e -> log.warn("Can not fetch info from Findra service"))
+                        ).flatMap(v -> {
+                            v.getT1().setCitation(v.getT2().getCitation1() + "/" + v.getT2().getCitation3());
+                            v.getT1().setRole_fr(v.getT3().getFr());
+                            v.getT1().setRole_en(v.getT3().getEn());
+                            v.getT1().setDomain_code(v.getT4().stream().map(DomainCode::getCode).collect(Collectors.toList()));
+                            v.getT1().setDomain_lib(v.getT4().stream().map(DomainCode::getValeure).collect(Collectors.toList()));
+                            return Mono.just(v.getT1());
+                }));
+                /*.flatMap(t -> Mono.defer(() -> oracleProxy.getCitation(ppnVal))
+                        .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(2)))
+                        .doOnError(e -> log.warn("Can not fetch info from Findra service")).map(v -> {
+                    t.setCitation(v.getCitation1() + "/" +v.getCitation3());
+                    return t;
+                }))
+                .flatMap(t -> Mono.defer( () -> oracleProxy.getLibCode(t.getRole_code()))
+                        .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(2)))
+                        .doOnError(e -> log.warn("Can not fetch info from Findra service"))
                         .map(v -> {
-                            t.setCitation(v.getCitation1() + "/" + v.getCitation3());
-                            return t;
-                        })
-                ).log()
-                .flatMap(t -> libRoleOracle.getLib(t.getRole_code())
-                            .map(v -> {
-                                t.setRole_fr(v.getFr());
-                                t.setRole_en(v.getEn());
-                                return t;
-                            })
-                ).log()
-                .flatMap(t -> domainCodeOracle.getCode(ppnVal).collectList()
+                    t.setRole_fr(v.getFr());
+                    t.setRole_en(v.getEn());
+                    return t;
+                }))
+                .flatMap(t -> Mono.defer(() -> oracleProxy.getDomainCode(ppnVal).collectList())
+                        .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(2)))
+                        .doOnError(e -> log.warn("Can not fetch info from Findra service"))
                         .map(v -> {
-                            t.setDomain_code(v.stream()
-                                    .map(DomainCode::getCode)
-                                    .collect(Collectors.toList()));
-                            t.setDomain_lib(v.stream()
-                                    .map(DomainCode::getValeure)
-                                    .collect(Collectors.toList()));
-                            return t;
-                        })
-                ).log()
-
-
-                /*.zipWhen(t -> libRoleOracle.getLib(t.getRole_code()))
-                .flatMap(t -> {
-                    t.getT1().setRole_fr(t.getT2().getFr());
-                    t.getT1().setRole_en(t.getT2().getEn());
-                    return Mono.just(t.getT1());
-                })*/
-                /*.zipWhen(t -> domainCodeFlux.collectList())
-                .flatMap(t -> {
-
-                    t.getT1().setDomain_code(t.getT2().stream()
-                            .map(DomainCode::getCode)
-                            .collect(Collectors.toList()));
-                    t.getT1().setDomain_lib(t.getT2().stream()
-                            .map(DomainCode::getValeure)
-                            .collect(Collectors.toList()));
-                    return Mono.just(t.getT1());
-                })*/
-                /*.zipWith(citationMono)
-                .flatMap(t -> {
-                    t.getT1().setCitation(t.getT2().getCitation());
-                    return Mono.just(t.getT1());
-                })*/;
-
+                    t.setDomain_code(v.stream().map(DomainCode::getCode).collect(Collectors.toList()));
+                    t.setDomain_lib(v.stream().map(DomainCode::getValeure).collect(Collectors.toList()));
+                    return t;
+                }));*/
     }
 
 

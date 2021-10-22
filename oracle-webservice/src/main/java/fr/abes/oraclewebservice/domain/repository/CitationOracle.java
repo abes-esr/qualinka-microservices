@@ -1,12 +1,8 @@
-package fr.abes.attrrc.domain.repository;
+package fr.abes.oraclewebservice.domain.repository;
 
-import fr.abes.attrrc.domain.entity.Citation;
-import fr.abes.attrrc.domain.entity.CodeLang;
-import fr.abes.attrrc.domain.entity.LibRole;
+import fr.abes.oraclewebservice.domain.entity.Citation;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
-import org.springframework.stereotype.Repository;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 

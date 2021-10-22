@@ -129,7 +129,26 @@ services:
       EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://eureka-naming-server:8761/eureka
       SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
       JAVA_OPTS: "-Doracle.jdbc.timezoneAsRegion=false -Duser.timezone=CEST"
-      JVM_OPTS: "-Djavax.xml.bind.JAXBContextFactory=com.sun.xml.bind.v2.ContextFactory"
+      JASYPT.ENCRYPTOR.PASSWORD: ${MASTER_PASSWORD}
+    networks:
+      - microservice
+
+  oracle-webservice:
+    image: abesesr/microservice-oracle-webservice:0.0.1-SNAPSHOT
+    expose:
+      - 8788
+    depends_on:
+      - spring-config-server
+      - eureka-naming-server
+    command: [ "./wait-for-it.sh", "spring-config-server:8888" ]
+    environment:
+      SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
+      SPRING.PROFILES.ACTIVE: localhost
+      SPRING.CONFIG.IMPORT: optional:configserver:http://spring-config-server:8888
+      SPRING.CLOUD.CONFIG.PROFILE: localhost
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://eureka-naming-server:8761/eureka
+      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+      JAVA_OPTS: "-Doracle.jdbc.timezoneAsRegion=false -Duser.timezone=CEST"
       JASYPT.ENCRYPTOR.PASSWORD: ${MASTER_PASSWORD}
     networks:
       - microservice
