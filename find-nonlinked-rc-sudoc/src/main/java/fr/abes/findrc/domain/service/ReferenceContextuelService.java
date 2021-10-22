@@ -108,7 +108,7 @@ public class ReferenceContextuelService {
                 .onErrorResume(x -> Mono.just(new ReferenceAutoriteDto(0, new ArrayList<>())));
     }
 
-    public Mono<ReferenceAutoriteDto> findAllRC(String fileName, String firstName, String lastName) {
+    /*public Mono<ReferenceAutoriteDto> findAllRC(String fileName, String firstName, String lastName) {
 
         List<ReferenceAutorite> referenceAutoriteDtoList = new ArrayList<>();
         ReferenceAutoriteDto referenceAutoriteGetDto = new ReferenceAutoriteDto();
@@ -151,7 +151,7 @@ public class ReferenceContextuelService {
                 .last()
                 .doOnError(e -> log.warn("Name not found or failed to parsing XML from SUDOC Server"))
                 .onErrorResume(x -> Mono.just(new ReferenceAutoriteDto(0, new ArrayList<>())));
-    }
+    }*/
 
     private Flux<ReferenceAutorite> referenceAutoriteMono(String ppn) {
 

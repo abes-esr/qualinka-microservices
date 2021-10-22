@@ -51,12 +51,12 @@ public class AttrRCService {
         List<String> domain_code = new ArrayList<>();
         List<String> domain_lib = new ArrayList<>();
 
-        Flux<DomainCode> domainCodeFlux = domainCodeOracle.getCode(ppnVal);
+        /*Flux<DomainCode> domainCodeFlux = domainCodeOracle.getCode(ppnVal);
 
         domainCodeFlux.map(DomainCode::getCode).collectList().subscribe(domain_code::addAll);
         domainCodeFlux.map(DomainCode::getValeure).collectList().subscribe(domain_lib::addAll);
         rcDto.setDomain_code(domain_code);
-        rcDto.setDomain_lib(domain_lib);
+        rcDto.setDomain_lib(domain_lib);*/
 
         Mono<XmlRootRecord> xmlRootRecord = referenceAutoriteOracle.getEntityWithPpn(ppnVal);
 
@@ -254,16 +254,31 @@ public class AttrRCService {
                     findSubfield(v, datafieldPredicateTag210, subfieldPredicateCodeA)
                             .ifPresent(t -> rcDto.setPublisherPlace(t.getSubfield()));
 
-
                     return Mono.just(rcDto);
 
-                })
-                .zipWhen(t -> libRoleOracle.getLib(t.getRole_code()))
+                }).log()
+                .flatMap(t -> citationOracle.getCitation(ppnVal)
+                        .map(v -> {
+                            t.setCitation(v.getCitation1() + "/" + v.getCitation3());
+                            System.out.println(v.getCitation1() + "/" + v.getCitation3());
+                            return t;
+                        })
+                ).log()
+                .flatMap(t -> libRoleOracle.getLib(t.getRole_code())
+                            .map(v -> {
+                                t.setRole_fr(v.getFr());
+                                t.setRole_en(v.getEn());
+                                return t;
+                            })
+                ).log()
+
+
+                /*.zipWhen(t -> libRoleOracle.getLib(t.getRole_code()))
                 .flatMap(t -> {
                     t.getT1().setRole_fr(t.getT2().getFr());
                     t.getT1().setRole_en(t.getT2().getEn());
                     return Mono.just(t.getT1());
-                })
+                })*/
                 /*.zipWhen(t -> domainCodeFlux.collectList())
                 .flatMap(t -> {
 

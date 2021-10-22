@@ -36,8 +36,8 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-@Repository
 @RequiredArgsConstructor
+@Repository
 public class ReferenceAutoriteOracle {
 
     private final ConnectionFactory connectionFactory ;

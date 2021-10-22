@@ -9,10 +9,10 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@Repository
+
 public interface CitationOracle extends ReactiveCrudRepository<Citation, String> {
 
-    @Query("select id, citation1, citation3 from BIBLIO_TABLE_GENERALE where ppn= :ppn")
+    @Query("select ppn, citation1, citation3 from BIBLIO_TABLE_GENERALE c where c.ppn= :ppn and ROWNUM = 1")
     Mono<Citation> getCitation(String ppn);
 
 
