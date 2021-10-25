@@ -1,13 +1,18 @@
 package fr.abes.attrrc.domain.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@XmlRootElement(name = "result")
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class RCDto {
     private String id;
     private String dateCreationNotice;
@@ -15,20 +20,28 @@ public class RCDto {
     private String ppnAut;
     private String appellation;
     private List<String> rameau;
-    private String subject600new;
-    private String subject600;
+    private List<String> subject600new;
+    private List<String> subject600;
+    private List<String> subject601;
+    private List<String> subject602;
+    private List<String> subject604;
+    private List<String> subject605;
     private List<String> subject607;
-    private String subject608;
-    private String dewey;
+    private List<String> subject608;
+    private List<String> dewey;
     private String title;
     private List<String> cocontributor;
+    private List<String> corporateBody;
     private String publicationDate;
+    private String originalPublicationDate;
     private List<String> domain_code;
     private List<String> domain_lib;
     private List<String> otherIdDoc;
-    private String docLang;
-    private String publisher;
-    private String publisherPlace;
+    private List<String> docLang;
+    private List<String> originalDocLang;
+    private List<String> publisher;
+    private List<String> publisherPlace;
+    private String genre;
     private String role_code;
     private String role_en;
     private String role_fr;
