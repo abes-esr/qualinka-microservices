@@ -43,7 +43,7 @@ public class FindRaController {
 
             //Resource resource = resourceLoader.getResource("classpath:solr-requetes/"+file+".properties");
 
-            String urlGit = "https://raw.githubusercontent.com/abes-esr/qualinka-findws-requests/main/"+ file+".properties";
+            String urlGit = "https://raw.githubusercontent.com/abes-esr/qualinka-findws-requests/master/"+ file+".properties";
             Resource resource = resourceLoader.getResource(urlGit);
 
             if (resource.exists()) {
