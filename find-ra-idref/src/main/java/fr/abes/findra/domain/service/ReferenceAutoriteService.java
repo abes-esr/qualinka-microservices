@@ -113,14 +113,16 @@ public class ReferenceAutoriteService {
                     ( x.getFirstName().split("\\.").length >= firstName.split("-").length ))
                 )
                 .map(x -> {
-                    referenceAutoriteGetDto.setPpnCounter(ppnCount.getAndIncrement()+1);
+                    referenceAutoriteGetDto.setCount(ppnCount.getAndIncrement()+1);
                     referenceAutoriteDtoList.add(x);
-                    referenceAutoriteGetDto.setReferenceAutorite(referenceAutoriteDtoList);
+                    referenceAutoriteGetDto.setIds(referenceAutoriteDtoList);
+                    referenceAutoriteGetDto.addQuery(firstName, lastName);
+                    referenceAutoriteGetDto.setQueries(fileName);
                     return referenceAutoriteGetDto;
                 })
             .last()
             .doOnError(e -> log.warn( "Name not found or failed to parsing JSON" ))
-            .onErrorResume(x -> Mono.just(new ReferenceAutoriteGetDto(0, new ArrayList<>())));
+            .onErrorResume(x -> Mono.just(new ReferenceAutoriteGetDto(0, null, fileName, new ArrayList<>())));
     }
 
 
