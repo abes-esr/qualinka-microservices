@@ -100,7 +100,7 @@ public class AttrRCService {
                             .map(t -> new StringBuilder(t.getSubfield()))
                             .reduce(new StringBuilder(), (a, b) -> {
                                 if (a.length() > 0) {
-                                    a.append(" ");
+                                    a.append(", ");
                                 }
                                 a.append(b);
                                 return a;
@@ -194,7 +194,7 @@ public class AttrRCService {
                             .collect(Collectors.toList()));
 
                     // Set Title
-                    rcDto.setTitle(v.getDatafieldList().stream().filter(datafieldPredicateTag200)
+                    rcDto.setTitle(removedUnicode989C(v.getDatafieldList().stream().filter(datafieldPredicateTag200)
                             .flatMap(t -> t.getSubfieldList().stream())
                             .filter(subfieldPredicateCodeA.or(subfieldPredicateCodeA).or(subfieldPredicateCodeE))
                             .map(t -> new StringBuilder(t.getSubfield()))
@@ -204,7 +204,7 @@ public class AttrRCService {
                                 }
                                 a.append(b);
                                 return a;
-                            }).toString());
+                            }).toString()));
 
                     // Set Contributor
                     rcDto.setCocontributor(IntStream.range(0, datafields.size()).filter(i -> i != posVal - 1)
@@ -304,14 +304,14 @@ public class AttrRCService {
                             .collect(Collectors.toList()));
 
                     // Set publisher
-                    rcDto.setPublisher(v.getDatafieldList().stream().filter(datafieldPredicateTag210)
+                    rcDto.setPublisher(v.getDatafieldList().stream().filter(datafieldPredicateTag210.or(datafieldPredicateTag214))
                             .flatMap(t -> t.getSubfieldList().stream())
                             .filter(subfieldPredicateCodeC)
                             .map(t -> String.valueOf(t.getSubfield()))
                             .collect(Collectors.toList()));
 
                     // Set publisherPlace
-                    rcDto.setPublisherPlace(v.getDatafieldList().stream().filter(datafieldPredicateTag210)
+                    rcDto.setPublisherPlace(v.getDatafieldList().stream().filter(datafieldPredicateTag210.or(datafieldPredicateTag214))
                             .flatMap(t -> t.getSubfieldList().stream())
                             .filter(subfieldPredicateCodeA)
                             .map(t -> String.valueOf(t.getSubfield()))
@@ -331,7 +331,7 @@ public class AttrRCService {
                 .publishOn(Schedulers.boundedElastic())
                 .flatMap(v -> oracleReferenceAuth.getCitationOracle(ppnVal)
                         .map(t -> {
-                            v.setCitation(t.citation1() + "/" + t.citation3());
+                            v.setCitation(removedUnicode989C(t.citation1() + "/" + t.citation3()));
                             return v;
                         }))
                 .flatMap(v -> oracleReferenceAuth.getDomainCodeAndValue(ppnVal).collectList()
@@ -443,5 +443,26 @@ public class AttrRCService {
                 .findFirst();
     }
 
+    /**
+     * Removed unicode 989 C.
+     *
+     * @param s the s
+     * @return the string
+     */
+    public static String removedUnicode989C(String s) {
+        String[] splitted = s.split("[" + '\u0098' + '\u009C' + "]");
+
+        // Si c'est plus grand que 3, c'est normal (un délimitateur par notice)
+        int l = splitted.length;
+        if (l > 3){
+            return s;
+        }
+        // Cleaned text() without Unicode \U0098, \U009C
+        StringBuilder builder = new StringBuilder(splitted[0]);
+        for (int i = 1; i < l; i++)
+            builder.append(splitted[i]);
+
+        return builder.toString();
+    }
 
 }
