@@ -69,50 +69,47 @@ public class ReferenceContextuelService {
                 //.map(mapStructMapper::ReferenceProxyToDto)
                 .flatMap(v -> Mono.just(v.getIds()))
                 .flatMapMany(Flux::fromIterable)
-                .flatMap(x -> {
-                    return referenceAutoriteMonoFromDatabase(x.getPpn())
-                            .doOnError(e -> {
-                                log.warn("Not found this PPN {} in Database", x.getPpn());
-                                log.error(e.getLocalizedMessage());
+                .flatMap(x -> referenceAutoriteMonoFromDatabase(x.getPpn())
+                        .doOnError(e -> {
+                            log.warn("Not found this PPN {} in Database", x.getPpn());
+                            log.error(e.getLocalizedMessage());
+                            e.printStackTrace();
+                        })
+                        .onErrorResume(t -> Mono.just(new ReferenceAutorite()))
+                        .filter(t -> !Strings.isNullOrEmpty(t.getFirstName()))
+                        .filter(t -> {
+                            try {
+                                return
+                                    !Strings.isNullOrEmpty(t.getLastName())
+                                    &&
+                                    (LuceneSearch.Search(t.getLastName(), lastName.replace("-", " ") + "~0.8") > 0)
+                                    &&
+                                    (
+                                    LuceneSearch.Search(t.getFirstName(), firstName.replace("-", " ") + "~0.8") > 0
+                                    || LuceneSearch.Search(t.getFirstName(), firstName.charAt(0) + "*" + "~0.8") > 0
+                                    || (firstName.replace(".", "").length() == 1 && t.getFirstName().equals(firstName))
+                                );
+                            } catch (ParseException e) {
                                 e.printStackTrace();
-                            })
-                            .onErrorResume(t -> Mono.just(new ReferenceAutorite()))
-                            .filter(t -> {
-                                System.out.println(t);
-                                try {
-                                    return
-                                        !Strings.isNullOrEmpty(t.getLastName())
-                                        &&
-                                        (LuceneSearch.Search(t.getLastName(), lastName.replace("-", " ") + "~0.8") > 0)
-                                        &&
-                                        (
-                                        LuceneSearch.Search(t.getFirstName(), firstName.replace("-", " ") + "~0.8") > 0
-                                        || LuceneSearch.Search(t.getFirstName(), firstName.charAt(0) + "*" + "~0.8") > 0
-                                        || (firstName.replace(".", "").length() == 1 && t.getFirstName().equals(firstName))
-                                    );
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
-                                    return false;
-                                }
-                            })
-                            .onErrorResume(v -> Mono.empty())
-                            .map(e -> {
-                                //System.out.println(e.getPpn() + ":" + e.getFirstName() + ":" + e.getLastName());
-                                referenceAutoriteDtoList.add(e);
-                                referenceAutoriteDto.setIds(referenceAutoriteDtoList);
-                                referenceAutoriteDto.addQuery(firstName, lastName);
-                                referenceAutoriteDto.setQueries(fileName);
-                                referenceAutoriteDto.setCount(ppnCount.getAndIncrement() + 1);
-                                return referenceAutoriteDto;
-                            });
-                })
-                .last()
+                                return false;
+                            }
+                        })
+                        .map(e -> {
+                            //System.out.println(e.getPpn() + ":" + e.getFirstName() + ":" + e.getLastName());
+                            referenceAutoriteDtoList.add(e);
+                            referenceAutoriteDto.setIds(referenceAutoriteDtoList);
+                            referenceAutoriteDto.addQuery(firstName, lastName);
+                            referenceAutoriteDto.setQueries(fileName);
+                            referenceAutoriteDto.setCount(ppnCount.getAndIncrement() + 1);
+                            return referenceAutoriteDto;
+                        }))
                 .doOnError(e -> {
                     log.warn("Name not found");
                     log.error(e.getLocalizedMessage());
                     e.printStackTrace();
                 })
-                .onErrorResume(x -> Mono.just(new ReferenceAutoriteDto(0, null, fileName,new ArrayList<>())));
+                .onErrorResume(x -> Mono.just(new ReferenceAutoriteDto(0, null, fileName,new ArrayList<>())))
+                .last();
     }
 
     /*public Mono<ReferenceAutoriteDto> findAllRC(String fileName, String firstName, String lastName) {
@@ -217,14 +214,18 @@ public class ReferenceContextuelService {
                     log.error(e.getLocalizedMessage());
                     e.printStackTrace();
                 })
-                .collectSortedList(Comparator.comparing(ReferenceAutoriteFromOracle::posfield))
+                .collectList()
                 .map(v ->
-                        v.stream().collect(Collectors.groupingBy(ReferenceAutoriteFromOracle::posfield))
-                                .entrySet().stream().peek(s -> counter.getAndIncrement())
+                        v.stream()
+                                .collect(Collectors.groupingBy(ReferenceAutoriteFromOracle::posfield))
+                                .entrySet().stream()
+                                .sorted(Comparator.comparingInt(t -> Integer.parseInt(t.getKey())))
+                                .peek(s -> counter.getAndIncrement())
                                 .filter(t -> t.getValue().stream().noneMatch(e -> e.tag().contains("$3")))
                                 .reduce(referenceAutoriteList, (s, e) -> {
+
                                     ReferenceAutorite referenceAutorite = new ReferenceAutorite();
-                                    e.getValue().forEach(t -> {
+                                    s.add(e.getValue().stream().map(t -> {
                                         referenceAutorite.setPpn(t.ppn() + "-" + counter.get());
                                         if (t.tag().contains("$a")) {
                                             referenceAutorite.setLastName(t.datas());
@@ -232,8 +233,20 @@ public class ReferenceContextuelService {
                                         if (t.tag().contains("$b")) {
                                             referenceAutorite.setFirstName(t.datas());
                                         }
-                                    });
-                                    s.add(referenceAutorite);
+                                        return referenceAutorite;
+                                    })
+                                            .collect(Collectors.toList())
+                                            .get(0));
+                                    /*e.getValue().forEach(t -> {
+                                        referenceAutorite.setPpn(t.ppn() + "-" + counter.get());
+                                        if (t.tag().contains("$a")) {
+                                            referenceAutorite.setLastName(t.datas());
+                                        }
+                                        if (t.tag().contains("$b")) {
+                                            referenceAutorite.setFirstName(t.datas());
+                                        }
+                                    });*/
+                                    //s.add(referenceAutorite);
                                     return s;
                                 }, (s1, s2) -> null)
                 )
