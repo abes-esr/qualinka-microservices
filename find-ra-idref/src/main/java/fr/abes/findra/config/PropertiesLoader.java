@@ -31,7 +31,18 @@ public class PropertiesLoader {
 
     private Resource loadSolrResource(String fileName) throws IOException {
         ResourceLoader resourceLoader = new DefaultResourceLoader();
-        return resourceLoader.getResource("classpath:solr-requetes/" + fileName +".properties");
+
+        /*String urlGit = "https://raw.githubusercontent.com/abes-esr/qualinka-findws-requests/main/"+ file+".properties";
+        Resource resource = resourceLoader.getResource(urlGit);*/
+
+        Resource resource = resourceLoader.getResource("classpath:solr-requetes/" + fileName +".properties");
+        if (resource.exists()) {
+            return resourceLoader.getResource("classpath:solr-requetes/" + fileName +".properties");
+        } else {
+            String urlGit = "https://raw.githubusercontent.com/abes-esr/qualinka-findws-requests/main/"+ fileName+".properties";
+            return resourceLoader.getResource(urlGit);
+        }
+
     }
 
 

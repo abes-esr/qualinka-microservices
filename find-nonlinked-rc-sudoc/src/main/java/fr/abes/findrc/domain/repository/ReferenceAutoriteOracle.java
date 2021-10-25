@@ -8,6 +8,7 @@ import org.davidmoten.rx.jdbc.Database;
 import org.davidmoten.rx.jdbc.annotations.Query;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Repository
 @Slf4j
@@ -26,6 +27,8 @@ public class ReferenceAutoriteOracle {
                 "order by posfield, possubfield")
                 .parameter(ppn)
                 .autoMap(ReferenceAutoriteFromOracle.class);
+
+
         return Flux.from(referenceAutoriteFromOracleFlowable);
     };
 }

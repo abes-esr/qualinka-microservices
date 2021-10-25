@@ -55,6 +55,7 @@ public class OracleR2dbcConfig {
                         .maxPoolSize(Runtime.getRuntime().availableProcessors() * 5)
 
                         .build();
+
         return Database.from(pool);
     }
 }

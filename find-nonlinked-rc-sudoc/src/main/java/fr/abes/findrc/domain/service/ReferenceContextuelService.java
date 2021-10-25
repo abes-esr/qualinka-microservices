@@ -2,6 +2,7 @@ package fr.abes.findrc.domain.service;
 
 import com.google.common.base.Strings;
 import fr.abes.findrc.domain.dto.ReferenceAutoriteDto;
+import fr.abes.findrc.domain.dto.ReferenceAutoriteDtoProxy;
 import fr.abes.findrc.domain.entity.ReferenceAutorite;
 import fr.abes.findrc.domain.entity.ReferenceAutoriteFromOracle;
 import fr.abes.findrc.domain.entity.XmlRootRecord;
@@ -56,48 +57,54 @@ public class ReferenceContextuelService {
     public Mono<ReferenceAutoriteDto> findAllRCFromDatabase(String fileName, String firstName, String lastName) {
 
         List<ReferenceAutorite> referenceAutoriteDtoList = new ArrayList<>();
-        ReferenceAutoriteDto referenceAutoriteGetDto = new ReferenceAutoriteDto();
+        ReferenceAutoriteDto referenceAutoriteDto = new ReferenceAutoriteDto();
         AtomicInteger ppnCount = new AtomicInteger();
 
-        return Mono.defer(() -> referenceAutoriteProxy.findraExchangeProxy("fromFindrc", fileName, firstName, lastName))
+        Mono<ReferenceAutoriteDtoProxy> referenceAutoriteDtoProxyMono = Mono.defer(() -> referenceAutoriteProxy.findraExchangeProxy("fromFindrc", fileName, firstName, lastName))
                 .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(2)))
                 .doOnError(e -> log.warn("Can not fetch info from Findra service"))
-                .onErrorResume(v -> Mono.empty())
-                .map(mapStructMapper::ReferenceProxyToDto)
-                .flatMapMany(v -> Flux.fromIterable(v.getIds()))
-                .distinct(ReferenceAutorite::getPpn)
-                .flatMap(x -> referenceAutoriteMonoFromDatabase(x.getPpn()))
-                .doOnError(e -> {
-                    log.error(e.getLocalizedMessage());
-                    e.printStackTrace();
-                })
-                .filter(x -> {
-                    try {
-                        return
-                            !Strings.isNullOrEmpty(x.getLastName())
-                            &&
-                            (LuceneSearch.Search(x.getLastName(), lastName.replace("-", " ") + "~0.8") > 0)
-                            &&
-                            (
-                            LuceneSearch.Search(x.getFirstName(), firstName.replace("-", " ") + "~0.8") > 0
-                            || LuceneSearch.Search(x.getFirstName(), firstName.charAt(0) + "*" + "~0.8") > 0
-                            || (firstName.replace(".", "").length() == 1 && x.getFirstName().equals(firstName))
-                            );
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                        return false;
-                    }
-                })
-                .onErrorResume(v -> Mono.empty())
-                .map(e -> {
-                    //System.out.println(e.getPpn() + ":" + e.getFirstName() + ":" + e.getLastName());
-                    referenceAutoriteDtoList.add(e);
-                    referenceAutoriteGetDto.setIds(referenceAutoriteDtoList);
-                    referenceAutoriteGetDto.addQuery(firstName, lastName);
-                    referenceAutoriteGetDto.setQueries(fileName);
-                    referenceAutoriteGetDto.setCount(ppnCount.getAndIncrement() + 1);
+                .onErrorResume(v -> Mono.empty());
 
-                    return referenceAutoriteGetDto;
+        return referenceAutoriteDtoProxyMono
+                //.map(mapStructMapper::ReferenceProxyToDto)
+                .flatMap(v -> Mono.just(v.getIds()))
+                .flatMapMany(Flux::fromIterable)
+                .flatMap(x -> {
+                    return referenceAutoriteMonoFromDatabase(x.getPpn())
+                            .doOnError(e -> {
+                                log.warn("Not found this PPN {} in Database", x.getPpn());
+                                log.error(e.getLocalizedMessage());
+                                e.printStackTrace();
+                            })
+                            .onErrorResume(t -> Mono.just(new ReferenceAutorite()))
+                            .filter(t -> {
+                                System.out.println(t);
+                                try {
+                                    return
+                                        !Strings.isNullOrEmpty(t.getLastName())
+                                        &&
+                                        (LuceneSearch.Search(t.getLastName(), lastName.replace("-", " ") + "~0.8") > 0)
+                                        &&
+                                        (
+                                        LuceneSearch.Search(t.getFirstName(), firstName.replace("-", " ") + "~0.8") > 0
+                                        || LuceneSearch.Search(t.getFirstName(), firstName.charAt(0) + "*" + "~0.8") > 0
+                                        || (firstName.replace(".", "").length() == 1 && t.getFirstName().equals(firstName))
+                                    );
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                    return false;
+                                }
+                            })
+                            .onErrorResume(v -> Mono.empty())
+                            .map(e -> {
+                                //System.out.println(e.getPpn() + ":" + e.getFirstName() + ":" + e.getLastName());
+                                referenceAutoriteDtoList.add(e);
+                                referenceAutoriteDto.setIds(referenceAutoriteDtoList);
+                                referenceAutoriteDto.addQuery(firstName, lastName);
+                                referenceAutoriteDto.setQueries(fileName);
+                                referenceAutoriteDto.setCount(ppnCount.getAndIncrement() + 1);
+                                return referenceAutoriteDto;
+                            });
                 })
                 .last()
                 .doOnError(e -> {

@@ -14,6 +14,10 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 @CrossOrigin(origins = "*")
 @Slf4j
 @RequiredArgsConstructor
@@ -37,7 +41,10 @@ public class FindRaController {
 
         if (!Strings.isNullOrEmpty(file)) {
 
-            Resource resource = resourceLoader.getResource("classpath:solr-requetes/"+file+".properties");
+            //Resource resource = resourceLoader.getResource("classpath:solr-requetes/"+file+".properties");
+
+            String urlGit = "https://raw.githubusercontent.com/abes-esr/qualinka-findws-requests/main/"+ file+".properties";
+            Resource resource = resourceLoader.getResource(urlGit);
 
             if (resource.exists()) {
 
