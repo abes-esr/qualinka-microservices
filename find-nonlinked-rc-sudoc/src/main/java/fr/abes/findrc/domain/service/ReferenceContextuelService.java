@@ -2,7 +2,6 @@ package fr.abes.findrc.domain.service;
 
 import com.google.common.base.Strings;
 import fr.abes.findrc.domain.dto.ReferenceAutoriteDto;
-import fr.abes.findrc.domain.dto.ReferenceAutoriteDtoProxy;
 import fr.abes.findrc.domain.entity.ReferenceAutorite;
 import fr.abes.findrc.domain.entity.ReferenceAutoriteFromOracle;
 import fr.abes.findrc.domain.entity.XmlRootRecord;
@@ -20,7 +19,6 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import reactor.util.retry.Retry;
 
 import java.time.Duration;
@@ -66,7 +64,7 @@ public class ReferenceContextuelService {
                 .doOnError(e -> log.warn("Can not fetch info from Findra service"))
                 .onErrorResume(v -> Mono.empty())
                 .map(mapStructMapper::ReferenceProxyToDto)
-                .flatMapMany(v -> Flux.fromIterable(v.getReferenceContextuel()))
+                .flatMapMany(v -> Flux.fromIterable(v.getIds()))
                 .distinct(ReferenceAutorite::getPpn)
                 .flatMap(x -> referenceAutoriteMonoFromDatabase(x.getPpn()))
                 .doOnError(e -> {
@@ -94,8 +92,10 @@ public class ReferenceContextuelService {
                 .map(e -> {
                     //System.out.println(e.getPpn() + ":" + e.getFirstName() + ":" + e.getLastName());
                     referenceAutoriteDtoList.add(e);
-                    referenceAutoriteGetDto.setReferenceContextuel(referenceAutoriteDtoList);
-                    referenceAutoriteGetDto.setPpnCounter(ppnCount.getAndIncrement() + 1);
+                    referenceAutoriteGetDto.setIds(referenceAutoriteDtoList);
+                    referenceAutoriteGetDto.addQuery(firstName, lastName);
+                    referenceAutoriteGetDto.setQueries(fileName);
+                    referenceAutoriteGetDto.setCount(ppnCount.getAndIncrement() + 1);
 
                     return referenceAutoriteGetDto;
                 })
@@ -105,7 +105,7 @@ public class ReferenceContextuelService {
                     log.error(e.getLocalizedMessage());
                     e.printStackTrace();
                 })
-                .onErrorResume(x -> Mono.just(new ReferenceAutoriteDto(0, new ArrayList<>())));
+                .onErrorResume(x -> Mono.just(new ReferenceAutoriteDto(0, null, fileName,new ArrayList<>())));
     }
 
     /*public Mono<ReferenceAutoriteDto> findAllRC(String fileName, String firstName, String lastName) {

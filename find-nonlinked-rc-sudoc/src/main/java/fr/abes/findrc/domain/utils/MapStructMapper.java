@@ -10,7 +10,7 @@ import org.mapstruct.Mappings;
 public interface MapStructMapper {
 
     @Mappings({
-            @Mapping(target="referenceContextuel", source="referenceAutoriteDtoProxy.referenceAutorite")
+            @Mapping(target="ids", source="referenceAutoriteDtoProxy.ids")
     })
     ReferenceAutoriteDto ReferenceProxyToDto (ReferenceAutoriteDtoProxy referenceAutoriteDtoProxy);
 

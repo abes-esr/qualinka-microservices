@@ -44,7 +44,7 @@ public class OracleR2dbcConfig {
                 Pools.nonBlocking()
                         .connectionProvider(ConnectionProvider.from(url, user, password))
                         // an unused connection will be closed after thirty minutes
-                        .maxIdleTime(30, TimeUnit.MINUTES)
+                        .maxIdleTime(5, TimeUnit.MINUTES)
                         // connections are checked for healthiness on checkout if the connection
                         // has been idle for at least 5 seconds
                         .healthCheck(DatabaseType.ORACLE)

@@ -13,6 +13,6 @@ import java.util.List;
 public class ReferenceAutoriteDtoProxy {
 
 
-    private int ppnCounter;
-    private List<ReferenceAutorite> referenceAutorite;
+    private int count;
+    private List<ReferenceAutorite> ids;
 }

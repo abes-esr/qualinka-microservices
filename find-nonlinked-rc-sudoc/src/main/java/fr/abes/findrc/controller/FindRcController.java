@@ -19,7 +19,6 @@ import java.util.ArrayList;
 public class FindRcController {
 
     private final ReferenceContextuelService referenceContextuelService;
-    private final ResourceLoader resourceLoader;
 
 
     @GetMapping("req")
@@ -29,18 +28,19 @@ public class FindRcController {
                                                 ) {
 
         log.info("Connect to Findra Service");
+        String getFile;
+        if (!Strings.isNullOrEmpty(file)) {
+            getFile = file;
+        } else {
+            getFile = "default-req-rc";
+            log.info("Loading propertie file => {}", getFile);
+        }
+
         if (firstName.charAt(0) == '*' || lastName.charAt(0) == '*') {
-            ReferenceAutoriteDto referenceAutoriteGetDto = new ReferenceAutoriteDto(0, new ArrayList<>());
+            ReferenceAutoriteDto referenceAutoriteGetDto = new ReferenceAutoriteDto(0, null, getFile,new ArrayList<>());
             return Mono.just(referenceAutoriteGetDto);
 
         } else {
-            String getFile;
-            if (!Strings.isNullOrEmpty(file)) {
-                getFile = file;
-            } else {
-                getFile = "default-req-rc";
-                log.info("Loading propertie file => {}", getFile);
-            }
 
             return referenceContextuelService.findAllRCFromDatabase(getFile,firstName,lastName);
         }
