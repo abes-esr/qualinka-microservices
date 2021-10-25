@@ -1,5 +1,7 @@
 package fr.abes.attrra.domain.entity;
 
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +11,7 @@ import java.util.List;
 
 @NoArgsConstructor
 @Getter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Datafield {
 
     @XmlAttribute(name="tag")

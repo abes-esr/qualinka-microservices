@@ -1,5 +1,7 @@
 package fr.abes.attrra.domain.entity;
 
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,11 +11,12 @@ import java.util.List;
 
 @NoArgsConstructor
 @Getter
+@JsonIgnoreProperties(ignoreUnknown = true)
 @XmlRootElement(name="record")
 public class XmlRootRecord {
-    @XmlElement(name = "controlfield")
-    private List<Controlfield> controlfieldList;
 
     @XmlElement(name = "datafield")
     private List<Datafield> datafieldList;
+    @XmlElement(name = "controlfield")
+    private List<Controlfield> controlfieldList;
 }

@@ -1,10 +1,10 @@
-package fr.abes.partitionInitiale;
+package fr.abes.attrra;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class PartitionInitialeApplicationTests {
+class FindrcApplicationTests {
 
 	@Test
 	void contextLoads() {
