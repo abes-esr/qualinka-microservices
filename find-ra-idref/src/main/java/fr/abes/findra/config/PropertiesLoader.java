@@ -39,7 +39,7 @@ public class PropertiesLoader {
         if (resource.exists()) {
             return resourceLoader.getResource("classpath:solr-requetes/" + fileName +".properties");
         } else {
-            String urlGit = "https://raw.githubusercontent.com/abes-esr/qualinka-findws-requests/main/"+ fileName+".properties";
+            String urlGit = "https://raw.githubusercontent.com/abes-esr/qualinka-findws-requests/master/"+ fileName+".properties";
             return resourceLoader.getResource(urlGit);
         }
 
