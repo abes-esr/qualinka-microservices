@@ -120,7 +120,7 @@ public class AttrRAService {
                             .flatMap(t -> t.getSubfieldList().stream())
                             .filter(t -> t.getCode().equals("a"))
                             .map(t -> String.valueOf(t.getSubfield()))
-                            .collect(Collector.of(ArrayList::new, ArrayList::add, (a, b) -> a, a -> null)));
+                            .collect(Collectors.toList()));
 
                     ra.setSource(v.getDatafieldList().stream()
                             .filter(t -> t.getTag().equals("810"))
