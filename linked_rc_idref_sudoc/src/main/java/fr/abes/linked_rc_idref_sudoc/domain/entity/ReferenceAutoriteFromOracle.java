@@ -1,14 +1,14 @@
 package fr.abes.linked_rc_idref_sudoc.domain.entity;
 
-import lombok.Data;
-import org.springframework.data.annotation.Id;
+import org.davidmoten.rx.jdbc.annotations.Column;
 
-@Data
-public class ReferenceAutoriteFromOracle {
-
-    @Id
-    private String ppn;
-    private String posfield;
-    private String tag;
-    private String datas;
+public interface ReferenceAutoriteFromOracle {
+    @Column
+    String ppn();
+    @Column
+    String posfield();
+    @Column
+    String tag();
+    @Column
+    String datas();
 }

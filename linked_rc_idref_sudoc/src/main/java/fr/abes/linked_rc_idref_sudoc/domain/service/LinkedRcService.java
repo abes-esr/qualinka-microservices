@@ -160,16 +160,16 @@ public class LinkedRcService {
                     log.error(e.getLocalizedMessage());
                     e.printStackTrace();
                 })
-                .collectSortedList(Comparator.comparing(ReferenceAutoriteFromOracle::getPosfield))
+                .collectSortedList(Comparator.comparing(ReferenceAutoriteFromOracle::posfield))
                 .map(v ->
-                        v.stream().collect(Collectors.groupingBy(ReferenceAutoriteFromOracle::getPosfield))
+                        v.stream().collect(Collectors.groupingBy(ReferenceAutoriteFromOracle::posfield))
                                 .entrySet().stream().peek(s -> counter.getAndIncrement())
-                                .filter(t -> t.getValue().stream().anyMatch(e -> e.getTag().contains("$3")))
+                                .filter(t -> t.getValue().stream().anyMatch(e -> e.tag().contains("$3")))
                                 .reduce(referenceContextuelleList, (s, e) -> {
                                     ReferenceContextuelle referenceContextuelle = new ReferenceContextuelle();
                                     e.getValue().forEach(t -> {
-                                        if (t.getTag().contains("$3") && t.getDatas().contains(ra_id)) {
-                                            referenceContextuelle.setPpn(t.getPpn() + "-" + counter.get());
+                                        if (t.tag().contains("$3") && t.datas().contains(ra_id)) {
+                                            referenceContextuelle.setPpn(t.ppn() + "-" + counter.get());
                                         }
                                         else {
                                             counter.get();
