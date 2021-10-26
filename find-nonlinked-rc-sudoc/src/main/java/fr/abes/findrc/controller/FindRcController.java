@@ -23,8 +23,8 @@ public class FindRcController {
 
     @GetMapping("req")
     public Mono<ReferenceAutoriteDto> getAll(@RequestParam(required = false) String file,
-                                             @RequestParam(value="prenom") String firstName,
-                                             @RequestParam(value="nom") String lastName
+                                             @RequestParam(value="firstName") String firstName,
+                                             @RequestParam(value="lastName") String lastName
                                                 ) {
 
         log.info("Connect to Findra Service");

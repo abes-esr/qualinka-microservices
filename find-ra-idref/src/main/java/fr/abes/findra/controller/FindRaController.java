@@ -33,8 +33,8 @@ public class FindRaController {
     @GetMapping("req")
     public Mono<ReferenceAutoriteGetDto> getAllRa(@RequestParam(required = false) String from,
                                                 @RequestParam(required = false) String file,
-                                                @RequestParam(value="prenom") String firstName,
-                                                @RequestParam(value="nom") String lastName
+                                                @RequestParam(value="firstName") String firstName,
+                                                @RequestParam(value="lastName") String lastName
                                                 ) {
 
         String getFile;
@@ -74,8 +74,8 @@ public class FindRaController {
     @GetMapping(value="debug/req", produces = MediaType.APPLICATION_JSON_VALUE)
     public Flux<ReferenceAutoriteGetDtoModeDebug> getAllRaAsModeDebug(@RequestParam(required = false) String from,
                                             @RequestParam(required = false) String file,
-                                            @RequestParam(value="prenom") String firstName,
-                                            @RequestParam(value="nom") String lastName
+                                            @RequestParam(value="firstName") String firstName,
+                                            @RequestParam(value="lastName") String lastName
     ) {
 
         String getFile;

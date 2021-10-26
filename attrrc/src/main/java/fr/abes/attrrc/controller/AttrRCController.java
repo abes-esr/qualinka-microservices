@@ -20,10 +20,10 @@ public class AttrRCController {
 
 
     @GetMapping("req")
-    public Mono<RCDto> getAll(@RequestParam(value="ppn") String ppn) throws SQLException {
+    public Mono<RCDto> getAll(@RequestParam(value="rc_id") String rc_id) throws SQLException {
 
         log.info("Connect to AttrRC Service");
-        return attrRCService.attributs(ppn);
+        return attrRCService.attributs(rc_id);
 
 
     }

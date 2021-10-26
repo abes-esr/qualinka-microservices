@@ -38,15 +38,15 @@ public class AttrRAService {
         });
     }
 
-    public Mono<RADto> attributs(String ppn) {
+    public Mono<RADto> attributs(String ra_id) {
 
         RADto ra = new RADto();
 
-        return oracleReferenceAuth.getXmlRootRecordOracle(ppn)
+        return oracleReferenceAuth.getXmlRootRecordOracle(ra_id)
                 .publishOn(Schedulers.boundedElastic())
                 .map(v -> {
 
-                    ra.setId(ppn);
+                    ra.setId(ra_id);
 
                     v.getControlfieldList()
                             .stream()

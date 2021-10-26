@@ -13,8 +13,8 @@ public interface ReferenceAutoriteProxy {
     @GetMapping("api/v2/req")
     Mono<ReferenceAutoriteDtoProxy> findraExchangeProxy(@RequestParam String from,
                                                         @RequestParam String file,
-                                                        @RequestParam(value="prenom") String firstName,
-                                                        @RequestParam(value="nom") String lastName);
+                                                        @RequestParam(value="firstName") String firstName,
+                                                        @RequestParam(value="lastName") String lastName);
 
 
 }

@@ -18,11 +18,11 @@ public class AttrRAController {
 
     @GetMapping("req")
     public Mono<RADto> getAll(
-                             @RequestParam(value="ppn") String ppn
+                             @RequestParam(value="ra_id") String ra_id
                             ) {
 
         log.info("Connect to AttrRA Service");
-        return attrRAService.attributs(ppn);
+        return attrRAService.attributs(ra_id);
     }
 
 }

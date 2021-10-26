@@ -38,12 +38,12 @@ public class AttrRCService {
         });
     }
 
-    public Mono<RCDto> attributs(String ppn) throws SQLException {
+    public Mono<RCDto> attributs(String rc_id) throws SQLException {
 
 
         RCDto rcDto = new RCDto();
-        String ppnVal = ppn.substring(0, ppn.indexOf("-"));
-        int posVal = Integer.parseInt(ppn.substring(ppn.indexOf("-") + 1));
+        String ppnVal = rc_id.substring(0, rc_id.indexOf("-"));
+        int posVal = Integer.parseInt(rc_id.substring(rc_id.indexOf("-") + 1));
 
         return oracleReferenceAuth.getXmlRootRecordOracle(ppnVal)
                 .publishOn(Schedulers.boundedElastic())
@@ -75,7 +75,7 @@ public class AttrRCService {
                     Predicate<Subfield> subfieldPredicateCodeE = t -> t.getCode().equals("e");
 
                     //Set ID
-                    rcDto.setId(ppn);
+                    rcDto.setId(rc_id);
 
                     // Set dateCreationNotice
                     v.getControlfieldList()
