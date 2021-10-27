@@ -2,8 +2,8 @@ package fr.abes.findrc.domain.service;
 
 import com.google.common.base.Strings;
 import fr.abes.findrc.domain.dto.ReferenceAutoriteDto;
+import fr.abes.findrc.domain.dto.ReferenceAutoriteGetDto;
 import fr.abes.findrc.domain.dto.ReferenceAutoriteDtoProxy;
-import fr.abes.findrc.domain.entity.ReferenceAutorite;
 import fr.abes.findrc.domain.entity.ReferenceAutoriteFromOracle;
 import fr.abes.findrc.domain.entity.XmlRootRecord;
 import fr.abes.findrc.domain.repository.ReferenceAutoriteOracle;
@@ -54,11 +54,15 @@ public class ReferenceContextuelService {
         });
     }
 
-    public Mono<ReferenceAutoriteDto> findAllRCFromDatabase(String fileName, String firstName, String lastName) {
+    public Mono<ReferenceAutoriteGetDto> findAllRCFromDatabase(String fileName, String firstName, String lastName) {
 
-        List<ReferenceAutorite> referenceAutoriteDtoList = new ArrayList<>();
-        ReferenceAutoriteDto referenceAutoriteDto = new ReferenceAutoriteDto();
-        AtomicInteger ppnCount = new AtomicInteger();
+        List<ReferenceAutoriteDto> referenceAutoriteDtoList = new ArrayList<>();
+        ReferenceAutoriteGetDto referenceAutoriteGetDto = new ReferenceAutoriteGetDto();
+        referenceAutoriteGetDto.setCount(0);
+        referenceAutoriteGetDto.setIds(new ArrayList<>());
+        referenceAutoriteGetDto.setQueries(fileName);
+        referenceAutoriteGetDto.addQuery(firstName,lastName);
+        AtomicInteger ppnCount = new AtomicInteger(0);
 
         Mono<ReferenceAutoriteDtoProxy> referenceAutoriteDtoProxyMono = Mono.defer(() -> referenceAutoriteProxy.findraExchangeProxy("fromFindrc", fileName, firstName, lastName))
                 .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(2)))
@@ -70,12 +74,6 @@ public class ReferenceContextuelService {
                 .flatMap(v -> Mono.just(v.getIds()))
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(x -> referenceAutoriteMonoFromDatabase(x.getPpn())
-                        .doOnError(e -> {
-                            log.warn("Not found this PPN {} in Database", x.getPpn());
-                            log.error(e.getLocalizedMessage());
-                            e.printStackTrace();
-                        })
-                        .onErrorResume(t -> Mono.just(new ReferenceAutorite()))
                         .filter(t -> !Strings.isNullOrEmpty(t.getFirstName()))
                         .filter(t -> {
                             try {
@@ -97,19 +95,17 @@ public class ReferenceContextuelService {
                         .map(e -> {
                             //System.out.println(e.getPpn() + ":" + e.getFirstName() + ":" + e.getLastName());
                             referenceAutoriteDtoList.add(e);
-                            referenceAutoriteDto.setIds(referenceAutoriteDtoList);
-                            referenceAutoriteDto.addQuery(firstName, lastName);
-                            referenceAutoriteDto.setQueries(fileName);
-                            referenceAutoriteDto.setCount(ppnCount.getAndIncrement() + 1);
-                            return referenceAutoriteDto;
+                            referenceAutoriteGetDto.setIds(referenceAutoriteDtoList);
+                            referenceAutoriteGetDto.setQueries(fileName);
+                            referenceAutoriteGetDto.setCount(ppnCount.getAndIncrement() + 1);
+                            return referenceAutoriteGetDto;
                         }))
+                .last()
+                .onErrorResume( t -> Mono.empty() )
                 .doOnError(e -> {
-                    log.warn("Name not found");
-                    log.error(e.getLocalizedMessage());
-                    e.printStackTrace();
+                    log.error( "ERROR => {}", e.getMessage() );
                 })
-                .onErrorResume(x -> Mono.just(new ReferenceAutoriteDto(0, null, fileName,new ArrayList<>())))
-                .last();
+                .switchIfEmpty(Mono.just(referenceAutoriteGetDto));
     }
 
     /*public Mono<ReferenceAutoriteDto> findAllRC(String fileName, String firstName, String lastName) {
@@ -157,7 +153,7 @@ public class ReferenceContextuelService {
                 .onErrorResume(x -> Mono.just(new ReferenceAutoriteDto(0, new ArrayList<>())));
     }*/
 
-    private Flux<ReferenceAutorite> referenceAutoriteMono(String ppn) {
+    /*private Flux<ReferenceAutoriteDto> referenceAutoriteMono(String ppn) {
 
         AtomicInteger counter = new AtomicInteger(0);
         WebClient webClient = webClientBuilder.baseUrl("https://www.sudoc.fr/").build();
@@ -181,10 +177,10 @@ public class ReferenceContextuelService {
                 )
                 .map(v -> {
                 //log.info("Execute by Thread : " + Thread.currentThread().getName());
-                /*System.out.println("TAG = " + v.getTag());
+                *//*System.out.println("TAG = " + v.getTag());
                 System.out.println("PPN = " + ppn);
-                System.out.println("POS = " + counter.get());*/
-                    ReferenceAutorite referenceAutoriteDto = new ReferenceAutorite();
+                System.out.println("POS = " + counter.get());*//*
+                    ReferenceAutoriteDto referenceAutoriteDto = new ReferenceAutoriteDto();
                     v.getSubfieldList().forEach(t -> {
 
                             //System.out.println(t.getCode() + " : " + t.getSubfield());
@@ -197,23 +193,19 @@ public class ReferenceContextuelService {
                             }
                         }
                     );
-                    /*System.out.println("==================================");*/
+                    *//*System.out.println("==================================");*//*
                     return referenceAutoriteDto;
                 })
                 .doOnEach(v -> counter.set(0))
-                .onErrorResume(v -> Flux.just(new ReferenceAutorite()));
-    }
+                .onErrorResume(v -> Flux.just(new ReferenceAutoriteDto()));
+    }*/
 
-    private Flux<ReferenceAutorite> referenceAutoriteMonoFromDatabase(String ppn) {
+    private Flux<ReferenceAutoriteDto> referenceAutoriteMonoFromDatabase(String ppn) {
 
-        List<ReferenceAutorite> referenceAutoriteList = new ArrayList<>();
+        List<ReferenceAutoriteDto> referenceAutoriteList = new ArrayList<>();
         AtomicInteger counter = new AtomicInteger(0);
 
         return referenceAutoriteOracle.getEntityWithPos(ppn)
-                .doOnError(e -> {
-                    log.error(e.getLocalizedMessage());
-                    e.printStackTrace();
-                })
                 .collectList()
                 .map(v ->
                         v.stream()
@@ -224,7 +216,7 @@ public class ReferenceContextuelService {
                                 .filter(t -> t.getValue().stream().noneMatch(e -> e.tag().contains("$3")))
                                 .reduce(referenceAutoriteList, (s, e) -> {
 
-                                    ReferenceAutorite referenceAutorite = new ReferenceAutorite();
+                                    ReferenceAutoriteDto referenceAutorite = new ReferenceAutoriteDto();
                                     s.add(e.getValue().stream().map(t -> {
                                         referenceAutorite.setPpn(t.ppn() + "-" + counter.get());
                                         if (t.tag().contains("$a")) {
@@ -237,21 +229,20 @@ public class ReferenceContextuelService {
                                     })
                                             .collect(Collectors.toList())
                                             .get(0));
-                                    /*e.getValue().forEach(t -> {
-                                        referenceAutorite.setPpn(t.ppn() + "-" + counter.get());
-                                        if (t.tag().contains("$a")) {
-                                            referenceAutorite.setLastName(t.datas());
-                                        }
-                                        if (t.tag().contains("$b")) {
-                                            referenceAutorite.setFirstName(t.datas());
-                                        }
-                                    });*/
-                                    //s.add(referenceAutorite);
                                     return s;
                                 }, (s1, s2) -> null)
                 )
                 .flatMapMany(Flux::fromIterable)
-                .onErrorResume(v -> Flux.just(new ReferenceAutorite()));
+                .onErrorResume( t -> Mono.error( new IllegalStateException( String.format("Not found this PPN %s in Database", ppn ) ) ) )
+                .doOnError(e -> {
+                    log.error( "ERROR => {}", e.getMessage() );
+                });
+                /*.doOnError(e -> {
+                    log.error(e.getLocalizedMessage());
+                    e.printStackTrace();
+                })
+                .onErrorResume(t ->  Flux.empty())
+                .switchIfEmpty(v -> Flux.just(new ReferenceAutoriteDto()));*/
     }
 
     //Utility function ( Check doublon with key of Java Stream() )

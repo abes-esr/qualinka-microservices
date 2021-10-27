@@ -22,6 +22,7 @@ import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -59,7 +60,8 @@ public class ReferenceAutoriteModeDebugService {
         List<String> requests = stringOperator.listOfSolrRequestFromPropertieFile(fileName, firstName, lastName);
         Map<String,String> mapOfRequestSolr = stringOperator.listOfRequestSolrForDebug(fileName, firstName, lastName);
         return Flux.fromIterable(mapOfRequestSolr.entrySet())
-                    .flatMap(v -> referenceAutoriteGetDtoModeDebugMono(v, flParams, firstName,  lastName));
+                    .flatMap(v -> referenceAutoriteGetDtoModeDebugMono(v, flParams, firstName,  lastName))
+                    .sort(Comparator.comparingInt(a -> Integer.parseInt(a.getNumberOfRequest().substring(1))));
     }
 
 

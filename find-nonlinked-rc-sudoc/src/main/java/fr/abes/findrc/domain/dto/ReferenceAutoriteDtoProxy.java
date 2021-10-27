@@ -1,6 +1,5 @@
 package fr.abes.findrc.domain.dto;
 
-import fr.abes.findrc.domain.entity.ReferenceAutorite;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,5 +13,5 @@ public class ReferenceAutoriteDtoProxy {
 
 
     private int count;
-    private List<ReferenceAutorite> ids;
+    private List<ReferenceAutoriteDto> ids;
 }

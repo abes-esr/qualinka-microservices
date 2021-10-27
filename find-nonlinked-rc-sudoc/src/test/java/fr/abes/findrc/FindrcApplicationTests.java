@@ -1,17 +1,9 @@
 package fr.abes.findrc;
 
-import fr.abes.findrc.domain.entity.ReferenceAutorite;
-import fr.abes.findrc.domain.entity.ReferenceAutoriteFromOracle;
 import fr.abes.findrc.domain.repository.ReferenceAutoriteOracle;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import reactor.core.publisher.Flux;
-
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 @SpringBootTest
 class FindrcApplicationTests {
