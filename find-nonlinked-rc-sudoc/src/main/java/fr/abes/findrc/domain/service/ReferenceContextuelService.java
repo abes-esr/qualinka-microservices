@@ -62,7 +62,7 @@ public class ReferenceContextuelService {
         referenceAutoriteGetDto.setIds(new ArrayList<>());
         referenceAutoriteGetDto.setQueries(fileName);
         referenceAutoriteGetDto.addQuery(firstName,lastName);
-        AtomicInteger ppnCount = new AtomicInteger(0);
+        AtomicInteger ppnCount = new AtomicInteger(1);
 
         Mono<ReferenceAutoriteDtoProxy> referenceAutoriteDtoProxyMono = Mono.defer(() -> referenceAutoriteProxy.findraExchangeProxy("fromFindrc", fileName, firstName, lastName))
                 .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(2)))
@@ -71,35 +71,36 @@ public class ReferenceContextuelService {
 
         return referenceAutoriteDtoProxyMono
                 //.map(mapStructMapper::ReferenceProxyToDto)
-                .flatMap(v -> Mono.just(v.getIds()))
+                .map(ReferenceAutoriteDtoProxy::getIds)
                 .flatMapMany(Flux::fromIterable)
-                .flatMap(x -> referenceAutoriteMonoFromDatabase(x.getPpn())
-                        .filter(t -> !Strings.isNullOrEmpty(t.getFirstName()))
-                        .filter(t -> {
-                            try {
-                                return
-                                    !Strings.isNullOrEmpty(t.getLastName())
-                                    &&
-                                    (LuceneSearch.Search(t.getLastName(), lastName.replace("-", " ") + "~0.8") > 0)
-                                    &&
-                                    (
-                                    LuceneSearch.Search(t.getFirstName(), firstName.replace("-", " ") + "~0.8") > 0
-                                    || LuceneSearch.Search(t.getFirstName(), firstName.charAt(0) + "*" + "~0.8") > 0
-                                    || (firstName.replace(".", "").length() == 1 && t.getFirstName().equals(firstName))
-                                );
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                                return false;
-                            }
-                        })
-                        .map(e -> {
-                            //System.out.println(e.getPpn() + ":" + e.getFirstName() + ":" + e.getLastName());
-                            referenceAutoriteDtoList.add(e);
-                            referenceAutoriteGetDto.setIds(referenceAutoriteDtoList);
-                            referenceAutoriteGetDto.setQueries(fileName);
-                            referenceAutoriteGetDto.setCount(ppnCount.getAndIncrement() + 1);
-                            return referenceAutoriteGetDto;
-                        }))
+                .flatMap(x -> referenceAutoriteMonoFromDatabase(x.getPpn()))
+                .filter(t -> !Strings.isNullOrEmpty(t.getFirstName()))
+                .filter(t -> {
+                    try {
+                        return
+                            !Strings.isNullOrEmpty(t.getLastName())
+                            &&
+                            (LuceneSearch.Search(t.getLastName(), lastName.replace("-", " ") + "~0.8") > 0)
+                            &&
+                            (
+                            LuceneSearch.Search(t.getFirstName(), firstName.replace("-", " ") + "~0.8") > 0
+                            || LuceneSearch.Search(t.getFirstName(), firstName.charAt(0) + "*" + "~0.8") > 0
+                            || (firstName.replace(".", "").length() == 1 && t.getFirstName().equals(firstName))
+                        );
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                        return false;
+                    }
+                })
+                .map(e -> {
+                    //System.out.println(e.getPpn() + ":" + e.getFirstName() + ":" + e.getLastName());
+                    referenceAutoriteDtoList.add(e);
+                    referenceAutoriteGetDto.setIds(referenceAutoriteDtoList);
+                    referenceAutoriteGetDto.setQueries(fileName);
+                    referenceAutoriteGetDto.setCount(ppnCount.getAndIncrement());
+                    System.out.println(ppnCount.get() + ": " + e);
+                    return referenceAutoriteGetDto;
+                })
                 .last()
                 .onErrorResume( t -> Mono.empty() )
                 .doOnError(e -> {
@@ -233,16 +234,10 @@ public class ReferenceContextuelService {
                                 }, (s1, s2) -> null)
                 )
                 .flatMapMany(Flux::fromIterable)
-                .onErrorResume( t -> Mono.error( new IllegalStateException( String.format("Not found this PPN %s in Database", ppn ) ) ) )
+                .onErrorResume( t -> Mono.error( new IllegalStateException( "Error connecting Database" ) ) )
                 .doOnError(e -> {
                     log.error( "ERROR => {}", e.getMessage() );
                 });
-                /*.doOnError(e -> {
-                    log.error(e.getLocalizedMessage());
-                    e.printStackTrace();
-                })
-                .onErrorResume(t ->  Flux.empty())
-                .switchIfEmpty(v -> Flux.just(new ReferenceAutoriteDto()));*/
     }
 
     //Utility function ( Check doublon with key of Java Stream() )
