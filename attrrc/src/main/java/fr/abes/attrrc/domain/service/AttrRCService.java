@@ -66,6 +66,7 @@ public class AttrRCService {
                     Predicate<Datafield> datafieldPredicateTag608 = t -> t.getTag().equals("608");
                     Predicate<Datafield> datafieldPredicateTag676 = t -> t.getTag().equals("676");
                     Predicate<Datafield> datafieldPredicateTag71 = t -> t.getTag().startsWith("71");
+                    Predicate<Subfield> subfieldPredicateCode2 = t -> t.getCode().equals("2");
                     Predicate<Subfield> subfieldPredicateCode3 = t -> t.getCode().equals("3");
                     Predicate<Subfield> subfieldPredicateCode4 = t -> t.getCode().equals("4");
                     Predicate<Subfield> subfieldPredicateCodeA = t -> t.getCode().equals("a");
@@ -73,6 +74,10 @@ public class AttrRCService {
                     Predicate<Subfield> subfieldPredicateCodeC = t -> t.getCode().equals("c");
                     Predicate<Subfield> subfieldPredicateCodeD = t -> t.getCode().equals("d");
                     Predicate<Subfield> subfieldPredicateCodeE = t -> t.getCode().equals("e");
+                    Predicate<Subfield> subfieldPredicateNotCode2 = t -> !t.getCode().equals("2");
+                    Predicate<Subfield> subfieldPredicateNotCode3 = t -> !t.getCode().equals("3");
+
+
 
                     //Set ID
                     rcDto.setId(rc_id);
@@ -166,25 +171,25 @@ public class AttrRCService {
                             .collect(Collectors.toList()));
 
                     // Set 600
-                    rcDto.setSubject600(getList60X(v,datafieldPredicateTag600));
+                    rcDto.setSubject600(getList60X(v, datafieldPredicateTag600, subfieldPredicateNotCode3));
 
                     // Set 601
-                    rcDto.setSubject601(getList60X(v,datafieldPredicateTag601));
+                    rcDto.setSubject601(getList60X(v, datafieldPredicateTag601, subfieldPredicateNotCode3));
 
                     // Set 602
-                    rcDto.setSubject602(getList60X(v,datafieldPredicateTag602));
+                    rcDto.setSubject602(getList60X(v,datafieldPredicateTag602, subfieldPredicateNotCode3));
 
                     // Set 604
-                    rcDto.setSubject604(getList60X(v,datafieldPredicateTag604));
+                    rcDto.setSubject604(getList60X(v,datafieldPredicateTag604, subfieldPredicateNotCode3));
 
                     // Set 605
-                    rcDto.setSubject605(getList60X(v,datafieldPredicateTag605));
+                    rcDto.setSubject605(getList60X(v,datafieldPredicateTag605, subfieldPredicateNotCode3));
 
                     // Set 607
-                    rcDto.setSubject607(getList607608(v,datafieldPredicateTag607));
+                    rcDto.setSubject607(getList60X(v, datafieldPredicateTag607, subfieldPredicateNotCode2, subfieldPredicateNotCode3));
 
                     // Set 608
-                    rcDto.setSubject608(getList607608(v,datafieldPredicateTag608));
+                    rcDto.setSubject608(getList60X(v, datafieldPredicateTag608, subfieldPredicateNotCode2, subfieldPredicateNotCode3));
 
                     // Set Set dewey
                     rcDto.setDewey(v.getDatafieldList().stream().filter(datafieldPredicateTag676)
@@ -196,7 +201,7 @@ public class AttrRCService {
                     // Set Title
                     rcDto.setTitle(removedUnicode989C(v.getDatafieldList().stream().filter(datafieldPredicateTag200)
                             .flatMap(t -> t.getSubfieldList().stream())
-                            .filter(subfieldPredicateCodeA.or(subfieldPredicateCodeA).or(subfieldPredicateCodeE))
+                            .filter(subfieldPredicateCodeA.or(subfieldPredicateCodeE))
                             .map(t -> new StringBuilder(t.getSubfield()))
                             .reduce(new StringBuilder(), (a, b) -> {
                                 if (a.length() > 0) {
@@ -211,10 +216,8 @@ public class AttrRCService {
                             .mapToObj(datafields::get)
                             .map(t -> {
                                 List<String> contributor = new ArrayList<>();
-                                StringBuilder stringBuilderContributor = getReduceStringBuilderWith2Predicate(
-                                        subfieldPredicateCodeA,
-                                        subfieldPredicateCodeB,
-                                        ", ",t);
+                                StringBuilder stringBuilderContributor = getReduceStringBuilderWithPredicate(
+                                        ", ",t,subfieldPredicateCodeA,subfieldPredicateCodeB);
                                 contributor.add(stringBuilderContributor.toString());
                                 return contributor;
                             })
@@ -227,60 +230,39 @@ public class AttrRCService {
 
                     rcDto.setCorporateBody(datafields71.stream().map(t -> {
                                 List<String> corporate = new ArrayList<>();
-                                StringBuilder stringBuilderCorporate = getReduceStringBuilderWith2Predicate(
-                                        subfieldPredicateCodeA,
-                                        subfieldPredicateCodeB,
-                                        ", ",t);
+                                StringBuilder stringBuilderCorporate = getReduceStringBuilderWithPredicate(
+                                        ", ",t,subfieldPredicateCodeA,subfieldPredicateCodeB);
                                 corporate.add(stringBuilderCorporate.toString());
                                 return corporate;
                             })
                             .flatMap(List::stream)
                             .collect(Collectors.toList()));
 
-                    // Set Contributor
-                    rcDto.setCocontributor(IntStream.range(0, datafields.size()).filter(i -> i != posVal - 1)
-                            .mapToObj(datafields::get)
-                            .map(t -> {
-                                List<String> contributor = new ArrayList<>();
-                                StringBuilder stringBuilderContributor = getReduceStringBuilderWith2Predicate(
-                                        subfieldPredicateCodeA,
-                                        subfieldPredicateCodeB,
-                                        ", ",t);
-                                contributor.add(stringBuilderContributor.toString());
-                                return contributor;
-                            })
-                            .flatMap(List::stream)
-                            .collect(Collectors.toList()));
 
-                    // Set publicationDate
-                    findSubfield(v, datafieldPredicateTag100, subfieldPredicateCodeA)
-                            .ifPresent(t -> {
-                                                if (t.getSubfield().length()>17){
-                                                    if (t.getSubfield().substring(9,10).equals("d")) {
-                                                        rcDto.setPublicationDate(t.getSubfield().substring(10,14));
-                                                    }
-                                                }
-                                            });
 
-                    if (rcDto.getPublicationDate() == null) {
-                        findSubfield(v, datafieldPredicateTag210, subfieldPredicateCodeD)
-                                .ifPresent(t -> rcDto.setPublicationDate(t.getSubfield()));
-
-                        if (rcDto.getPublicationDate() == null) {
-                            findSubfield(v, datafieldPredicateTag214, subfieldPredicateCodeD)
-                                    .ifPresent(t -> rcDto.setPublicationDate(t.getSubfield()));
-                        }
-                    }
-
-                    // Set originalPublicationDate
                     findSubfield(v, datafieldPredicateTag100, subfieldPredicateCodeA)
                             .ifPresent(t -> {
                                 if (t.getSubfield().length()>17){
-                                    if (t.getSubfield().substring(9,10).equals("e")) {
+                                    // Set publicationDate
+                                    if (t.getSubfield().charAt(9) == 'd') {
+                                        rcDto.setPublicationDate(t.getSubfield().substring(10,14));
+                                    }else {
+                                        findSubfield(v, datafieldPredicateTag210, subfieldPredicateCodeD)
+                                                .ifPresentOrElse(
+                                                        p -> rcDto.setPublicationDate(p.getSubfield()),
+                                                        () ->
+                                                        findSubfield(v, datafieldPredicateTag214, subfieldPredicateCodeD)
+                                                                .ifPresent(n -> rcDto.setPublicationDate(n.getSubfield()))
+                                                        );
+
+                                    }
+                                    // Set originalPublicationDate
+                                    if (t.getSubfield().charAt(9) == 'e') {
                                         rcDto.setOriginalPublicationDate(t.getSubfield().substring(10,14));
                                     }
                                 }
                             });
+
 
                     // Set OtherIdDoc
                     rcDto.setOtherIdDoc(v.getDatafieldList().stream().filter(datafieldPredicateTag035)
@@ -351,15 +333,20 @@ public class AttrRCService {
 
     }
 
-    //Pour les 60X on prend tous les dollars sauf le $3
-    private List<String> getList60X(XmlRootRecord v, Predicate<Datafield> datafieldPredicateTag60X) {
+    // Traitement les Datafield avec les tag 60x
+    // Capable de gérer Multi filters ( une liste de predicates ) avec OR NOT
+    // ex : (t -> !(t.getCode().equals("2") || t.getCode().equals("3"))
+    @SafeVarargs
+    private List<String> getList60X(XmlRootRecord v,
+                                    Predicate<Datafield> datafieldPredicateTag60X,
+                                    Predicate<Subfield>... predicates) {
         List<Datafield> datafields60X = v.getDatafieldList().stream()
                 .filter(datafieldPredicateTag60X).collect(Collectors.toList());
 
         return datafields60X.stream().map(t -> {
                     List<String> subfield60X = new ArrayList<>();
                     StringBuilder stringBuilder60X = t.getSubfieldList().stream()
-                            .filter(f -> !(f.getCode().equals("3")))
+                            .filter(combineFiltersWithAnd(predicates))
                             .map(x -> new StringBuilder(x.getSubfield()))
                             .reduce(new StringBuilder(), (a, b) -> {
                                 if (a.length() > 0) {
@@ -376,37 +363,15 @@ public class AttrRCService {
                 .collect(Collectors.toList());
     }
 
-    //Les predicats changent par rapport à 60X: pas $2 et pas $3
-    private List<String> getList607608(XmlRootRecord v, Predicate<Datafield> datafieldPredicateTag60X) {
-        List<Datafield> datafields60X = v.getDatafieldList().stream()
-                .filter(datafieldPredicateTag60X).collect(Collectors.toList());
 
-        return datafields60X.stream().map(t -> {
-            List<String> subfield60X = new ArrayList<>();
-            StringBuilder stringBuilder60X = t.getSubfieldList().stream()
-                    .filter(f -> !(f.getCode().equals("2") || f.getCode().equals("3")))
-                    .map(x -> new StringBuilder(x.getSubfield()))
-                    .reduce(new StringBuilder(), (a, b) -> {
-                        if (a.length() > 0) {
-                            a.append(", ");
-                        }
-                        a.append(b);
-                        return a;
-                    });
-
-            subfield60X.add(stringBuilder60X.toString());
-            return subfield60X;
-        })
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
-    }
-
-    private StringBuilder getReduceStringBuilderWith2Predicate(Predicate<Subfield> subfieldPredicateCode1,
-                                                               Predicate<Subfield> subfieldPredicateCode2,
-                                                               String prefix,
-                                                               Datafield t) {
+    // Capable de gérer Multi filters ( une liste de predicates ) avec OR
+    // ex : (t -> (t.getCode().equals("2") || t.getCode().equals("3"))
+    @SafeVarargs
+    private StringBuilder getReduceStringBuilderWithPredicate(String prefix,
+                                                              Datafield t,
+                                                              Predicate<Subfield>... predicates) {
         return t.getSubfieldList().stream()
-                .filter(subfieldPredicateCode1.or(subfieldPredicateCode2))
+                .filter(combineFiltersWithOr(predicates))
                 .map(x -> new StringBuilder(x.getSubfield()))
                 .reduce(new StringBuilder(), (a, b) -> {
                     if (a.length() > 0) {
@@ -417,25 +382,10 @@ public class AttrRCService {
                 });
     }
 
-    private StringBuilder getReduceStringBuilderWith3Predicate(
-            Predicate<Subfield> subfieldPredicateCode1,
-            Predicate<Subfield> subfieldPredicateCode2,
-            Predicate<Subfield> subfieldPredicateCode3,
-            String prefix,
-            Datafield t) {
-        return t.getSubfieldList().stream()
-                .filter(subfieldPredicateCode1.or(subfieldPredicateCode2).or(subfieldPredicateCode3))
-                .map(x -> new StringBuilder(x.getSubfield()))
-                .reduce(new StringBuilder(), (a, b) -> {
-                    if (a.length() > 0) {
-                        a.append(prefix);
-                    }
-                    a.append(b);
-                    return a;
-                });
-    }
 
-    private Optional<Subfield> findSubfield(XmlRootRecord xmlRootRecord, Predicate<Datafield> datafieldPredicate, Predicate<Subfield> subfieldPredicate) {
+    private Optional<Subfield> findSubfield(XmlRootRecord xmlRootRecord,
+                                            Predicate<Datafield> datafieldPredicate,
+                                            Predicate<Subfield> subfieldPredicate) {
 
         return xmlRootRecord.getDatafieldList().stream().filter(datafieldPredicate)
                 .flatMap(t -> t.getSubfieldList().stream())
@@ -464,5 +414,22 @@ public class AttrRCService {
 
         return builder.toString();
     }
+
+
+    @SafeVarargs
+    private static <T> Predicate<T> combineFiltersWithOr(Predicate<T>... predicates) {
+
+        return Stream.of(predicates).reduce(Predicate::or).orElse(x->false);
+    }
+
+    @SafeVarargs
+    private static <T> Predicate<T> combineFiltersWithAnd(Predicate<T>... predicates) {
+
+        return Stream.of(predicates).reduce(Predicate::and).orElse(x->false);
+    }
+
+
+
+
 
 }
