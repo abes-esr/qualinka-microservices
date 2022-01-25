@@ -73,6 +73,13 @@ public class OracleReferenceAuth {
 
     }
 
+    public Flux<String> getkeywordOracle(String ppn) {
+        Flowable<String> keywords = db.select("select datas from BIBLIO_TABLE_FRBR_EXTEND where ppn= ? and tag = '610$a'")
+                .parameter(ppn)
+                .get(v -> v.getString(1));
+        return Flux.from(keywords);
+    }
+
 
 
 

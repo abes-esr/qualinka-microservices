@@ -23,8 +23,8 @@ public class AttrRCController {
     public Mono<RCDto> getAll(@RequestParam(value="rc_id") String rc_id) throws SQLException {
 
         log.info("Connect to AttrRC Service");
-        return attrRCService.attributs(rc_id);
 
+        return attrRCService.attributs(rc_id);
 
     }
 

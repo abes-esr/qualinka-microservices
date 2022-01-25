@@ -46,7 +46,6 @@ public class AttrRCService {
         int posVal = Integer.parseInt(rc_id.substring(rc_id.indexOf("-") + 1));
 
         return oracleReferenceAuth.getXmlRootRecordOracle(ppnVal)
-                .publishOn(Schedulers.boundedElastic())
                 .flatMap(v -> {
 
                     Predicate<Datafield> datafieldPredicateTag035 = t -> t.getTag().equals("035");
@@ -310,7 +309,6 @@ public class AttrRCService {
                     return Mono.just(rcDto);
 
                 })
-                .publishOn(Schedulers.boundedElastic())
                 .flatMap(v -> oracleReferenceAuth.getCitationOracle(ppnVal)
                         .map(t -> {
                             v.setCitation(removedUnicode989C(t.citation1() + "/" + t.citation3()));
@@ -328,8 +326,18 @@ public class AttrRCService {
                             v.setRole_en(t.en());
                             return v;
                         }))
+                .flatMap(v -> oracleReferenceAuth.getkeywordOracle(ppnVal).collectList()
+                        .map(t -> {
+                            List<String> keywordsList = t.stream().map(e -> e.split("[,:;/.]"))
+                                    .flatMap(Stream::of)
+                                    .map(String::trim)
+                                    .collect(Collectors.toList());
+                            v.setKeyword(keywordsList);
+                            return v;
+                        }))
                 .doOnError(e -> log.warn("Not found resultat from SQL with the PPN {}", ppnVal))
-                .onErrorResume(t -> Mono.empty());
+                .onErrorResume(t -> Mono.empty())
+                .switchIfEmpty(Mono.just(rcDto));
 
     }
 
