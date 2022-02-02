@@ -145,25 +145,28 @@ public class AttrRCService {
 
                     // Set 600 new
                     List<Datafield> datafields600new = v.getDatafieldList().stream()
-                                                        .filter(datafieldPredicateTag600).collect(Collectors.toList());
+                                                        .filter(datafieldPredicateTag600)
+                                                        .collect(Collectors.toList());
                     AtomicInteger j = new AtomicInteger(0);
 
                     rcDto.setSubject600new(
                             datafields600new.stream().map(t -> {
                                 List<String> subfield600new = new ArrayList<>();
-                                StringBuilder stringBuilder600new = t.getSubfieldList().stream()
-                                        .filter(f -> !(f.getCode().equals("2") || f.getCode().equals("3")))
-                                        .map(x -> new StringBuilder(x.getSubfield()))
-                                        .reduce(new StringBuilder(), (a, b) -> {
-                                            if (j.get()==1) {
-                                                a.append(" (");
-                                            }
-                                            a.append(b);
-                                            j.getAndIncrement();
-                                            return a;
-                                        });
-
-                                subfield600new.add(stringBuilder600new.append(")").toString());
+                                List<Subfield> subfieldsList = t.getSubfieldList().stream().filter(subfieldPredicateCode3).collect(Collectors.toList());
+                                if (subfieldsList.size() > 0) {
+                                    StringBuilder stringBuilder600new = t.getSubfieldList().stream()
+                                            .filter(f -> !(f.getCode().equals("2") || f.getCode().equals("3")))
+                                            .map(x -> new StringBuilder(x.getSubfield()))
+                                            .reduce(new StringBuilder(), (a, b) -> {
+                                                if (j.get()==1) {
+                                                    a.append(" (");
+                                                }
+                                                a.append(b);
+                                                j.getAndIncrement();
+                                                return a;
+                                            });
+                                    subfield600new.add(stringBuilder600new.append(")").toString());
+                                }
                                 return subfield600new;
                             })
                             .flatMap(List::stream)
