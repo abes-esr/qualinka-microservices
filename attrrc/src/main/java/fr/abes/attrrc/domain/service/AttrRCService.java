@@ -243,7 +243,7 @@ public class AttrRCService {
                             .ifPresent(t -> {
                                 if (t.getSubfield().length()>17){
                                     // Set publicationDate
-                                    if (t.getSubfield().charAt(9) == 'd') {
+                                    if (t.getSubfield().charAt(8) == 'd') {
                                         rcDto.setPublicationDate(t.getSubfield().substring(10,14));
                                     }else {
                                         findSubfield(v, datafieldPredicateTag210, subfieldPredicateCodeD)
@@ -256,8 +256,9 @@ public class AttrRCService {
 
                                     }
                                     // Set originalPublicationDate
-                                    if (t.getSubfield().charAt(9) == 'e') {
-                                        rcDto.setOriginalPublicationDate(t.getSubfield().substring(10,14));
+                                    if (t.getSubfield().charAt(8) == 'e') {
+                                        System.out.println("ICI:"+t.getSubfield());
+                                        rcDto.setOriginalPublicationDate(t.getSubfield().substring(13,17));
                                     }
                                 }
                             });
@@ -311,7 +312,7 @@ public class AttrRCService {
                 })
                 .flatMap(v -> oracleReferenceAuth.getCitationOracle(ppnVal)
                         .map(t -> {
-                            v.setCitation(removedUnicode989C(t.citation1() + "/" + t.citation3()));
+                            v.setCitation(removedUnicode989C(t.citation1() + " / " + t.citation3()));
                             return v;
                         }))
                 .flatMap(v -> oracleReferenceAuth.getDomainCodeAndValue(ppnVal).collectList()
