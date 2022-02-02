@@ -126,18 +126,47 @@ public class AttrRCService {
 
                     rcDto.setRameau(datafieldsRameau.stream().map(t -> {
                                         List<String> rameau = new ArrayList<>();
-                                        StringBuilder stringBuilderRameau = t.getSubfieldList().stream()
-                                                .filter(u -> !(u.getCode().equals("2") || u.getCode().equals("3")))
-                                                .map(x -> new StringBuilder(x.getSubfield()))
-                                                .reduce(new StringBuilder(), (a, b) -> {
-                                                    if (a.length() > 0) {
-                                                        a.append(" -- ");
-                                                    }
-                                                    a.append(b);
-                                                    return a;
-                                                });
-                                        rameau.add(stringBuilderRameau.toString());
+                                        List<Subfield> subfieldsList = t.getSubfieldList().stream().filter(u -> (u.getCode().equals("2") && u.getSubfield().contains("rameau"))).collect(Collectors.toList());
+                                        if (subfieldsList.size() > 0) {
+                                            StringBuilder stringBuilderRameau = t.getSubfieldList().stream()
+                                                    .filter(u -> !(u.getCode().equals("2") || u.getCode().equals("3")))
+                                                    .map(x -> new StringBuilder(x.getSubfield()))
+                                                    .reduce(new StringBuilder(), (a, b) -> {
+                                                        if (a.length() > 0) {
+                                                            a.append(" -- ");
+                                                        }
+                                                        a.append(b);
+                                                        return a;
+                                                    });
+                                            rameau.add(stringBuilderRameau.toString());
+                                        }
                                         return rameau;
+                                    })
+                                    .flatMap(List::stream)
+                                    .collect(Collectors.toList())
+                    );
+
+                    // Set Mesh
+                    List<Datafield> datafieldsMesh = v.getDatafieldList().stream()
+                            .filter(datafieldPredicateTag606).collect(Collectors.toList());
+
+                    rcDto.setMesh(datafieldsMesh.stream().map(t -> {
+                                        List<String> mesh = new ArrayList<>();
+                                        List<Subfield> subfieldsList = t.getSubfieldList().stream().filter(u -> (u.getCode().equals("2") && u.getSubfield().contains("esh"))).collect(Collectors.toList());
+                                        if (subfieldsList.size() > 0) {
+                                            StringBuilder stringBuilderRameau = t.getSubfieldList().stream()
+                                                    .filter(u -> !(u.getCode().equals("2") || u.getCode().equals("3")))
+                                                    .map(x -> new StringBuilder(x.getSubfield()))
+                                                    .reduce(new StringBuilder(), (a, b) -> {
+                                                        if (a.length() > 0) {
+                                                            a.append(" -- ");
+                                                        }
+                                                        a.append(b);
+                                                        return a;
+                                                    });
+                                            mesh.add(stringBuilderRameau.toString());
+                                        }
+                                        return mesh;
                                     })
                                     .flatMap(List::stream)
                                     .collect(Collectors.toList())

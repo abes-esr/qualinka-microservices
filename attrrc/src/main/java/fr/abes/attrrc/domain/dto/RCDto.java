@@ -42,6 +42,7 @@ public class RCDto {
     private List<String> publisher;
     private List<String> publisherPlace;
     private List<String> keyword;
+    private List<String> mesh;
     private String genre;
     private String role_code;
     private String role_en;
