@@ -260,7 +260,6 @@ public class AttrRCService {
                                     }
                                     // Set originalPublicationDate
                                     if (t.getSubfield().charAt(8) == 'e') {
-                                        System.out.println("ICI:"+t.getSubfield());
                                         rcDto.setOriginalPublicationDate(t.getSubfield().substring(13,17));
                                     }
                                 }
