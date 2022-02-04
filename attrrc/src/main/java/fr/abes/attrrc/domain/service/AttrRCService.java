@@ -276,7 +276,7 @@ public class AttrRCService {
                                 if (t.getSubfield().length()>17){
                                     // Set publicationDate
                                     if (t.getSubfield().charAt(8) == 'd') {
-                                        rcDto.setPublicationDate(t.getSubfield().substring(10,14));
+                                        rcDto.setPublicationDate(t.getSubfield().substring(9,13));
                                     }else {
                                         findSubfield(v, datafieldPredicateTag210, subfieldPredicateCodeD)
                                                 .ifPresentOrElse(
