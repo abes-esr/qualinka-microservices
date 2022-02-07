@@ -5,7 +5,6 @@ target/
 !**/src/test/**/target/
 *.bak
 /logs
-*.env
 
 
 ### STS ###
@@ -35,4 +34,3 @@ build/
 
 ### VS Code ###
 .vscode/
-/partitionInitiale/
