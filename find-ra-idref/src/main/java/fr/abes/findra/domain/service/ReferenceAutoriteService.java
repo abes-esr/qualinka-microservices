@@ -107,14 +107,16 @@ public class ReferenceAutoriteService {
                 .distinct(ReferenceAutoriteDto::getPpn)
                 //.filter(x -> ( !Strings.isNullOrEmpty(x.getLastName()) ))
                 .filter(x -> {
-                        if (!Strings.isNullOrEmpty(x.getFirstName())) {
+                    if (!Strings.isNullOrEmpty(x.getFirstName()) && !x.getFirstName().matches("^[a-zA-Z].")
+                            && !x.getFirstName().contains(lastName))
+                    {
 
-                            return ((( x.getFirstName().split(" ").length >= firstName.split("-").length ) ||
-                                    ( x.getFirstName().split("-").length >= firstName.split("-").length ) ||
-                                    ( x.getFirstName().split("\\.").length >= firstName.split("-").length )));
+                        return ((( x.getFirstName().split(" ").length >= firstName.split("-").length ) ||
+                                ( x.getFirstName().split("-").length >= firstName.split("-").length ) ||
+                                ( x.getFirstName().split("\\.").length >= firstName.split("-").length )));
 
-                        }
-                        return true;
+                    }
+                    return true;
                     })
                 .map(x -> {
                     referenceAutoriteGetDto.setCount(ppnCount.getAndIncrement()+1);

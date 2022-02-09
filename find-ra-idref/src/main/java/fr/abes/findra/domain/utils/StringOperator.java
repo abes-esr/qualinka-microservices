@@ -46,6 +46,7 @@ public class StringOperator {
             initMap.put(5, fName.get(0) );
             initMap.put(6, fName.get(1) );
             initMap.put(7, fName.get(0).substring(0, 1) );
+            initMap.put(8, fName.get(1).substring(0, 1) );
 
         }
 
@@ -55,8 +56,8 @@ public class StringOperator {
         }
 
         if (firstName.toLowerCase().matches("^[a-z].-[a-z].")) {
-            initMap.put(8, fName.get(0).substring(0, 1) );
-            initMap.put(9, fName.get(2).substring(0, 1) );
+            initMap.put(9, fName.get(0).substring(0, 1) );
+            initMap.put(10, fName.get(2).substring(0, 1) );
 
         }
 
@@ -64,7 +65,7 @@ public class StringOperator {
             fName.stream()
                     .filter(x -> x.matches("^[a-z].|[a-z]"))
                     .findFirst()
-                    .ifPresent(x -> initMap.put(8, x.substring(0, 1)));
+                    .ifPresent(x -> initMap.put(9, x.substring(0, 1)));
         }
 
         // Print le HashMap avec le nom et le prénom dans la console
