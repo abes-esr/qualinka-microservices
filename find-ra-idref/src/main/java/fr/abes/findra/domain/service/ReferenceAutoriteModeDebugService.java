@@ -19,6 +19,7 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -107,14 +108,21 @@ public class ReferenceAutoriteModeDebugService {
                 }
             })
             .flatMapMany(Flux::fromIterable)
+            .parallel().runOn(Schedulers.boundedElastic())
             .map(mapStructMapper::referenceAutoriteToreferenceAutoriteDto)
-            .filter(x -> ( !Strings.isNullOrEmpty(x.getLastName()) ))
-            .filter(x ->
-                    Strings.isNullOrEmpty(x.getFirstName()) ||
-                    (( x.getFirstName().split(" ").length >= firstName.split("-").length ) ||
-                    ( x.getFirstName().split("-").length >= firstName.split("-").length ) ||
-                    ( x.getFirstName().split("\\.").length >= firstName.split("-").length ))
-            )
+            .filter(x -> {
+                if (!Strings.isNullOrEmpty(x.getFirstName()) && !x.getFirstName().matches("^[a-zA-Z].")
+                        && !x.getFirstName().contains(lastName))
+                {
+
+                    return ((( x.getFirstName().split(" ").length >= firstName.split("-").length ) ||
+                            ( x.getFirstName().split("-").length >= firstName.split("-").length ) ||
+                            ( x.getFirstName().split("\\.").length >= firstName.split("-").length )));
+
+                }
+                return true;
+            })
+            .sequential()
             .map(v -> {
                 referenceAutoriteDtoList.add(v);
                 referenceAutoriteGetDtoModeDebug.setNumberOfRequest(mapSolrRequets.getKey());

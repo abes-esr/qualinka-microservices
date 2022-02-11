@@ -61,7 +61,7 @@ public class FindRaController {
             }
 
         } else {
-            getFile = "default-req";
+            getFile = "defaultv2-req";
             log.info("Loading propertie file => {}", getFile);
         }
 
@@ -99,7 +99,7 @@ public class FindRaController {
             }
 
         } else {
-            getFile = "default-req";
+            getFile = "defaultv2-req";
             log.info("Loading propertie file => {}", getFile);
         }
 
