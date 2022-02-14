@@ -31,14 +31,11 @@ public class FindRcController {
                                                 ) {
 
         log.info("Connect to Findra Service");
-        String getFile;
+
+        String getFile = null;
         if (!Strings.isNullOrEmpty(file)) {
             getFile = file;
-        } else {
-            getFile = "default-req-rc";
-            log.info("Loading propertie file => {}", getFile);
         }
-
 
         if (!Strings.isNullOrEmpty(firstName) && (firstName.charAt(0) == '*' || lastName.charAt(0) == '*')) {
             ReferenceAutoriteGetDto referenceAutoriteGetDto = new ReferenceAutoriteGetDto(0, null, getFile,new ArrayList<>());
@@ -58,14 +55,10 @@ public class FindRcController {
     ) {
 
         log.info("Connect to Findra Service");
-        String getFile;
+        String getFile = null;
         if (!Strings.isNullOrEmpty(file)) {
             getFile = file;
-        } else {
-            getFile = "default-req-rc";
-            log.info("Loading propertie file => {}", getFile);
         }
-
 
         if (!Strings.isNullOrEmpty(firstName) && (firstName.charAt(0) == '*' || lastName.charAt(0) == '*')) {
             ReferenceAutoriteDtoDebugProxy referenceAutoriteDtoDebugProxy = new ReferenceAutoriteDtoDebugProxy();

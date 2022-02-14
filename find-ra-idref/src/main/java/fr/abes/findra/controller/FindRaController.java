@@ -55,14 +55,18 @@ public class FindRaController {
                 if (!Strings.isNullOrEmpty(from) && from.equals("fromFindrc")) {
                     getFile = "default-req-rc";
                 } else {
-                    getFile = "default-req";
+                    getFile = "defaultv2-req";
                 }
                 log.warn("Can not found the file with name {}, loading default file : {}", file, getFile);
             }
 
         } else {
-            getFile = "defaultv2-req";
-            log.info("Loading propertie file => {}", getFile);
+            if (!Strings.isNullOrEmpty(from) && from.equals("fromFindrc")) {
+                getFile = "default-req-rc";
+            } else {
+                getFile = "defaultv2-req";
+            }
+            log.info("loading default file : {}", getFile);
         }
 
         return referenceAutoriteService.findAllRA(from,getFile,firstName,lastName);
@@ -82,7 +86,10 @@ public class FindRaController {
 
         if (!Strings.isNullOrEmpty(file)) {
 
-            Resource resource = resourceLoader.getResource("classpath:solr-requetes/"+file+".properties");
+            //Resource resource = resourceLoader.getResource("classpath:solr-requetes/"+file+".properties");
+
+            String urlGit = "https://raw.githubusercontent.com/abes-esr/qualinka-findws-requests/master/"+ file+".properties";
+            Resource resource = resourceLoader.getResource(urlGit);
 
             if (resource.exists()) {
 
@@ -93,14 +100,18 @@ public class FindRaController {
                 if (!Strings.isNullOrEmpty(from) && from.equals("fromFindrc")) {
                     getFile = "default-req-rc";
                 } else {
-                    getFile = "default-req";
+                    getFile = "defaultv2-req";
                 }
                 log.warn("Can not found the file with name {}, loading default file : {}", file, getFile);
             }
 
         } else {
-            getFile = "defaultv2-req";
-            log.info("Loading propertie file => {}", getFile);
+            if (!Strings.isNullOrEmpty(from) && from.equals("fromFindrc")) {
+                getFile = "default-req-rc";
+            } else {
+                getFile = "defaultv2-req";
+            }
+            log.info("loading default file : {}", getFile);
         }
 
         return referenceAutoriteModeDebugService.findAllRAAsModeDebug(from,getFile,firstName,lastName);
