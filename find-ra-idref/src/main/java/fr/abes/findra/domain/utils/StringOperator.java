@@ -30,7 +30,7 @@ public class StringOperator {
         Map<Integer, String> initMap = new LinkedHashMap<>();
 
         // Init HashMap avec 9 cases et les valeurs sont null par défaut
-        IntStream.range(1, 10).forEach( x -> initMap.put(x, null));
+        IntStream.range(1, 11).forEach( x -> initMap.put(x, null));
 
         // Traitement le Prénom (firstName) et le Nom (lastName)
         List<String> fName = processName(firstName);
