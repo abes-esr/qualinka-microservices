@@ -105,8 +105,8 @@ public class ReferenceAutoriteService {
                 .map(mapStructMapper::referenceAutoriteToreferenceAutoriteDto)
                 .sequential()
                 .distinct(ReferenceAutoriteDto::getPpn)
-                //.filter(x -> ( !Strings.isNullOrEmpty(x.getLastName()) ))
-                .filter(x -> {
+                .filter(x -> ( !Strings.isNullOrEmpty(x.getLastName()) ))
+                /*.filter(x -> {
                     if (!Strings.isNullOrEmpty(x.getFirstName()) && !x.getFirstName().matches("^[a-zA-Z].")
                             && !x.getFirstName().contains(lastName))
                     {
@@ -117,7 +117,7 @@ public class ReferenceAutoriteService {
 
                     }
                     return true;
-                    })
+                    })*/
                 .map(x -> {
                     referenceAutoriteGetDto.setCount(ppnCount.getAndIncrement()+1);
                     referenceAutoriteDtoList.add(x);
