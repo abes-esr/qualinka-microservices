@@ -110,7 +110,7 @@ public class ReferenceAutoriteModeDebugService {
             .flatMapMany(Flux::fromIterable)
             .parallel().runOn(Schedulers.boundedElastic())
             .map(mapStructMapper::referenceAutoriteToreferenceAutoriteDto)
-            .filter(x -> {
+            /*.filter(x -> {
                 if (!Strings.isNullOrEmpty(x.getFirstName()) && !x.getFirstName().matches("^[a-zA-Z].")
                         && !x.getFirstName().contains(lastName))
                 {
@@ -121,7 +121,7 @@ public class ReferenceAutoriteModeDebugService {
 
                 }
                 return true;
-            })
+            })*/
             .sequential()
             .map(v -> {
                 referenceAutoriteDtoList.add(v);
