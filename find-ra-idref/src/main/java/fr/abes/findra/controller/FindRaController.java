@@ -53,7 +53,7 @@ public class FindRaController {
             } else {
 
                 if (!Strings.isNullOrEmpty(from) && from.equals("fromFindrc")) {
-                    getFile = "default-req-rc";
+                    getFile = "defaultv2-req-rc";
                 } else {
                     getFile = "defaultv2-req";
                 }
@@ -62,7 +62,7 @@ public class FindRaController {
 
         } else {
             if (!Strings.isNullOrEmpty(from) && from.equals("fromFindrc")) {
-                getFile = "default-req-rc";
+                getFile = "defaultv2-req-rc";
             } else {
                 getFile = "defaultv2-req";
             }
@@ -98,7 +98,7 @@ public class FindRaController {
             } else {
 
                 if (!Strings.isNullOrEmpty(from) && from.equals("fromFindrc")) {
-                    getFile = "default-req-rc";
+                    getFile = "defaultv2-req-rc";
                 } else {
                     getFile = "defaultv2-req";
                 }
@@ -107,7 +107,7 @@ public class FindRaController {
 
         } else {
             if (!Strings.isNullOrEmpty(from) && from.equals("fromFindrc")) {
-                getFile = "default-req-rc";
+                getFile = "defaultv2-req-rc";
             } else {
                 getFile = "defaultv2-req";
             }
