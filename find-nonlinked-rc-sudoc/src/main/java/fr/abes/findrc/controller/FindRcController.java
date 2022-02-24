@@ -35,6 +35,8 @@ public class FindRcController {
         String getFile = null;
         if (!Strings.isNullOrEmpty(file)) {
             getFile = file;
+        } else {
+            getFile = "defaultv2-req-rc";
         }
 
         if (!Strings.isNullOrEmpty(firstName) && (firstName.charAt(0) == '*' || lastName.charAt(0) == '*')) {
