@@ -55,6 +55,7 @@ public class AttrRCService {
                     Predicate<Datafield> datafieldPredicateTag200 = t -> t.getTag().equals("200");
                     Predicate<Datafield> datafieldPredicateTag210 = t -> t.getTag().equals("210");
                     Predicate<Datafield> datafieldPredicateTag214 = t -> t.getTag().equals("214");
+                    Predicate<Datafield> datafieldPredicateTag328 = t -> t.getTag().equals("328");
                     Predicate<Datafield> datafieldPredicateTag600 = t -> t.getTag().equals("600");
                     Predicate<Datafield> datafieldPredicateTag601 = t -> t.getTag().equals("601");
                     Predicate<Datafield> datafieldPredicateTag602 = t -> t.getTag().equals("602");
@@ -337,6 +338,9 @@ public class AttrRCService {
                                     rcDto.setGenre(t.getSubfield().substring(12));
                                 }
                             });
+
+                    // Set thesisNote
+                    v.getDatafieldList().stream().filter(datafieldPredicateTag328).forEach(System.out::println);
 
                     return Mono.just(rcDto);
 

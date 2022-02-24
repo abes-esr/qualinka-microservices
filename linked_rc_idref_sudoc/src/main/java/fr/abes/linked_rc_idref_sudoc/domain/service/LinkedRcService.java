@@ -165,8 +165,8 @@ public class LinkedRcService {
                         v.stream().collect(Collectors.groupingBy(ReferenceAutoriteFromOracle::posfield))
                                 .entrySet().stream().peek(s -> counter.getAndIncrement())
                                 .filter(t -> t.getValue().stream().anyMatch(e -> e.tag().contains("$3")) &&
-                                        (t.getValue().stream().noneMatch(e -> e.tag().contains("$1")) ||
-                                        t.getValue().stream().noneMatch(e -> e.tag().contains("$5")))
+                                        t.getValue().stream().noneMatch(e -> e.tag().contains("$1")) &&
+                                        t.getValue().stream().noneMatch(e -> e.tag().contains("$5"))
                                 )
                                 .reduce(referenceContextuelleList, (s, e) -> {
                                     ReferenceContextuelle referenceContextuelle = new ReferenceContextuelle();

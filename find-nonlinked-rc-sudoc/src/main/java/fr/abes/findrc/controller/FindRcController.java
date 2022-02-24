@@ -26,7 +26,7 @@ public class FindRcController {
 
     @GetMapping("req")
     public Mono<ReferenceAutoriteGetDto> getAll(@RequestParam(required = false) String file,
-                                                @RequestParam(value="firstName") String firstName,
+                                                @RequestParam(required = false) String firstName,
                                                 @RequestParam(value="lastName") String lastName
                                                 ) {
 
@@ -38,6 +38,12 @@ public class FindRcController {
         } else {
             getFile = "defaultv2-req-rc";
         }
+
+        if (firstName == null) {
+            firstName = "";
+        }
+
+        System.out.println(firstName);
 
         if (!Strings.isNullOrEmpty(firstName) && (firstName.charAt(0) == '*' || lastName.charAt(0) == '*')) {
             ReferenceAutoriteGetDto referenceAutoriteGetDto = new ReferenceAutoriteGetDto(0, null, getFile,new ArrayList<>());
