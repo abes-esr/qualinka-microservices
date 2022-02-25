@@ -132,7 +132,6 @@ public class ReferenceContextuelService {
                                         t.getValue().stream().noneMatch(e -> e.tag().contains("$1")) &&
                                         t.getValue().stream().noneMatch(e -> e.tag().contains("$5"))
                                 )
-                                .peek(System.out::println)
                                 .reduce(referenceAutoriteList, (s, e) -> {
 
                                     ReferenceAutoriteDto referenceAutorite = new ReferenceAutoriteDto();

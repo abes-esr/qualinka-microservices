@@ -74,6 +74,7 @@ public class AttrRCService {
                     Predicate<Subfield> subfieldPredicateCodeC = t -> t.getCode().equals("c");
                     Predicate<Subfield> subfieldPredicateCodeD = t -> t.getCode().equals("d");
                     Predicate<Subfield> subfieldPredicateCodeE = t -> t.getCode().equals("e");
+                    Predicate<Subfield> subfieldPredicateCodeZ = t -> t.getCode().equals("z");
                     Predicate<Subfield> subfieldPredicateNotCode2 = t -> !t.getCode().equals("2");
                     Predicate<Subfield> subfieldPredicateNotCode3 = t -> !t.getCode().equals("3");
 
@@ -340,7 +341,12 @@ public class AttrRCService {
                             });
 
                     // Set thesisNote
-                    v.getDatafieldList().stream().filter(datafieldPredicateTag328).forEach(System.out::println);
+                    List<Datafield> datafieldList328 = v.getDatafieldList().stream().filter(datafieldPredicateTag328)
+                            .collect(Collectors.toCollection(LinkedList::new));
+
+                    if (datafieldList328.size() > 0) {
+                        setThesIsNote(rcDto, subfieldPredicateCodeA, datafieldList328);
+                    }
 
                     return Mono.just(rcDto);
 
@@ -375,6 +381,41 @@ public class AttrRCService {
                 .onErrorResume(t -> Mono.empty())
                 .switchIfEmpty(Mono.just(rcDto));
 
+    }
+
+    private void setThesIsNote(RCDto rcDto, Predicate<Subfield> subfieldPredicateCodeA, List<Datafield> datafieldList328) {
+
+        Optional<Datafield> datafield328Match = datafieldList328.stream()
+                .filter(t -> t.getSubfieldList().stream().noneMatch(c -> c.getCode().equals("a")))
+                .findFirst();
+
+        if (datafield328Match.isPresent()) {
+            String string328 = datafield328Match.stream()
+                    .map(Datafield::getSubfieldList)
+                    .map(s ->
+                            s.stream().map(e -> new StringBuilder(e.getSubfield()))
+                                    .reduce(new StringBuilder(), (a,b) -> {
+                                        if (a.length() > 0) {
+                                            a.append(" : ");
+                                        }
+                                        a.append(b);
+                                        return a;
+                                    })
+                    )
+                    .collect(Collectors.joining());
+
+            rcDto.setThesisNote(string328);
+        } else {
+            datafieldList328.stream()
+                    .filter(t -> t.getSubfieldList().stream().anyMatch(c -> c.getCode().equals("a")))
+                    .findFirst()
+                    .ifPresent(s -> {
+                        String string328 = s.getSubfieldList().stream().filter(subfieldPredicateCodeA)
+                                .map(Subfield::getSubfield)
+                                .collect(Collectors.joining());
+                        rcDto.setThesisNote(string328);
+                    });
+        }
     }
 
     // Traitement les Datafield avec les tag 60x
