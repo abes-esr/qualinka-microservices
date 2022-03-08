@@ -168,6 +168,9 @@ public class LinkedRcService {
                                         t.getValue().stream().noneMatch(e -> e.tag().contains("$1")) &&
                                         t.getValue().stream().noneMatch(e -> e.tag().contains("$5"))
                                 )
+                                .filter(t -> t.getValue().stream().anyMatch(e -> e.tag().contains("$7") && e.datas().contains("ba")) ||
+                                        t.getValue().stream().noneMatch(e -> e.tag().contains("$7"))
+                                )
                                 .reduce(referenceContextuelleList, (s, e) -> {
                                     ReferenceContextuelle referenceContextuelle = new ReferenceContextuelle();
                                     e.getValue().forEach(t -> {
