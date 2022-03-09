@@ -48,4 +48,6 @@ public class RCDto {
     private String role_en;
     private String role_fr;
     private String thesisNote;
+    private boolean location;
+
 }

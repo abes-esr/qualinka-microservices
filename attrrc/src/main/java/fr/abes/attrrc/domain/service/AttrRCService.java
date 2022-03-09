@@ -66,6 +66,7 @@ public class AttrRCService {
                     Predicate<Datafield> datafieldPredicateTag608 = t -> t.getTag().equals("608");
                     Predicate<Datafield> datafieldPredicateTag676 = t -> t.getTag().equals("676");
                     Predicate<Datafield> datafieldPredicateTag71 = t -> t.getTag().startsWith("71");
+                    Predicate<Datafield> datafieldPredicateTag930 = t -> t.getTag().equals("930");
                     Predicate<Subfield> subfieldPredicateCode2 = t -> t.getCode().equals("2");
                     Predicate<Subfield> subfieldPredicateCode3 = t -> t.getCode().equals("3");
                     Predicate<Subfield> subfieldPredicateCode4 = t -> t.getCode().equals("4");
@@ -347,6 +348,18 @@ public class AttrRCService {
                     if (datafieldList328.size() > 0) {
                         setThesIsNote(rcDto, subfieldPredicateCodeA, datafieldList328);
                     }
+
+                    // Set Location
+
+                    v.getDatafieldList().stream().filter(datafieldPredicateTag930)
+                            .findAny()
+                            .ifPresent(datafield -> datafield.getSubfieldList().stream()
+                                    .filter(subfieldPredicateCodeB).findAny()
+                                    .ifPresentOrElse(t -> rcDto.setLocation(true), () -> rcDto.setLocation(false)));
+
+
+
+
 
                     return Mono.just(rcDto);
 
