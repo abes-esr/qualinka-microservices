@@ -116,6 +116,8 @@ public class AttrRCService {
                     rcDto.setAppellation(appellation.toString());
 
                     // Set Role_Code
+                    // On n'utilise pas cet attribut, on a besoin cette valeur pour chercher dans la base de données dans l'étape plus en bas "setRole"
+                    // Résultat de la requete SQL == object LibRoleDto.java
                     String roleCode = streamSupplier.get().filter(subfieldPredicateCode4)
                             .limit(1)
                             .map(Subfield::getSubfield)
@@ -371,14 +373,14 @@ public class AttrRCService {
                         }))
                 .flatMap(v -> oracleReferenceAuth.getDomainCodeAndValue(ppnVal).collectList()
                         .map(t -> {
-                            v.setDomain_code(t.stream().map(DomainCodeDto::code).collect(Collectors.toList()));
-                            v.setDomain_lib(t.stream().map(DomainCodeDto::valeure).collect(Collectors.toList()));
+                            // Set Domain (code & value)
+                            v.setDomain(t);
                             return v;
                         }))
                 .flatMap(v -> oracleReferenceAuth.getLibRoleOracle(v.getRole_code())
                         .map(t -> {
-                            v.setRole_fr(t.fr());
-                            v.setRole_en(t.en());
+                            // Set Role
+                            v.setRole(t);
                             return v;
                         }))
                 .flatMap(v -> oracleReferenceAuth.getkeywordOracle(ppnVal).collectList()
