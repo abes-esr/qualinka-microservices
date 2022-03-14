@@ -1,6 +1,7 @@
 package fr.abes.attrrc.domain.service;
 
 import fr.abes.attrrc.domain.dto.DomainCodeDto;
+import fr.abes.attrrc.domain.dto.LibRoleDto;
 import fr.abes.attrrc.domain.dto.RCDto;
 import fr.abes.attrrc.domain.entity.*;
 import fr.abes.attrrc.domain.repository.*;
@@ -118,11 +119,9 @@ public class AttrRCService {
                     // Set Role_Code
                     // On n'utilise pas cet attribut, on a besoin cette valeur pour chercher dans la base de données dans l'étape plus en bas "setRole"
                     // Résultat de la requete SQL == object LibRoleDto.java
-                    String roleCode = streamSupplier.get().filter(subfieldPredicateCode4)
-                            .limit(1)
+                    List<String> roleCode = streamSupplier.get().filter(subfieldPredicateCode4)
                             .map(Subfield::getSubfield)
-                            .map(Object::toString)
-                            .collect(Collectors.joining());
+                            .collect(Collectors.toList());
                     rcDto.setRole_code(roleCode);
 
                     // Set Rameau
@@ -377,12 +376,15 @@ public class AttrRCService {
                             v.setDomain(t);
                             return v;
                         }))
-                .flatMap(v -> oracleReferenceAuth.getLibRoleOracle(v.getRole_code())
-                        .map(t -> {
-                            // Set Role
-                            v.setRole(t);
-                            return v;
-                        }))
+                .flatMap(v -> {
+                    List<LibRoleDto> libRoleDtoList = new ArrayList<>();
+                    v.getRole_code().forEach(r -> {
+                        oracleReferenceAuth.getLibRoleOracle(r).subscribe(libRoleDtoList::add);
+                    });
+                    v.setRole(libRoleDtoList);
+                    return Mono.just(v);
+                    }
+                )
                 .flatMap(v -> oracleReferenceAuth.getkeywordOracle(ppnVal).collectList()
                         .map(t -> {
                             List<String> keywordsList = t.stream().map(e -> e.split("[,:;/.]"))

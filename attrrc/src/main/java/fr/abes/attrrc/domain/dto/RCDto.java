@@ -45,8 +45,8 @@ public class RCDto {
     private List<String> mesh;
     private String genre;
     @JsonIgnore
-    private String role_code;
-    private LibRoleDto role;
+    private List<String> role_code;
+    private List<LibRoleDto> role;
     private String thesisNote;
     private boolean location;
 
