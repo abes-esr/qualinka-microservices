@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -379,7 +380,9 @@ public class AttrRCService {
                 .flatMap(v -> {
                     List<LibRoleDto> libRoleDtoList = new ArrayList<>();
                     v.getRole_code().forEach(r -> {
-                        oracleReferenceAuth.getLibRoleOracle(r).subscribe(libRoleDtoList::add);
+                        oracleReferenceAuth.getLibRoleOracle(r)
+                                .doOnNext(libRoleDtoList::add)
+                                .block();
                     });
                     v.setRole(libRoleDtoList);
                     return Mono.just(v);
