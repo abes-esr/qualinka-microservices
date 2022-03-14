@@ -18,11 +18,13 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -70,38 +72,59 @@ public class ReferenceAutoriteService {
         AtomicInteger ppnCount = new AtomicInteger();
 
         return Flux.fromIterable(requests)
-            .parallel().runOn(Schedulers.boundedElastic())
-            .flatMap(x -> webClient.get().uri(builder -> builder
-                            .path("/solr/sudoc/select")
-                            .queryParam("q", "{requestSolr}")
-                            .queryParam("start", "0")
-                            .queryParam("rows", "3000")
-                            .queryParam("fl", "{flParams}")
-                            .queryParam("wt", "json")
-                            .build(x, flParams)
-                )
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .onStatus(HttpStatus::isError,
-                        response -> Mono.error(
-                            new IllegalStateException("Failed to get from the site!")
-                        )
-                )
-                .bodyToMono(JsonNode.class)
-                //.timeout(Duration.ofSeconds(30))
-                .doOnError(e -> log.error( "ERROR => {}", e.getMessage() ))
-                .onErrorResume(e -> Mono.empty())
-                .map(jsonNode -> jsonNode.findValue("docs"))
-                .map(v -> {
-                    ObjectReader reader = mapper.readerFor(new TypeReference<List<ReferenceAutorite>>(){});
-                    try {
-                        return reader.<List<ReferenceAutorite>>readValue(v);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        return new ArrayList<ReferenceAutorite>();
+                .parallel().runOn(Schedulers.boundedElastic())
+                .flatMap(x -> {
+                    URI uri;
+                    if (x.contains("&nested=")){
+                        String requestSolr = x.substring(0,x.indexOf("&"));
+                        String requestNested = x.substring(x.indexOf("&nested=")+8);
+                        uri = UriComponentsBuilder
+                                .fromHttpUrl(this.solrBaseUrl)
+                                .pathSegment("solr", "sudoc", "tree")
+                                .queryParam("q", "{requestSolr}")
+                                .queryParam("nested", "{requestNested}")
+                                .queryParam("start", "0")
+                                .queryParam("rows", "3000")
+                                .queryParam("fl", "{flParams}")
+                                .queryParam("wt", "json")
+                                .build(requestSolr,requestNested,flParams);
                     }
+                    else {
+                        String requestSolr = x;
+                        uri = UriComponentsBuilder
+                                .fromHttpUrl(this.solrBaseUrl)
+                                .pathSegment("solr", "sudoc", "select")
+                                .queryParam("q", "{requestSolr}")
+                                .queryParam("start", "0")
+                                .queryParam("rows", "3000")
+                                .queryParam("fl", "{flParams}")
+                                .queryParam("wt", "json")
+                                .build(requestSolr,flParams);
+                    }
+                    return webClient.get().uri(uri)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .retrieve()
+                            .onStatus(HttpStatus::isError,
+                                    response -> Mono.error(
+                                            new IllegalStateException("Failed to get from the site!")
+                                    )
+                            )
+                            .bodyToMono(JsonNode.class)
+                            //.timeout(Duration.ofSeconds(30))
+                            .doOnError(e -> log.error( "ERROR => {}", e.getMessage() ))
+                            .onErrorResume(e -> Mono.empty())
+                            .map(jsonNode -> jsonNode.findValue("docs"))
+                            .map(v -> {
+                                ObjectReader reader = mapper.readerFor(new TypeReference<List<ReferenceAutorite>>(){});
+                                try {
+                                    return reader.<List<ReferenceAutorite>>readValue(v);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                    return new ArrayList<ReferenceAutorite>();
+                                }
+                            })
+                            .flatMapMany(Flux::fromIterable);
                 })
-                .flatMapMany(Flux::fromIterable))
                 .map(mapStructMapper::referenceAutoriteToreferenceAutoriteDto)
                 .sequential()
                 .distinct(ReferenceAutoriteDto::getPpn)
@@ -126,9 +149,9 @@ public class ReferenceAutoriteService {
                     referenceAutoriteGetDto.setQueries(fileName);
                     return referenceAutoriteGetDto;
                 })
-            .last()
-            .doOnError(e -> log.warn( "Name not found or failed to parsing JSON" ))
-            .onErrorResume(x -> Mono.just(new ReferenceAutoriteGetDto(0, null, fileName, new ArrayList<>())));
+                .last()
+                .doOnError(e -> log.warn( "Name not found or failed to parsing JSON, error message: "+e.getMessage() ))
+                .onErrorResume(x -> Mono.just(new ReferenceAutoriteGetDto(0, null, fileName, new ArrayList<>())));
     }
 
 
