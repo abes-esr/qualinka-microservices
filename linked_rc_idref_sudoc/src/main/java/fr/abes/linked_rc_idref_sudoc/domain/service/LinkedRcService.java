@@ -160,10 +160,12 @@ public class LinkedRcService {
                     log.error(e.getLocalizedMessage());
                     e.printStackTrace();
                 })
-                .collectSortedList(Comparator.comparing(ReferenceAutoriteFromOracle::posfield))
+                .collectList()
                 .map(v ->
                         v.stream().collect(Collectors.groupingBy(ReferenceAutoriteFromOracle::posfield))
-                                .entrySet().stream().peek(s -> counter.getAndIncrement())
+                                .entrySet().stream()
+                                .sorted(Comparator.comparingInt(t -> Integer.parseInt(t.getKey())))
+                                .peek(s -> counter.getAndIncrement())
                                 .filter(t -> t.getValue().stream().anyMatch(e -> e.tag().contains("$3")) &&
                                         t.getValue().stream().noneMatch(e -> e.tag().contains("$1")) &&
                                         t.getValue().stream().noneMatch(e -> e.tag().contains("$5"))
