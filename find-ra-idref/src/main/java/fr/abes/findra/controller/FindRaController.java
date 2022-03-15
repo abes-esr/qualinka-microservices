@@ -38,7 +38,7 @@ public class FindRaController {
                 parameters = {
                     @Parameter(name = "firstName", in = ParameterIn.QUERY, required = false, example = "valérie", description = "Prénom"),
                     @Parameter(name = "lastName", in = ParameterIn.QUERY, required = true, example = "robert", description = "Nom"),
-                    @Parameter(name = "file", in = ParameterIn.QUERY, required = false, example = "findra_light", description = "Fichier de requêtes Solr"),
+                    @Parameter(name = "file", in = ParameterIn.QUERY, required = false, description = "Fichier de requêtes Solr (ex : findra_light)"),
                     @Parameter(name = "format", in = ParameterIn.QUERY, required = false, description = "Format de la réponse : xml, json (défaut)")
                 }
     )
@@ -90,7 +90,7 @@ public class FindRaController {
             parameters = {
                     @Parameter(name = "firstName", in = ParameterIn.QUERY, required = false, example = "valérie", description = "Prénom"),
                     @Parameter(name = "lastName", in = ParameterIn.QUERY, required = true, example = "robert", description = "Nom"),
-                    @Parameter(name = "file", in = ParameterIn.QUERY, required = false, example = "findra_light", description = "Fichier de requêtes Solr")
+                    @Parameter(name = "file", in = ParameterIn.QUERY, required = false, description = "Fichier de requêtes Solr (ex : findra_light)")
             }
     )
     public Flux<ReferenceAutoriteGetDtoModeDebug> getAllRaAsModeDebug(@RequestParam(required = false) String from,

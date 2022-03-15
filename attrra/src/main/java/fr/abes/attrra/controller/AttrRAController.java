@@ -22,7 +22,7 @@ public class AttrRAController {
     @GetMapping("req")
     @Operation(description = "A partir d'un identifiant d'une RA (le ppn), renvoie ses attributs",
             parameters = {
-                    @Parameter(name = "rc_id", in = ParameterIn.QUERY, required = true, example = "076642860", description = "Identifiant d'une RA (le ppn)"),
+                    @Parameter(name = "ra_id", in = ParameterIn.QUERY, required = true, example = "076642860", description = "Identifiant d'une RA (le ppn)"),
                     @Parameter(name = "format", in = ParameterIn.QUERY, required = false, description = "Format de la réponse : xml, json (défaut)")
             }
     )

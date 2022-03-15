@@ -32,7 +32,7 @@ public class FindRcController {
             parameters = {
                     @Parameter(name = "firstName", in = ParameterIn.QUERY, required = false, example = "valérie", description = "Prénom"),
                     @Parameter(name = "lastName", in = ParameterIn.QUERY, required = true, example = "robert", description = "Nom"),
-                    @Parameter(name = "file", in = ParameterIn.QUERY, required = false, example = "findrc_light", description = "Fichier de requêtes Solr"),
+                    @Parameter(name = "file", in = ParameterIn.QUERY, required = false, description = "Fichier de requêtes Solr (ex : findrc_light)"),
                     @Parameter(name = "format", in = ParameterIn.QUERY, required = false, description = "Format de la réponse : xml, json (défaut)")
             }
     )
@@ -72,7 +72,7 @@ public class FindRcController {
             parameters = {
                     @Parameter(name = "firstName", in = ParameterIn.QUERY, required = false, example = "valérie", description = "Prénom"),
                     @Parameter(name = "lastName", in = ParameterIn.QUERY, required = true, example = "robert", description = "Nom"),
-                    @Parameter(name = "file", in = ParameterIn.QUERY, required = false, example = "findrc_light", description = "Fichier de requêtes Solr")
+                    @Parameter(name = "file", in = ParameterIn.QUERY, required = false, description = "Fichier de requêtes Solr (ex : findrc_light)")
             }
     )
     public Flux<ReferenceAutoriteDtoDebugProxy> getAllDebug(@RequestParam(required = false) String file,
