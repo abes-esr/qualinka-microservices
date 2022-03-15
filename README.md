@@ -25,11 +25,13 @@ A partir d'un identifiant d'une RA (le ppn), renvoie ses attributs
  - Url : https://qualinka.idref.fr/attrra/api/v2/req?ra_id=076642860 
 
 #### attrrc 
-A partir d'un identifiant d'une RC (le ppn + "-" + sa position à partir des zones 6XX), renvoie ses attributs
+A partir d'un identifiant d'une RC (le ppn + "-" + sa position à partir des zones 7XX), renvoie ses attributs
  - Url : https://qualinka.idref.fr/attrrc/api/v2/req?rc_id=019057547-1
 
 Pour ces 5 microservices : par défaut, le format de réponse est JSON, mais il est possible d'ajouter &format=xml pour obtenir la réponse en XML (sauf pour le mode debug).  
 Les fichiers de requêtes qu'on peut préciser pour find-ra-idref et find-nonlinked-rc-sudoc doivent se trouver sur ce dépôt : https://github.com/abes-esr/qualinka-findws-requests
+
+Documentation OpenAPI de ces 5 web services : https://qualinka.idref.fr/swagger-ui/index.html
 
 #### api-gateway 
 Sert de point unique d'accès aux autres services. Il s'agit d'une passerelle

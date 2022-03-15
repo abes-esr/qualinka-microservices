@@ -5,6 +5,9 @@ import fr.abes.findra.domain.dto.ReferenceAutoriteGetDto;
 import fr.abes.findra.domain.dto.ReferenceAutoriteGetDtoModeDebug;
 import fr.abes.findra.domain.service.ReferenceAutoriteModeDebugService;
 import fr.abes.findra.domain.service.ReferenceAutoriteService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -31,6 +34,14 @@ public class FindRaController {
 
 
     @GetMapping("req")
+    @Operation(description = "A partir d'un nom et prénom (name et lastname), renvoie les références d'autorités (RA) correspondantes dans la base de données IdRef. Un fichier de requêtes Solr peut être précisé (file)",
+                parameters = {
+                    @Parameter(name = "firstName", in = ParameterIn.QUERY, required = false, example = "valérie", description = "Prénom"),
+                    @Parameter(name = "lastName", in = ParameterIn.QUERY, required = true, example = "robert", description = "Nom"),
+                    @Parameter(name = "file", in = ParameterIn.QUERY, required = false, example = "findra_light", description = "Fichier de requêtes Solr"),
+                    @Parameter(name = "format", in = ParameterIn.QUERY, required = false, description = "Format de la réponse : xml, json (défaut)")
+                }
+    )
     public Mono<ReferenceAutoriteGetDto> getAllRa(@RequestParam(required = false) String from,
                                                 @RequestParam(required = false) String file,
                                                 @RequestParam(value="firstName") String firstName,
@@ -74,8 +85,14 @@ public class FindRaController {
 
     }
 
-
     @GetMapping(value="debug/req", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(description = "Mode debug : à partir d'un nom et prénom (name et lastname), renvoie les références d'autorités (RA) correspondantes dans la base de données IdRef. Un fichier de requêtes Solr peut être précisé (file)",
+            parameters = {
+                    @Parameter(name = "firstName", in = ParameterIn.QUERY, required = false, example = "valérie", description = "Prénom"),
+                    @Parameter(name = "lastName", in = ParameterIn.QUERY, required = true, example = "robert", description = "Nom"),
+                    @Parameter(name = "file", in = ParameterIn.QUERY, required = false, example = "findra_light", description = "Fichier de requêtes Solr")
+            }
+    )
     public Flux<ReferenceAutoriteGetDtoModeDebug> getAllRaAsModeDebug(@RequestParam(required = false) String from,
                                             @RequestParam(required = false) String file,
                                             @RequestParam(value="firstName") String firstName,
