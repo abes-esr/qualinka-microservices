@@ -60,7 +60,7 @@ public class ReferenceAutoriteService {
     public Mono<ReferenceAutoriteGetDto> findAllRA(String from, String fileName, String firstName, String lastName) {
 
 
-        String flParams = (from != null && from.equals("fromFindrc")) ? "id,ppn_z,B700.B700Sa_BS,B700.B700Sb_BS" : "id,ppn_z,A200.A200Sa_AS,A200.A200Sb_AS";
+        String flParams = (from != null && from.equals("fromFindrc")) ? "id,ppn_z,B700.B700Sa_BS,B700.B700Sb_BS,B701.B701Sa_BS,B701.B701Sb_BS,B702.B702Sa_BS,B702.B702Sb_BS" : "id,ppn_z,A200.A200Sa_AS,A200.A200Sb_AS";
         List<String> requests = stringOperator.listOfSolrRequestFromPropertieFile(fileName, firstName, lastName);
         WebClient webClient = webClientBuilder.baseUrl(this.solrBaseUrl)
                 //.filter(logRequestWebclient()) // <== Use this for see WebClient request
