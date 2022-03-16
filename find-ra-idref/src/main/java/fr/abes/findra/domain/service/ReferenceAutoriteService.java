@@ -59,7 +59,6 @@ public class ReferenceAutoriteService {
 
     public Mono<ReferenceAutoriteGetDto> findAllRA(String from, String fileName, String firstName, String lastName) {
 
-
         String flParams = (from != null && from.equals("fromFindrc")) ? "id,ppn_z,B700.B700Sa_BS,B700.B700Sb_BS,B701.B701Sa_BS,B701.B701Sb_BS,B702.B702Sa_BS,B702.B702Sb_BS" : "id,ppn_z,A200.A200Sa_AS,A200.A200Sb_AS";
         List<String> requests = stringOperator.listOfSolrRequestFromPropertieFile(fileName, firstName, lastName);
         WebClient webClient = webClientBuilder.baseUrl(this.solrBaseUrl)
@@ -90,7 +89,6 @@ public class ReferenceAutoriteService {
                                 .build(requestSolr,requestNested,flParams);
                     }
                     else {
-                        String requestSolr = x;
                         uri = UriComponentsBuilder
                                 .fromHttpUrl(this.solrBaseUrl)
                                 .pathSegment("solr", "sudoc", "select")
@@ -99,7 +97,7 @@ public class ReferenceAutoriteService {
                                 .queryParam("rows", "3000")
                                 .queryParam("fl", "{flParams}")
                                 .queryParam("wt", "json")
-                                .build(requestSolr,flParams);
+                                .build(x,flParams);
                     }
                     return webClient.get().uri(uri)
                             .accept(MediaType.APPLICATION_JSON)

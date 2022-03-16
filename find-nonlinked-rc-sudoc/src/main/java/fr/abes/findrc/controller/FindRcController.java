@@ -37,7 +37,7 @@ public class FindRcController {
             }
     )
     public Mono<ReferenceAutoriteGetDto> getAll(@RequestParam(required = false) String file,
-                                                @RequestParam(required = false) String firstName,
+                                                @RequestParam(value="firstName", required = false) String firstName,
                                                 @RequestParam(value="lastName") String lastName
                                                 ) {
 
@@ -54,7 +54,6 @@ public class FindRcController {
             firstName = "";
         }
 
-        System.out.println(firstName);
 
         if (!Strings.isNullOrEmpty(firstName) && (firstName.charAt(0) == '*' || lastName.charAt(0) == '*')) {
             ReferenceAutoriteGetDto referenceAutoriteGetDto = new ReferenceAutoriteGetDto(0, null, getFile,new ArrayList<>());
@@ -76,7 +75,7 @@ public class FindRcController {
             }
     )
     public Flux<ReferenceAutoriteDtoDebugProxy> getAllDebug(@RequestParam(required = false) String file,
-                                                            @RequestParam(value="firstName") String firstName,
+                                                            @RequestParam(value="firstName", required = false) String firstName,
                                                             @RequestParam(value="lastName") String lastName
     ) {
 
@@ -84,6 +83,10 @@ public class FindRcController {
         String getFile = null;
         if (!Strings.isNullOrEmpty(file)) {
             getFile = file;
+        }
+
+        if (firstName == null) {
+            firstName = "";
         }
 
         if (!Strings.isNullOrEmpty(firstName) && (firstName.charAt(0) == '*' || lastName.charAt(0) == '*')) {

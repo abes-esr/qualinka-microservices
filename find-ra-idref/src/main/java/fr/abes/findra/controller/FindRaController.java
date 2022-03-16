@@ -44,7 +44,7 @@ public class FindRaController {
     )
     public Mono<ReferenceAutoriteGetDto> getAllRa(@RequestParam(required = false) String from,
                                                 @RequestParam(required = false) String file,
-                                                @RequestParam(value="firstName") String firstName,
+                                                @RequestParam(value="firstName", required = false) String firstName,
                                                 @RequestParam(value="lastName") String lastName
                                                 ) {
 
@@ -80,6 +80,10 @@ public class FindRaController {
             log.info("loading default file : {}", getFile);
         }
 
+        if (firstName == null) {
+            firstName = "";
+        }
+
         return referenceAutoriteService.findAllRA(from,getFile,firstName,lastName);
 
 
@@ -95,7 +99,7 @@ public class FindRaController {
     )
     public Flux<ReferenceAutoriteGetDtoModeDebug> getAllRaAsModeDebug(@RequestParam(required = false) String from,
                                             @RequestParam(required = false) String file,
-                                            @RequestParam(value="firstName") String firstName,
+                                            @RequestParam(value="firstName", required = false) String firstName,
                                             @RequestParam(value="lastName") String lastName
     ) {
 
@@ -129,6 +133,10 @@ public class FindRaController {
                 getFile = "defaultv2-req";
             }
             log.info("loading default file : {}", getFile);
+        }
+
+        if (firstName == null) {
+            firstName = "";
         }
 
         return referenceAutoriteModeDebugService.findAllRAAsModeDebug(from,getFile,firstName,lastName);
