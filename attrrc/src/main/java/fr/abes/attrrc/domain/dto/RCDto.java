@@ -20,7 +20,7 @@ public class RCDto {
     private String dateCreationNotice;
     private String citation;
     private String ppnAut;
-    private Translitteration appelation;
+    private List<Translitteration> appelation;
     private List<String> rameau;
     private List<String> subject600new;
     private List<String> subject600;

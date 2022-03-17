@@ -1,5 +1,6 @@
 package fr.abes.attrrc.domain.service;
 
+import com.google.common.base.Strings;
 import fr.abes.attrrc.domain.dto.LibRoleDto;
 import fr.abes.attrrc.domain.dto.RCDto;
 import fr.abes.attrrc.domain.entity.*;
@@ -13,11 +14,14 @@ import reactor.core.publisher.Mono;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.groupingBy;
 
 
 @RequiredArgsConstructor
@@ -67,6 +71,7 @@ public class AttrRCService {
         Predicate<Subfield> subfieldPredicateCode2 = t -> t.getCode().equals("2");
         Predicate<Subfield> subfieldPredicateCode3 = t -> t.getCode().equals("3");
         Predicate<Subfield> subfieldPredicateCode4 = t -> t.getCode().equals("4");
+        Predicate<Subfield> subfieldPredicateCode6 = t -> t.getCode().equals("6");
         Predicate<Subfield> subfieldPredicateCode7 = t -> t.getCode().equals("7");
         Predicate<Subfield> subfieldPredicateCodeA = t -> t.getCode().equals("a");
         Predicate<Subfield> subfieldPredicateCodeB = t -> t.getCode().equals("b");
@@ -120,9 +125,47 @@ public class AttrRCService {
                         rcDto.setPpnAut(t.getSubfield());
                     });
 
-                    Translitteration appelation = new Translitteration();
 
-                    StringBuilder appelationValue = streamSupplier.get().filter(subfieldPredicateCodeA.or(subfieldPredicateCodeB))
+                    List<Translitteration> appelationList = new ArrayList<>();
+                    AtomicReference<String> subfieldCode6 = new AtomicReference<>();
+
+                    streamSupplier.get().filter(subfieldPredicateCode6).findFirst()
+                        .ifPresent(t -> {
+                            subfieldCode6.set(t.getSubfield());
+                        });
+
+                    if (!Strings.isNullOrEmpty(subfieldCode6.get())) {
+
+                        datafields.stream()
+                            .filter(s -> s.getSubfieldList()
+                                    .stream().anyMatch(u -> u.getSubfield().equals(subfieldCode6.get())))
+                            .forEach(s -> {
+
+                                Translitteration appelation = new Translitteration();
+
+                                appelation.setScript(s.getSubfieldList().stream().filter(subfieldPredicateCode7)
+                                        .map(Subfield::getSubfield)
+                                        .collect(Collectors.joining()));
+
+
+                                StringBuilder appelationValue = s.getSubfieldList().stream()
+                                        .filter(subfieldPredicateCodeA.or(subfieldPredicateCodeB))
+                                        .map(i -> new StringBuilder(i.getSubfield()))
+                                        .reduce(new StringBuilder(), (a, b) -> {
+                                            if (a.length() > 0) {
+                                                a.append(", ");
+                                            }
+                                            a.append(b);
+                                            return a;
+                                        });
+                                appelation.setValue(appelationValue.toString());
+
+                                appelationList.add(appelation);
+                            });
+
+                    } else {
+
+                        StringBuilder appelationValue = streamSupplier.get().filter(subfieldPredicateCodeA.or(subfieldPredicateCodeB))
                             .map(t -> new StringBuilder(t.getSubfield()))
                             .reduce(new StringBuilder(), (a, b) -> {
                                 if (a.length() > 0) {
@@ -132,15 +175,12 @@ public class AttrRCService {
                                 return a;
                             });
 
-                    streamSupplier.get().filter(subfieldPredicateCode7).findFirst().ifPresent(t -> {
-                        if (!t.getSubfield().equals("ba")) {
-                            appelation.setScript(t.getSubfield());
-                        }
-                    });
+                        Translitteration appelation = new Translitteration();
+                        appelation.setValue(appelationValue.toString());
+                        appelationList.add(appelation);
+                    }
 
-                    appelation.setValue(appelationValue.toString());
-
-                    rcDto.setAppelation(appelation);
+                    rcDto.setAppelation(appelationList);
 
                     // Set Role_Code
                     // On n'utilise pas cet attribut, on a besoin cette valeur pour chercher dans la base de données dans l'étape plus en bas "setRole"
@@ -292,23 +332,17 @@ public class AttrRCService {
 
                     rcDto.setTitle(titleList);
 
-
-                    /*rcDto.setTitle(removedUnicode989C(v.getDatafieldList().stream().filter(datafieldPredicateTag200)
-                            .flatMap(t -> t.getSubfieldList().stream())
-                            .filter(subfieldPredicateCodeA.or(subfieldPredicateCodeE))
-                            .map(t -> new StringBuilder(t.getSubfield()))
-                            .reduce(new StringBuilder(), (a, b) -> {
-                                if (a.length() > 0) {
-                                    a.append(" : ");
-                                }
-                                a.append(b);
-                                return a;
-                            }).toString()));*/
-
-
                     // Set Contributor
                     rcDto.setCocontributor(IntStream.range(0, datafields.size()).filter(i -> i != posVal - 1)
                             .mapToObj(datafields::get)
+                            .filter(t ->
+                                t.getSubfieldList().stream()
+                                    .noneMatch(s -> s.getSubfield().equals(subfieldCode6.get()))
+                            )
+                            .filter(t ->
+                                t.getSubfieldList().stream()
+                                    .noneMatch(s -> s.getCode().equals("7") && !s.getSubfield().equals("ba"))
+                            )
                             .map(t -> {
                                 List<String> contributor = new ArrayList<>();
                                 StringBuilder stringBuilderContributor = getReduceStringBuilderWithPredicate(
