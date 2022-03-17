@@ -243,7 +243,7 @@ public class AttrRCService {
                     );
 
                     // Set 600 new
-                    List<Datafield> datafields600new = v.getDatafieldList().stream()
+                    /*List<Datafield> datafields600new = v.getDatafieldList().stream()
                                                         .filter(datafieldPredicateTag600)
                                                         .collect(Collectors.toList());
                     AtomicInteger j = new AtomicInteger(0);
@@ -269,7 +269,7 @@ public class AttrRCService {
                                 return subfield600new;
                             })
                             .flatMap(List::stream)
-                            .collect(Collectors.toList()));
+                            .collect(Collectors.toList()));*/
 
                     // Set 600
                     rcDto.setSubject600(getList60X(v, datafieldPredicateTag600, subfieldPredicateNotCode3));

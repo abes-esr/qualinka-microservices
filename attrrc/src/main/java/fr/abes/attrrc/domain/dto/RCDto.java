@@ -22,6 +22,7 @@ public class RCDto {
     private String ppnAut;
     private List<Translitteration> appelation;
     private List<String> rameau;
+    @JsonIgnore
     private List<String> subject600new;
     private List<String> subject600;
     private List<String> subject601;
