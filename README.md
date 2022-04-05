@@ -5,27 +5,32 @@ Ce dépôt git contient le code source des microservices ci-dessous, ainsi que l
 ### Description des microservices
 
 #### find-ra-idref 
-A partir d'un nom et prénom (name et lastname), renvoie les références d'autorités (RA) correspondantes dans la base de données IdRef. Un fichier de requêtes Solr peut être précisé (file)
+A partir d'une appellation (dont la forme la plus courante est firstName / lastName), le service renvoie les notices d’autorité de la base IdRef.  
+Avec le paramètre "file", il est possible d’appeler un fichier de requêtes en particulier, afin d’ajuster les requêtes passées à l’appellation en entrée (ex : réduite à un lastName) ou le degré de finesse des résultats (ex : recherche étroite).
   - Url : https://qualinka.idref.fr/find-ra-idref/api/v2/req?lastName=robert&firstName=val%C3%A9rie
   - Url avec fichier de requête : https://qualinka.idref.fr/find-ra-idref/api/v2/req?lastName=robert&firstName=val%C3%A9rie&file=findra_light
   - Debug : https://qualinka.idref.fr/find-ra-idref/api/v2/debug/req?lastName=robert&firstName=val%C3%A9rie
 
 #### find-nonlinked-rc-sudoc 
-A partir d'un nom et prénom (name et lastname), renvoie les références contextuelles (RC) non liées (pas de 70X$3) dans la base de données Sudoc. Un fichier de requêtes Solr peut être précisé (file)
+A partir d'une appellation (dont la forme la plus courante est firstName / lastName), le service renvoie les points d’accès des notices bibliographiques Sudoc non liés à une autorité de la base IdRef (sous la forme ppn + "-" + sa position à partir des zones 70X ; ex. 123456789-1).  
+Avec le paramètre "file", il est possible d’appeler un fichier de requêtes en particulier, afin d’ajuster les requêtes passées à l’appellation en entrée (ex : réduite à un lastName) ou le degré de finesse des résultats (ex : recherche étroite).  
+Ce service est le complémentaire du service "linked_rc_idref_sudoc".
  - Url : https://qualinka.idref.fr/find-nonlinked-rc-sudoc/api/v2/req?lastName=robert&firstName=val%C3%A9rie
  - Url avec fichier de requête : https://qualinka.idref.fr/find-nonlinked-rc-sudoc/api/v2/req?lastName=robert&firstName=val%C3%A9rie&file=findrc_light
  - Debug : https://qualinka.idref.fr/find-nonlinked-rc-sudoc/api/v2/debug/req?lastName=robert&firstName=val%C3%A9rie
 
 #### linked_rc_idref_sudoc 
-A partir d'un identifiant d'une RA (le ppn) de la base IdRef, renvoie les RC liées de la base Sudoc (en 70X$3).
+A partir d'un identifiant IdRef de notice d’autorité (sous la forme ex. 123456879), le service renvoie les points d’accès des notices bibliographiques Sudoc liés à une autorité de la base IdRef (sous la forme ppn + "-" + sa position à partir des zones 70X ; ex. 123456789-1).  
+Avec le paramètre "file", il est possible d’appeler un fichier de requêtes en particulier, afin d’ajuster les requêtes passées à l’appellation en entrée (ex : réduite à un lastName) ou le degré de finesse des résultats (ex : recherche étroite).  
+Ce service est le complémentaire du service "find-nonlinked-rc-sudoc".
  - Url : https://qualinka.idref.fr/linked-rc-idref-sudoc/api/v2/req?ra_id=076642860
 
 #### attrra
-A partir d'un identifiant d'une RA (le ppn), renvoie ses attributs
+A partir d'un identifiant IdRef d'autorité (sous la forme ex. 123456879), le service renvoie des informations issues des champs de la notice d’autorité sous la forme d’attributs.
  - Url : https://qualinka.idref.fr/attrra/api/v2/req?ra_id=076642860 
 
 #### attrrc 
-A partir d'un identifiant d'une RC (le ppn + "-" + sa position à partir des zones 7XX), renvoie ses attributs
+A partir d’un identifiant Sudoc de point d’accès de notice bibliographique (sous la forme ppn + "-" + sa position à partir des zones 70X ; ex. 123456789-1), le service renvoie des informations issues des champs de la notice bibliographique sous la forme d’attributs.
  - Url : https://qualinka.idref.fr/attrrc/api/v2/req?rc_id=019057547-1
 
 Pour ces 5 microservices : par défaut, le format de réponse est JSON, mais il est possible d'ajouter &format=xml pour obtenir la réponse en XML (sauf pour le mode debug).  
