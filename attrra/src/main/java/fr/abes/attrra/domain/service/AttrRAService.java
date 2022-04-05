@@ -3,6 +3,8 @@ package fr.abes.attrra.domain.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.abes.attrra.domain.dto.RADto;
 
+import fr.abes.attrra.domain.entity.Datafield;
+import fr.abes.attrra.domain.entity.Translitteration;
 import fr.abes.attrra.domain.entity.XmlRootRecord;
 import fr.abes.attrra.domain.repository.OracleReferenceAuth;
 import lombok.RequiredArgsConstructor;
@@ -63,17 +65,34 @@ public class AttrRAService {
 
                     ra.setVariantform(v.getDatafieldList().stream()
                             .filter(t -> t.getTag().equals("901"))
+                            .filter(t -> t.getSubfieldList().stream().noneMatch(s -> s.getCode().equals("7") &&  !s.getSubfield().equals("ba")))
                             .flatMap(t -> t.getSubfieldList().stream())
                             .filter(t -> t.getCode().equals("a"))
                             .map(t -> String.valueOf(t.getSubfield()))
                             .collect(Collectors.toList()));
 
-                    v.getDatafieldList().stream()
-                            .filter(t -> t.getTag().equals("900"))
-                            .flatMap(t -> t.getSubfieldList().stream())
-                            .filter(t -> t.getCode().equals("a"))
-                            .findFirst()
-                            .ifPresent(t -> ra.setPreferedform(t.getSubfield()));
+
+                    List<Translitteration> preferedFormList = new ArrayList<>();
+
+                    List<Datafield> datafieldList900 = v.getDatafieldList().stream().filter(t -> t.getTag().equals("900")).collect(Collectors.toList());
+                    datafieldList900.forEach(t -> {
+                        Translitteration preferedForm = new Translitteration();
+
+                        t.getSubfieldList().stream().filter(u -> u.getCode().equals("7")).findFirst()
+                                .ifPresent(s -> {
+                                    if (!s.getSubfield().equals("ba")) {
+                                        preferedForm.setScript(s.getSubfield());
+                                    }
+                                });
+
+                        t.getSubfieldList().stream().filter(w -> w.getCode().equals("a")).findFirst()
+                                .ifPresent(s -> {
+                                    preferedForm.setValue(s.getSubfield());
+                                });
+
+                        preferedFormList.add(preferedForm);
+                    });
+                    ra.setPreferedform(preferedFormList);
 
                     v.getDatafieldList().stream()
                             .filter(t -> t.getTag().equals("103"))
@@ -124,6 +143,7 @@ public class AttrRAService {
 
                     ra.setSource(v.getDatafieldList().stream()
                             .filter(t -> t.getTag().equals("810"))
+                            .filter(t -> t.getSubfieldList().stream().noneMatch(s -> s.getCode().equals("7") &&  !s.getSubfield().equals("ba")))
                             .flatMap(t -> t.getSubfieldList().stream())
                             .filter(t -> t.getCode().equals("a"))
                             .map(t -> String.valueOf(t.getSubfield()))

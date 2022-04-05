@@ -9,6 +9,12 @@ services:
     restart: always
     networks:
       - microservice
+    labels:
+      - "co.elastic.logs/enabled=true"
+      - "co.elastic.logs/fileset.stdout=access"
+      - "co.elastic.logs/fileset.stderr=error"
+      - "co.elastic.logs/processors.add_fields.target="
+      - "co.elastic.logs/processors.add_fields.fields.abes_appli=qualinka-ms-spring-cloud-config-server"
 
   eureka-naming-server:
     image: abesesr/microservice-eureka-naming-server:0.0.1-SNAPSHOT
@@ -17,6 +23,12 @@ services:
     restart: always
     networks:
       - microservice
+    labels:
+      - "co.elastic.logs/enabled=true"
+      - "co.elastic.logs/fileset.stdout=access"
+      - "co.elastic.logs/fileset.stderr=error"
+      - "co.elastic.logs/processors.add_fields.target="
+      - "co.elastic.logs/processors.add_fields.fields.abes_appli=qualinka-ms-eureka-naming-server"
 
   api-gateway:
     image: abesesr/microservice-api-gateway:0.0.1-SNAPSHOT
@@ -36,6 +48,12 @@ services:
     restart: always
     networks:
       - microservice
+    labels:
+      - "co.elastic.logs/enabled=true"
+      - "co.elastic.logs/fileset.stdout=access"
+      - "co.elastic.logs/fileset.stderr=error"
+      - "co.elastic.logs/processors.add_fields.target="
+      - "co.elastic.logs/processors.add_fields.fields.abes_appli=qualinka-ms-api-gateway"
 
   find-ra-idref:
     image: abesesr/microservice-find-ra-idref:0.0.1-SNAPSHOT
@@ -56,6 +74,12 @@ services:
     restart: always
     networks:
       - microservice
+    labels:
+      - "co.elastic.logs/enabled=true"
+      - "co.elastic.logs/fileset.stdout=access"
+      - "co.elastic.logs/fileset.stderr=error"
+      - "co.elastic.logs/processors.add_fields.target="
+      - "co.elastic.logs/processors.add_fields.fields.abes_appli=qualinka-ms-find-ra-idref"
 
   find-nonlinked-rc-sudoc:
     image: abesesr/microservice-find-nonlinked-rc-sudoc:0.0.1-SNAPSHOT
@@ -78,6 +102,12 @@ services:
     restart: always
     networks:
       - microservice
+    labels:
+      - "co.elastic.logs/enabled=true"
+      - "co.elastic.logs/fileset.stdout=access"
+      - "co.elastic.logs/fileset.stderr=error"
+      - "co.elastic.logs/processors.add_fields.target="
+      - "co.elastic.logs/processors.add_fields.fields.abes_appli=qualinka-ms-find-nonlinked-rc-sudoc"
 
   linkedrc:
     image: abesesr/microservice-linked_rc_idref_sudoc:0.0.1-SNAPSHOT
@@ -99,6 +129,12 @@ services:
     restart: always
     networks:
       - microservice
+    labels:
+      - "co.elastic.logs/enabled=true"
+      - "co.elastic.logs/fileset.stdout=access"
+      - "co.elastic.logs/fileset.stderr=error"
+      - "co.elastic.logs/processors.add_fields.target="
+      - "co.elastic.logs/processors.add_fields.fields.abes_appli=qualinka-ms-linked-rc-idref-sudoc"
 
   attrra:
     image: abesesr/microservice-attrra:0.0.1-SNAPSHOT
@@ -120,6 +156,12 @@ services:
     restart: always
     networks:
       - microservice
+    labels:
+      - "co.elastic.logs/enabled=true"
+      - "co.elastic.logs/fileset.stdout=access"
+      - "co.elastic.logs/fileset.stderr=error"
+      - "co.elastic.logs/processors.add_fields.target="
+      - "co.elastic.logs/processors.add_fields.fields.abes_appli=qualinka-ms-attrra"
 
   attrrc:
     image: abesesr/microservice-attrrc:0.0.1-SNAPSHOT
@@ -141,6 +183,12 @@ services:
     restart: always
     networks:
       - microservice
+    labels:
+      - "co.elastic.logs/enabled=true"
+      - "co.elastic.logs/fileset.stdout=access"
+      - "co.elastic.logs/fileset.stderr=error"
+      - "co.elastic.logs/processors.add_fields.target="
+      - "co.elastic.logs/processors.add_fields.fields.abes_appli=qualinka-ms-attrrc"
 
   zipkin-server:
     image: openzipkin/zipkin:2.23

@@ -30,7 +30,7 @@ public class StringOperator {
         Map<Integer, String> initMap = new LinkedHashMap<>();
 
         // Init HashMap avec 9 cases et les valeurs sont null par défaut
-        IntStream.range(1, 10).forEach( x -> initMap.put(x, null));
+        IntStream.range(1, 11).forEach( x -> initMap.put(x, null));
 
         // Traitement le Prénom (firstName) et le Nom (lastName)
         List<String> fName = processName(firstName);
@@ -46,6 +46,7 @@ public class StringOperator {
             initMap.put(5, fName.get(0) );
             initMap.put(6, fName.get(1) );
             initMap.put(7, fName.get(0).substring(0, 1) );
+            initMap.put(8, fName.get(1).substring(0, 1) );
 
         }
 
@@ -55,8 +56,8 @@ public class StringOperator {
         }
 
         if (firstName.toLowerCase().matches("^[a-z].-[a-z].")) {
-            initMap.put(8, fName.get(0).substring(0, 1) );
-            initMap.put(9, fName.get(2).substring(0, 1) );
+            initMap.put(9, fName.get(0).substring(0, 1) );
+            initMap.put(10, fName.get(2).substring(0, 1) );
 
         }
 
@@ -64,7 +65,7 @@ public class StringOperator {
             fName.stream()
                     .filter(x -> x.matches("^[a-z].|[a-z]"))
                     .findFirst()
-                    .ifPresent(x -> initMap.put(8, x.substring(0, 1)));
+                    .ifPresent(x -> initMap.put(9, x.substring(0, 1)));
         }
 
         // Print le HashMap avec le nom et le prénom dans la console
@@ -104,7 +105,7 @@ public class StringOperator {
             .collect(Collectors.toList());
 
         // Ajouter une liste de PRENOM avec seulement les clés NON null ( 5 et 6 ) ==> except la clé {7}
-        List<String> requestFirstNameNumbersMatch = mapWithName.entrySet().stream().filter(v ->
+        List<String> requestFirstNameNumbersMatchCase5And6= mapWithName.entrySet().stream().filter(v ->
                                                         (v.getValue() != null & v.getKey().equals(5)) ||
                                                         v.getValue() != null & v.getKey().equals(6)
                                                     )
@@ -112,30 +113,46 @@ public class StringOperator {
                                                     .map(x -> "${"+x+"}")
                                                     .collect(Collectors.toList());
 
+
+        // Ajouter une liste de PRENOM avec seulement les clés NON null ( 8 ) ==> test si la clé 8 et non null
+        List<String> requestFirstNameNumbersMatchCase8 = mapWithName.entrySet().stream().filter(v ->
+                                                        (v.getValue() != null & v.getKey().equals(8))
+                                                        )
+                                                        .map(Map.Entry::getKey)
+                                                        .map(x -> "${"+x+"}")
+                                                        .collect(Collectors.toList());
+
         // Ajouter une liste avec seulement les clés null
         List<String> requestNumbersNotMatch = mapWithName.entrySet().stream().filter(v -> v.getValue() == null)
             .map(Map.Entry::getKey)
             .map(x -> "${"+x+"}")
             .collect(Collectors.toList());
 
-        Predicate<String> filterNameCase5And6And7 = e -> (requestNumbersNotMatch.stream().noneMatch(e::contains) &&
-                                                    requestLastNameNumbersMatch.stream().allMatch(e::contains) &&
-                                                    requestFirstNameNumbersMatch.stream().allMatch(e::contains)) ||
-                                                    (requestNumbersNotMatch.stream().noneMatch(e::contains) &&
-                                                    requestLastNameNumbersMatch.stream().allMatch(e::contains) &&
-                                                    e.contains("{7}") );
+        Predicate<String> filterNamePredicate = null;
+
+        if ( requestFirstNameNumbersMatchCase8.size() > 0) {
+            filterNamePredicate = e -> (requestNumbersNotMatch.stream().noneMatch(e::contains) &&
+                    requestLastNameNumbersMatch.stream().allMatch(e::contains) &&
+                    requestFirstNameNumbersMatchCase5And6.stream().allMatch(e::contains)) ||
+                    (requestNumbersNotMatch.stream().noneMatch(e::contains) &&
+                            requestLastNameNumbersMatch.stream().allMatch(e::contains) &&
+                            e.contains("{7}") && e.contains("{8}") );
+        } else {
+            filterNamePredicate = e -> (requestNumbersNotMatch.stream().noneMatch(e::contains) &&
+                        requestLastNameNumbersMatch.stream().allMatch(e::contains) &&
+                    requestFirstNameNumbersMatchCase5And6.stream().allMatch(e::contains)) ||
+                        (requestNumbersNotMatch.stream().noneMatch(e::contains) &&
+                                requestLastNameNumbersMatch.stream().allMatch(e::contains) &&
+                                e.contains("{7}") );
+        }
+
 
         // Check tous les éléments dans la liste que l'on obtient dans le fichier properties
         // on prend seulement les valeurs qui ne contiennent pas les clés qui sont avec les valeurs null dans le HashMap mapWithName
         // Ensuite, on injecte les noms et les prénoms dans chaque élément (String) de la liste avec les memes numéros de la clé dans initMap
 
-        /*allSolrRequest.stream()
-            .filter(v -> requestNumbersNotMatch.stream().noneMatch(v::contains) &&
-                    requestNameNumbersMatch.stream().allMatch(v::contains))
-                    .forEach(System.out::println);*/
-
         return allSolrRequest.stream()
-            .filter(filterNameCase5And6And7)
+            .filter(filterNamePredicate)
             .map(x -> mapWithNameNotNull.entrySet()
                 .stream()
                 .reduce(x,(s, e) -> s.replace( e.getKey(), e.getValue() ),(s1, s2) ->  null))
@@ -174,9 +191,18 @@ public class StringOperator {
                 .collect(Collectors.toList());
 
         // Ajouter une liste de PRENOM avec seulement les clés NON null ( 5 et 6 ) ==> except la clé {7}
-        List<String> requestFirstNameNumbersMatch = mapWithName.entrySet().stream().filter(v ->
+        List<String> requestFirstNameNumbersMatchCase5And6= mapWithName.entrySet().stream().filter(v ->
                         (v.getValue() != null & v.getKey().equals(5)) ||
                                 v.getValue() != null & v.getKey().equals(6)
+                )
+                .map(Map.Entry::getKey)
+                .map(x -> "${"+x+"}")
+                .collect(Collectors.toList());
+
+
+        // Ajouter une liste de PRENOM avec seulement les clés NON null ( 8 ) ==> test si la clé 8 et non null
+        List<String> requestFirstNameNumbersMatchCase8 = mapWithName.entrySet().stream().filter(v ->
+                        (v.getValue() != null & v.getKey().equals(8))
                 )
                 .map(Map.Entry::getKey)
                 .map(x -> "${"+x+"}")
@@ -188,15 +214,28 @@ public class StringOperator {
                 .map(x -> "${"+x+"}")
                 .collect(Collectors.toList());
 
-        Predicate<String> filterNameCase5And6And7 = e -> (requestNumbersNotMatch.stream().noneMatch(e::contains) &&
-                requestLastNameNumbersMatch.stream().allMatch(e::contains) &&
-                requestFirstNameNumbersMatch.stream().allMatch(e::contains)) ||
-                (requestNumbersNotMatch.stream().noneMatch(e::contains) &&
-                        requestLastNameNumbersMatch.stream().allMatch(e::contains) &&
-                        e.contains("{7}") );
 
+        Predicate<String> filterNamePredicate = null;
+
+        if ( requestFirstNameNumbersMatchCase8.size() > 0) {
+            filterNamePredicate = e -> (requestNumbersNotMatch.stream().noneMatch(e::contains) &&
+                    requestLastNameNumbersMatch.stream().allMatch(e::contains) &&
+                    requestFirstNameNumbersMatchCase5And6.stream().allMatch(e::contains)) ||
+                    (requestNumbersNotMatch.stream().noneMatch(e::contains) &&
+                            requestLastNameNumbersMatch.stream().allMatch(e::contains) &&
+                            e.contains("{7}") && e.contains("{8}") );
+        } else {
+            filterNamePredicate = e -> (requestNumbersNotMatch.stream().noneMatch(e::contains) &&
+                    requestLastNameNumbersMatch.stream().allMatch(e::contains) &&
+                    requestFirstNameNumbersMatchCase5And6.stream().allMatch(e::contains)) ||
+                    (requestNumbersNotMatch.stream().noneMatch(e::contains) &&
+                            requestLastNameNumbersMatch.stream().allMatch(e::contains) &&
+                            e.contains("{7}") );
+        }
+
+        Predicate<String> finalFilterNamePredicate = filterNamePredicate;
         return mapRequestSolr.entrySet().stream()
-                .filter(x -> filterNameCase5And6And7.test(x.getValue()))
+                .filter(x -> finalFilterNamePredicate.test(x.getValue()))
                 .sorted(Comparator.comparing(v -> Integer.parseInt(v.getKey().replace("R", ""))))
                 .collect(Collectors.toMap(
                     Map.Entry::getKey,

@@ -1,6 +1,8 @@
 package fr.abes.attrrc.domain.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import fr.abes.attrrc.domain.entity.Translitteration;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,8 +20,9 @@ public class RCDto {
     private String dateCreationNotice;
     private String citation;
     private String ppnAut;
-    private String appellation;
+    private List<Translitteration> appelation;
     private List<String> rameau;
+    @JsonIgnore
     private List<String> subject600new;
     private List<String> subject600;
     private List<String> subject601;
@@ -29,13 +32,12 @@ public class RCDto {
     private List<String> subject607;
     private List<String> subject608;
     private List<String> dewey;
-    private String title;
+    private List<Translitteration> title;
     private List<String> cocontributor;
     private List<String> corporateBody;
     private String publicationDate;
     private String originalPublicationDate;
-    private List<String> domain_code;
-    private List<String> domain_lib;
+    private List<DomainCodeDto> domain;
     private List<String> otherIdDoc;
     private List<String> docLang;
     private List<String> originalDocLang;
@@ -44,7 +46,10 @@ public class RCDto {
     private List<String> keyword;
     private List<String> mesh;
     private String genre;
-    private String role_code;
-    private String role_en;
-    private String role_fr;
+    @JsonIgnore
+    private List<String> role_code;
+    private List<LibRoleDto> role;
+    private String thesisNote;
+    private boolean location;
+
 }

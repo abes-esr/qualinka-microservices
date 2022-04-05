@@ -17,10 +17,13 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -56,12 +59,12 @@ public class ReferenceAutoriteModeDebugService {
 
     public Flux<ReferenceAutoriteGetDtoModeDebug> findAllRAAsModeDebug(String from, String fileName, String firstName, String lastName) {
 
-        String flParams = (from != null && from.equals("fromFindrc")) ? "id,ppn_z,B700.B700Sa_BS,B700.B700Sb_BS" : "id,ppn_z,A200.A200Sa_AS,A200.A200Sb_AS";
-        List<String> requests = stringOperator.listOfSolrRequestFromPropertieFile(fileName, firstName, lastName);
+        String flParams = (from != null && from.equals("fromFindrc")) ? "id,ppn_z,B700.B700Sa_BS,B700.B700Sb_BS,B701.B701Sa_BS,B701.B701Sb_BS,B702.B702Sa_BS,B702.B702Sb_BS" : "id,ppn_z,A200.A200Sa_AS,A200.A200Sb_AS";
+        //List<String> requests = stringOperator.listOfSolrRequestFromPropertieFile(fileName, firstName, lastName);
         Map<String,String> mapOfRequestSolr = stringOperator.listOfRequestSolrForDebug(fileName, firstName, lastName);
         return Flux.fromIterable(mapOfRequestSolr.entrySet())
-                    .flatMap(v -> referenceAutoriteGetDtoModeDebugMono(v, flParams, firstName,  lastName))
-                    .sort(Comparator.comparingInt(a -> Integer.parseInt(a.getNumberOfRequest().substring(1))));
+                .flatMap(v -> referenceAutoriteGetDtoModeDebugMono(v, flParams, firstName,  lastName))
+                .sort(Comparator.comparingInt(a -> Integer.parseInt(a.getNumberOfRequest().substring(1))));
     }
 
 
@@ -76,55 +79,81 @@ public class ReferenceAutoriteModeDebugService {
         ReferenceAutoriteGetDtoModeDebug referenceAutoriteGetDtoModeDebug = new ReferenceAutoriteGetDtoModeDebug();
         AtomicInteger ppnCounter = new AtomicInteger(0);
 
-        return webClient.get().uri(builder -> builder
-                .path("/solr/sudoc/select")
-                .queryParam("q", "{requestSolr}")
-                .queryParam("start", "0")
-                .queryParam("rows", "3000")
-                .queryParam("fl", "{flParams}")
-                .queryParam("wt", "json")
-                .build(mapSolrRequets.getValue(), params)
-            )
-            .accept(MediaType.APPLICATION_JSON)
-            .retrieve()
-            .onStatus(HttpStatus::isError,
-                    response -> Mono.error(
-                            new IllegalStateException("Failed to get from the site!")
-                    )
-            )
-            .bodyToMono(JsonNode.class)
-            //.timeout(Duration.ofSeconds(30))
-            .doOnError(e -> log.error( "ERROR => {}", e.getMessage() ))
-            .onErrorResume(e -> Mono.empty())
-            .map(jsonNode -> jsonNode.findValue("docs"))
-            .map(v -> {
-                ObjectReader reader = mapper.readerFor(new TypeReference<List<ReferenceAutorite>>(){});
-                try {
-                    return reader.<List<ReferenceAutorite>>readValue(v);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return new ArrayList<ReferenceAutorite>();
-                }
-            })
-            .flatMapMany(Flux::fromIterable)
-            .map(mapStructMapper::referenceAutoriteToreferenceAutoriteDto)
-            .filter(x -> ( !Strings.isNullOrEmpty(x.getLastName()) ))
-            .filter(x ->
-                    Strings.isNullOrEmpty(x.getFirstName()) ||
-                    (( x.getFirstName().split(" ").length >= firstName.split("-").length ) ||
-                    ( x.getFirstName().split("-").length >= firstName.split("-").length ) ||
-                    ( x.getFirstName().split("\\.").length >= firstName.split("-").length ))
-            )
-            .map(v -> {
-                referenceAutoriteDtoList.add(v);
-                referenceAutoriteGetDtoModeDebug.setNumberOfRequest(mapSolrRequets.getKey());
-                referenceAutoriteGetDtoModeDebug.setSolrRequest(mapSolrRequets.getValue());
-                referenceAutoriteGetDtoModeDebug.setFound(ppnCounter.getAndIncrement()+1);
-                referenceAutoriteGetDtoModeDebug.setResults(referenceAutoriteDtoList);
-                return referenceAutoriteGetDtoModeDebug;
-            })
-            .last()
-            .onErrorResume(x -> Mono.just(new ReferenceAutoriteGetDtoModeDebug(mapSolrRequets.getKey(),mapSolrRequets.getValue(), 0, new ArrayList<>())));
+        URI uri;
+        String x = mapSolrRequets.getValue();
+        if (x.contains("&nested=")){
+            String requestSolr = x.substring(0,x.indexOf("&"));
+            String requestNested = x.substring(x.indexOf("&nested=")+8);
+            uri = UriComponentsBuilder
+                    .fromHttpUrl(this.solrBaseUrl)
+                    .pathSegment("solr", "sudoc", "tree")
+                    .queryParam("q", "{requestSolr}")
+                    .queryParam("nested", "{requestNested}")
+                    .queryParam("start", "0")
+                    .queryParam("rows", "3000")
+                    .queryParam("fl", "{flParams}")
+                    .queryParam("wt", "json")
+                    .build(requestSolr,requestNested,params);
+        }
+        else {
+            String requestSolr = x;
+            uri = UriComponentsBuilder
+                    .fromHttpUrl(this.solrBaseUrl)
+                    .pathSegment("solr", "sudoc", "select")
+                    .queryParam("q", "{requestSolr}")
+                    .queryParam("start", "0")
+                    .queryParam("rows", "3000")
+                    .queryParam("fl", "{flParams}")
+                    .queryParam("wt", "json")
+                    .build(requestSolr,params);
+        }
+        return webClient.get().uri(uri).accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .onStatus(HttpStatus::isError,
+                        response -> Mono.error(
+                                new IllegalStateException("Failed to get from the site!")
+                        )
+                )
+                .bodyToMono(JsonNode.class)
+                //.timeout(Duration.ofSeconds(30))
+                .doOnError(e -> log.error( "ERROR => {}", e.getMessage() ))
+                .onErrorResume(e -> Mono.empty())
+                .map(jsonNode -> jsonNode.findValue("docs"))
+                .map(v -> {
+                    ObjectReader reader = mapper.readerFor(new TypeReference<List<ReferenceAutorite>>(){});
+                    try {
+                        return reader.<List<ReferenceAutorite>>readValue(v);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return new ArrayList<ReferenceAutorite>();
+                    }
+                })
+                .flatMapMany(Flux::fromIterable)
+                .parallel().runOn(Schedulers.boundedElastic())
+                .map(mapStructMapper::referenceAutoriteToreferenceAutoriteDto)
+                /*.filter(x -> {
+                    if (!Strings.isNullOrEmpty(x.getFirstName()) && !x.getFirstName().matches("^[a-zA-Z].")
+                            && !x.getFirstName().contains(lastName))
+                    {
+
+                        return ((( x.getFirstName().split(" ").length >= firstName.split("-").length ) ||
+                                ( x.getFirstName().split("-").length >= firstName.split("-").length ) ||
+                                ( x.getFirstName().split("\\.").length >= firstName.split("-").length )));
+
+                    }
+                    return true;
+                })*/
+                .sequential()
+                .map(v -> {
+                    referenceAutoriteDtoList.add(v);
+                    referenceAutoriteGetDtoModeDebug.setNumberOfRequest(mapSolrRequets.getKey());
+                    referenceAutoriteGetDtoModeDebug.setSolrRequest(mapSolrRequets.getValue());
+                    referenceAutoriteGetDtoModeDebug.setFound(ppnCounter.getAndIncrement()+1);
+                    referenceAutoriteGetDtoModeDebug.setResults(referenceAutoriteDtoList);
+                    return referenceAutoriteGetDtoModeDebug;
+                })
+                .last()
+                .onErrorResume(y -> Mono.just(new ReferenceAutoriteGetDtoModeDebug(mapSolrRequets.getKey(),mapSolrRequets.getValue(), 0, new ArrayList<>())));
     }
 
 

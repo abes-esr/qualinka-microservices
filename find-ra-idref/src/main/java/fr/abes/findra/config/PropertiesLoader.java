@@ -19,28 +19,30 @@ public class PropertiesLoader {
 
     public PropertiesLoader(String fileName){
 
-        log.info("Reading all properties from the file");
+        log.info("Reading properties from file {}", fileName);
         try {
             InputStream in = loadSolrResource(fileName).getInputStream();
             configProp.load(in);
         } catch (IOException e) {
             e.printStackTrace();
+            log.error("Can not read file {}", fileName);
         }
 
     }
 
-    private Resource loadSolrResource(String fileName) throws IOException {
+    private Resource loadSolrResource(String fileName) {
         ResourceLoader resourceLoader = new DefaultResourceLoader();
 
         /*String urlGit = "https://raw.githubusercontent.com/abes-esr/qualinka-findws-requests/main/"+ file+".properties";
         Resource resource = resourceLoader.getResource(urlGit);*/
 
-        Resource resource = resourceLoader.getResource("classpath:solr-requetes/" + fileName +".properties");
+        String urlGit = "https://raw.githubusercontent.com/abes-esr/qualinka-findws-requests/master/"+ fileName+".properties";
+        Resource resource = resourceLoader.getResource(urlGit);
+
         if (resource.exists()) {
-            return resourceLoader.getResource("classpath:solr-requetes/" + fileName +".properties");
-        } else {
-            String urlGit = "https://raw.githubusercontent.com/abes-esr/qualinka-findws-requests/master/"+ fileName+".properties";
             return resourceLoader.getResource(urlGit);
+        } else {
+            return resourceLoader.getResource("classpath:solr-requetes/" + fileName +".properties");
         }
 
     }

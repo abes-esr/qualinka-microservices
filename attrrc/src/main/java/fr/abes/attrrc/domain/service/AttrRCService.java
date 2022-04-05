@@ -1,6 +1,7 @@
 package fr.abes.attrrc.domain.service;
 
-import fr.abes.attrrc.domain.dto.DomainCodeDto;
+import com.google.common.base.Strings;
+import fr.abes.attrrc.domain.dto.LibRoleDto;
 import fr.abes.attrrc.domain.dto.RCDto;
 import fr.abes.attrrc.domain.entity.*;
 import fr.abes.attrrc.domain.repository.*;
@@ -9,16 +10,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.groupingBy;
 
 
 @RequiredArgsConstructor
@@ -45,38 +48,58 @@ public class AttrRCService {
         String ppnVal = rc_id.substring(0, rc_id.indexOf("-"));
         int posVal = Integer.parseInt(rc_id.substring(rc_id.indexOf("-") + 1));
 
+
+        Predicate<Datafield> datafieldPredicateTag035 = t -> t.getTag().equals("035");
+        Predicate<Datafield> datafieldPredicateTag100 = t -> t.getTag().equals("100");
+        Predicate<Datafield> datafieldPredicateTag101 = t -> t.getTag().equals("101");
+        Predicate<Datafield> datafieldPredicateTag105 = t -> t.getTag().equals("105");
+        Predicate<Datafield> datafieldPredicateTag200 = t -> t.getTag().equals("200");
+        Predicate<Datafield> datafieldPredicateTag210 = t -> t.getTag().equals("210");
+        Predicate<Datafield> datafieldPredicateTag214 = t -> t.getTag().equals("214");
+        Predicate<Datafield> datafieldPredicateTag328 = t -> t.getTag().equals("328");
+        Predicate<Datafield> datafieldPredicateTag600 = t -> t.getTag().equals("600");
+        Predicate<Datafield> datafieldPredicateTag601 = t -> t.getTag().equals("601");
+        Predicate<Datafield> datafieldPredicateTag602 = t -> t.getTag().equals("602");
+        Predicate<Datafield> datafieldPredicateTag604 = t -> t.getTag().equals("604");
+        Predicate<Datafield> datafieldPredicateTag605 = t -> t.getTag().equals("605");
+        Predicate<Datafield> datafieldPredicateTag606 = t -> t.getTag().equals("606");
+        Predicate<Datafield> datafieldPredicateTag607 = t -> t.getTag().equals("607");
+        Predicate<Datafield> datafieldPredicateTag608 = t -> t.getTag().equals("608");
+        Predicate<Datafield> datafieldPredicateTag676 = t -> t.getTag().equals("676");
+        Predicate<Datafield> datafieldPredicateTag71 = t -> t.getTag().startsWith("71");
+        Predicate<Datafield> datafieldPredicateTag930 = t -> t.getTag().equals("930");
+        Predicate<Subfield> subfieldPredicateCode2 = t -> t.getCode().equals("2");
+        Predicate<Subfield> subfieldPredicateCode3 = t -> t.getCode().equals("3");
+        Predicate<Subfield> subfieldPredicateCode4 = t -> t.getCode().equals("4");
+        Predicate<Subfield> subfieldPredicateCode6 = t -> t.getCode().equals("6");
+        Predicate<Subfield> subfieldPredicateCode7 = t -> t.getCode().equals("7");
+        Predicate<Subfield> subfieldPredicateCodeA = t -> t.getCode().equals("a");
+        Predicate<Subfield> subfieldPredicateCodeB = t -> t.getCode().equals("b");
+        Predicate<Subfield> subfieldPredicateCodeC = t -> t.getCode().equals("c");
+        Predicate<Subfield> subfieldPredicateCodeD = t -> t.getCode().equals("d");
+        Predicate<Subfield> subfieldPredicateCodeE = t -> t.getCode().equals("e");
+        Predicate<Subfield> subfieldPredicateNotCode2 = t -> !t.getCode().equals("2");
+        Predicate<Subfield> subfieldPredicateNotCode3 = t -> !t.getCode().equals("3");
+
+
         return oracleReferenceAuth.getXmlRootRecordOracle(ppnVal)
                 .flatMap(v -> {
 
-                    Predicate<Datafield> datafieldPredicateTag035 = t -> t.getTag().equals("035");
-                    Predicate<Datafield> datafieldPredicateTag100 = t -> t.getTag().equals("100");
-                    Predicate<Datafield> datafieldPredicateTag101 = t -> t.getTag().equals("101");
-                    Predicate<Datafield> datafieldPredicateTag105 = t -> t.getTag().equals("105");
-                    Predicate<Datafield> datafieldPredicateTag200 = t -> t.getTag().equals("200");
-                    Predicate<Datafield> datafieldPredicateTag210 = t -> t.getTag().equals("210");
-                    Predicate<Datafield> datafieldPredicateTag214 = t -> t.getTag().equals("214");
-                    Predicate<Datafield> datafieldPredicateTag600 = t -> t.getTag().equals("600");
-                    Predicate<Datafield> datafieldPredicateTag601 = t -> t.getTag().equals("601");
-                    Predicate<Datafield> datafieldPredicateTag602 = t -> t.getTag().equals("602");
-                    Predicate<Datafield> datafieldPredicateTag604 = t -> t.getTag().equals("604");
-                    Predicate<Datafield> datafieldPredicateTag605 = t -> t.getTag().equals("605");
-                    Predicate<Datafield> datafieldPredicateTag606 = t -> t.getTag().equals("606");
-                    Predicate<Datafield> datafieldPredicateTag607 = t -> t.getTag().equals("607");
-                    Predicate<Datafield> datafieldPredicateTag608 = t -> t.getTag().equals("608");
-                    Predicate<Datafield> datafieldPredicateTag676 = t -> t.getTag().equals("676");
-                    Predicate<Datafield> datafieldPredicateTag71 = t -> t.getTag().startsWith("71");
-                    Predicate<Subfield> subfieldPredicateCode2 = t -> t.getCode().equals("2");
-                    Predicate<Subfield> subfieldPredicateCode3 = t -> t.getCode().equals("3");
-                    Predicate<Subfield> subfieldPredicateCode4 = t -> t.getCode().equals("4");
-                    Predicate<Subfield> subfieldPredicateCodeA = t -> t.getCode().equals("a");
-                    Predicate<Subfield> subfieldPredicateCodeB = t -> t.getCode().equals("b");
-                    Predicate<Subfield> subfieldPredicateCodeC = t -> t.getCode().equals("c");
-                    Predicate<Subfield> subfieldPredicateCodeD = t -> t.getCode().equals("d");
-                    Predicate<Subfield> subfieldPredicateCodeE = t -> t.getCode().equals("e");
-                    Predicate<Subfield> subfieldPredicateNotCode2 = t -> !t.getCode().equals("2");
-                    Predicate<Subfield> subfieldPredicateNotCode3 = t -> !t.getCode().equals("3");
+                    XmlRootRecord xmlRootRecordCopy = new XmlRootRecord();
 
+                    xmlRootRecordCopy.setControlfieldList(v.getControlfieldList());
+                    List<Datafield> datafieldList = v.getDatafieldList().stream()
+                            .filter(t ->
+                                t.getSubfieldList().stream()
+                                        .noneMatch(s -> s.getCode().equals("7") &&  !s.getSubfield().equals("ba"))
+                                || t.getTag().startsWith("70") || t.getTag().equals("200")
+                            )
+                            .collect(Collectors.toList());
+                    xmlRootRecordCopy.setDatafieldList(datafieldList);
 
+                    return Mono.just(xmlRootRecordCopy);
+                })
+                .flatMap(v -> {
 
                     //Set ID
                     rcDto.setId(rc_id);
@@ -96,11 +119,53 @@ public class AttrRCService {
                             .mapToObj(datafields::get)
                             .flatMap(t -> t.getSubfieldList().stream());
 
+
+
                     streamSupplier.get().filter(subfieldPredicateCode3).findFirst().ifPresent(t -> {
                         rcDto.setPpnAut(t.getSubfield());
                     });
 
-                    StringBuilder appellation = streamSupplier.get().filter(subfieldPredicateCodeA.or(subfieldPredicateCodeB))
+
+                    List<Translitteration> appelationList = new ArrayList<>();
+                    AtomicReference<String> subfieldCode6 = new AtomicReference<>();
+
+                    streamSupplier.get().filter(subfieldPredicateCode6).findFirst()
+                        .ifPresent(t -> {
+                            subfieldCode6.set(t.getSubfield());
+                        });
+
+                    if (!Strings.isNullOrEmpty(subfieldCode6.get())) {
+
+                        datafields.stream()
+                            .filter(s -> s.getSubfieldList()
+                                    .stream().anyMatch(u -> u.getSubfield().equals(subfieldCode6.get())))
+                            .forEach(s -> {
+
+                                Translitteration appelation = new Translitteration();
+
+                                appelation.setScript(s.getSubfieldList().stream().filter(subfieldPredicateCode7)
+                                        .map(Subfield::getSubfield)
+                                        .collect(Collectors.joining()));
+
+
+                                StringBuilder appelationValue = s.getSubfieldList().stream()
+                                        .filter(subfieldPredicateCodeA.or(subfieldPredicateCodeB))
+                                        .map(i -> new StringBuilder(i.getSubfield()))
+                                        .reduce(new StringBuilder(), (a, b) -> {
+                                            if (a.length() > 0) {
+                                                a.append(", ");
+                                            }
+                                            a.append(b);
+                                            return a;
+                                        });
+                                appelation.setValue(appelationValue.toString());
+
+                                appelationList.add(appelation);
+                            });
+
+                    } else {
+
+                        StringBuilder appelationValue = streamSupplier.get().filter(subfieldPredicateCodeA.or(subfieldPredicateCodeB))
                             .map(t -> new StringBuilder(t.getSubfield()))
                             .reduce(new StringBuilder(), (a, b) -> {
                                 if (a.length() > 0) {
@@ -110,14 +175,19 @@ public class AttrRCService {
                                 return a;
                             });
 
-                    rcDto.setAppellation(appellation.toString());
+                        Translitteration appelation = new Translitteration();
+                        appelation.setValue(appelationValue.toString());
+                        appelationList.add(appelation);
+                    }
+
+                    rcDto.setAppelation(appelationList);
 
                     // Set Role_Code
-                    String roleCode = streamSupplier.get().filter(subfieldPredicateCode4)
-                            .limit(1)
+                    // On n'utilise pas cet attribut, on a besoin cette valeur pour chercher dans la base de données dans l'étape plus en bas "setRole"
+                    // Résultat de la requete SQL == object LibRoleDto.java
+                    List<String> roleCode = streamSupplier.get().filter(subfieldPredicateCode4)
                             .map(Subfield::getSubfield)
-                            .map(Object::toString)
-                            .collect(Collectors.joining());
+                            .collect(Collectors.toList());
                     rcDto.setRole_code(roleCode);
 
                     // Set Rameau
@@ -173,7 +243,7 @@ public class AttrRCService {
                     );
 
                     // Set 600 new
-                    List<Datafield> datafields600new = v.getDatafieldList().stream()
+                    /*List<Datafield> datafields600new = v.getDatafieldList().stream()
                                                         .filter(datafieldPredicateTag600)
                                                         .collect(Collectors.toList());
                     AtomicInteger j = new AtomicInteger(0);
@@ -199,7 +269,7 @@ public class AttrRCService {
                                 return subfield600new;
                             })
                             .flatMap(List::stream)
-                            .collect(Collectors.toList()));
+                            .collect(Collectors.toList()));*/
 
                     // Set 600
                     rcDto.setSubject600(getList60X(v, datafieldPredicateTag600, subfieldPredicateNotCode3));
@@ -230,21 +300,49 @@ public class AttrRCService {
                             .collect(Collectors.toList()));
 
                     // Set Title
-                    rcDto.setTitle(removedUnicode989C(v.getDatafieldList().stream().filter(datafieldPredicateTag200)
-                            .flatMap(t -> t.getSubfieldList().stream())
-                            .filter(subfieldPredicateCodeA.or(subfieldPredicateCodeE))
-                            .map(t -> new StringBuilder(t.getSubfield()))
-                            .reduce(new StringBuilder(), (a, b) -> {
-                                if (a.length() > 0) {
-                                    a.append(" : ");
-                                }
-                                a.append(b);
-                                return a;
-                            }).toString()));
+
+                    List<Datafield> datafieldList200 = v.getDatafieldList().stream().filter(datafieldPredicateTag200)
+                                    .collect(Collectors.toList());
+
+                    List<Translitteration> titleList = new ArrayList<>();
+
+                    datafieldList200.forEach(t -> {
+                        Translitteration title = new Translitteration();
+
+                        t.getSubfieldList().stream().filter(subfieldPredicateCode7).findFirst()
+                                .ifPresent(s -> {
+                                    if (!s.getSubfield().equals("ba")) {
+                                        title.setScript(s.getSubfield());
+                                    }
+                                });
+
+                        String titleValue = t.getSubfieldList().stream().filter(subfieldPredicateCodeA.or(subfieldPredicateCodeE))
+                                .map(s -> new StringBuilder(s.getSubfield()))
+                                .reduce(new StringBuilder(), (a, b) -> {
+                                    if (a.length() > 0) {
+                                        a.append(" : ");
+                                    }
+                                    a.append(b);
+                                    return a;
+                                }).toString();
+
+                        title.setValue(removedUnicode989C(titleValue));
+                        titleList.add(title);
+                    });
+
+                    rcDto.setTitle(titleList);
 
                     // Set Contributor
                     rcDto.setCocontributor(IntStream.range(0, datafields.size()).filter(i -> i != posVal - 1)
                             .mapToObj(datafields::get)
+                            .filter(t ->
+                                t.getSubfieldList().stream()
+                                    .noneMatch(s -> s.getSubfield().equals(subfieldCode6.get()))
+                            )
+                            .filter(t ->
+                                t.getSubfieldList().stream()
+                                    .noneMatch(s -> s.getCode().equals("7") && !s.getSubfield().equals("ba"))
+                            )
                             .map(t -> {
                                 List<String> contributor = new ArrayList<>();
                                 StringBuilder stringBuilderContributor = getReduceStringBuilderWithPredicate(
@@ -338,6 +436,26 @@ public class AttrRCService {
                                 }
                             });
 
+                    // Set thesisNote
+                    List<Datafield> datafieldList328 = v.getDatafieldList().stream().filter(datafieldPredicateTag328)
+                            .collect(Collectors.toCollection(LinkedList::new));
+
+                    if (datafieldList328.size() > 0) {
+                        setThesIsNote(rcDto, subfieldPredicateCodeA, datafieldList328);
+                    }
+
+                    // Set Location
+
+                    v.getDatafieldList().stream().filter(datafieldPredicateTag930)
+                            .findAny()
+                            .ifPresent(datafield -> datafield.getSubfieldList().stream()
+                                    .filter(subfieldPredicateCodeB).findAny()
+                                    .ifPresentOrElse(t -> rcDto.setLocation(true), () -> rcDto.setLocation(false)));
+
+
+
+
+
                     return Mono.just(rcDto);
 
                 })
@@ -348,16 +466,21 @@ public class AttrRCService {
                         }))
                 .flatMap(v -> oracleReferenceAuth.getDomainCodeAndValue(ppnVal).collectList()
                         .map(t -> {
-                            v.setDomain_code(t.stream().map(DomainCodeDto::code).collect(Collectors.toList()));
-                            v.setDomain_lib(t.stream().map(DomainCodeDto::valeure).collect(Collectors.toList()));
+                            // Set Domain (code & value)
+                            v.setDomain(t);
                             return v;
                         }))
-                .flatMap(v -> oracleReferenceAuth.getLibRoleOracle(v.getRole_code())
-                        .map(t -> {
-                            v.setRole_fr(t.fr());
-                            v.setRole_en(t.en());
-                            return v;
-                        }))
+                .flatMap(v -> {
+                    List<LibRoleDto> libRoleDtoList = new ArrayList<>();
+                    v.getRole_code().forEach(r -> {
+                        oracleReferenceAuth.getLibRoleOracle(r)
+                                .doOnNext(libRoleDtoList::add)
+                                .block();
+                    });
+                    v.setRole(libRoleDtoList);
+                    return Mono.just(v);
+                    }
+                )
                 .flatMap(v -> oracleReferenceAuth.getkeywordOracle(ppnVal).collectList()
                         .map(t -> {
                             List<String> keywordsList = t.stream().map(e -> e.split("[,:;/.]"))
@@ -371,6 +494,41 @@ public class AttrRCService {
                 .onErrorResume(t -> Mono.empty())
                 .switchIfEmpty(Mono.just(rcDto));
 
+    }
+
+    private void setThesIsNote(RCDto rcDto, Predicate<Subfield> subfieldPredicateCodeA, List<Datafield> datafieldList328) {
+
+        Optional<Datafield> datafield328Match = datafieldList328.stream()
+                .filter(t -> t.getSubfieldList().stream().noneMatch(c -> c.getCode().equals("a")))
+                .findFirst();
+
+        if (datafield328Match.isPresent()) {
+            String string328 = datafield328Match.stream()
+                    .map(Datafield::getSubfieldList)
+                    .map(s ->
+                            s.stream().map(e -> new StringBuilder(e.getSubfield()))
+                                    .reduce(new StringBuilder(), (a,b) -> {
+                                        if (a.length() > 0) {
+                                            a.append(" : ");
+                                        }
+                                        a.append(b);
+                                        return a;
+                                    })
+                    )
+                    .collect(Collectors.joining());
+
+            rcDto.setThesisNote(string328);
+        } else {
+            datafieldList328.stream()
+                    .filter(t -> t.getSubfieldList().stream().anyMatch(c -> c.getCode().equals("a")))
+                    .findFirst()
+                    .ifPresent(s -> {
+                        String string328 = s.getSubfieldList().stream().filter(subfieldPredicateCodeA)
+                                .map(Subfield::getSubfield)
+                                .collect(Collectors.joining());
+                        rcDto.setThesisNote(string328);
+                    });
+        }
     }
 
     // Traitement les Datafield avec les tag 60x
