@@ -88,7 +88,6 @@ public class ReferenceContextuelService {
                                     LuceneSearch.Search(t.getFirstName(), firstName.replace("-", " ") + "~0.8") > 0
                                     || LuceneSearch.Search(t.getFirstName(), firstName.charAt(0) + "*" + "~0.8") > 0
                                     || (firstName.replace(".", "").length() == 1 && t.getFirstName().equals(firstName))
-                                    || (t.getFirstName().replace(".", "").length() == 1 && firstName.charAt(0) == t.getFirstName().charAt(0))
                                 );
                         } else {
                             return
