@@ -28,11 +28,13 @@ public class FindRcController {
 
 
     @GetMapping("req")
-    @Operation(description = "A partir d'un nom et prénom (name et lastname), renvoie les références contextuelles (RC) non liées (pas de 70X$3) dans la base de données Sudoc. Un fichier de requêtes Solr peut être précisé (file)",
+    @Operation(description = "A partir d'une appellation (dont la forme la plus courante est firstName / lastName), le service renvoie les points d’accès des notices bibliographiques Sudoc non liés à une autorité de la base IdRef (sous la forme ppn + \"-\" + sa position à partir des zones 70X ; ex. 123456789-1).  <br/><br/>" +
+            "Avec le paramètre \"file\", il est possible d’appeler un fichier de requêtes en particulier, afin d’ajuster les requêtes passées à l’appellation en entrée (ex : réduite à un lastName) ou le degré de finesse des résultats (ex : recherche étroite).  <br/><br/>" +
+            "Ce service est le complémentaire du service \"linked_rc_idref_sudoc\".",
             parameters = {
                     @Parameter(name = "firstName", in = ParameterIn.QUERY, required = false, example = "valérie", description = "Prénom"),
                     @Parameter(name = "lastName", in = ParameterIn.QUERY, required = true, example = "robert", description = "Nom"),
-                    @Parameter(name = "file", in = ParameterIn.QUERY, required = false, description = "Fichier de requêtes Solr (ex : findrc_light)"),
+                    @Parameter(name = "file", in = ParameterIn.QUERY, required = false, description = "Fichier de requêtes (ex : findrc_light)"),
                     @Parameter(name = "format", in = ParameterIn.QUERY, required = false, description = "Format de la réponse : xml, json (défaut)")
             }
     )
@@ -67,11 +69,13 @@ public class FindRcController {
     }
 
     @GetMapping("debug/req")
-    @Operation(description = "Mode debug : à partir d'un nom et prénom (name et lastname), renvoie les références contextuelles (RC) non liées (pas de 70X$3) dans la base de données Sudoc. Un fichier de requêtes Solr peut être précisé (file)",
+    @Operation(description = "Mode debug : à partir d'une appellation (dont la forme la plus courante est firstName / lastName), le service renvoie les points d’accès des notices bibliographiques Sudoc non liés à une autorité de la base IdRef (sous la forme ppn + \"-\" + sa position à partir des zones 70X ; ex. 123456789-1).  <br/><br/>" +
+            "Avec le paramètre \"file\", il est possible d’appeler un fichier de requêtes en particulier, afin d’ajuster les requêtes passées à l’appellation en entrée (ex : réduite à un lastName) ou le degré de finesse des résultats (ex : recherche étroite).  <br/><br/>" +
+            "Ce service est le complémentaire du service \"linked_rc_idref_sudoc\".",
             parameters = {
                     @Parameter(name = "firstName", in = ParameterIn.QUERY, required = false, example = "valérie", description = "Prénom"),
                     @Parameter(name = "lastName", in = ParameterIn.QUERY, required = true, example = "robert", description = "Nom"),
-                    @Parameter(name = "file", in = ParameterIn.QUERY, required = false, description = "Fichier de requêtes Solr (ex : findrc_light)")
+                    @Parameter(name = "file", in = ParameterIn.QUERY, required = false, description = "Fichier de requêtes (ex : findrc_light)")
             }
     )
     public Flux<ReferenceAutoriteDtoDebugProxy> getAllDebug(@RequestParam(required = false) String file,

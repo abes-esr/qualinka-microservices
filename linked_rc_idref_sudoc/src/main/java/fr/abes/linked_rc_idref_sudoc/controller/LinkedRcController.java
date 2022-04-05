@@ -26,9 +26,11 @@ public class LinkedRcController {
 
 
     @GetMapping("req")
-    @Operation(description = "A partir d'un identifiant d'une RA (le ppn) de la base IdRef, renvoie les RC liées de la base Sudoc (en 70X$3)",
+    @Operation(description = "A partir d'un identifiant IdRef de notice d’autorité (sous la forme ex. 123456879), le service renvoie les points d’accès des notices bibliographiques Sudoc liés à une autorité de la base IdRef (sous la forme ppn + \"-\" + sa position à partir des zones 70X ; ex. 123456789-1).  <br/><br/>" +
+            "Avec le paramètre \"file\", il est possible d’appeler un fichier de requêtes en particulier, afin d’ajuster les requêtes passées à l’appellation en entrée (ex : réduite à un lastName) ou le degré de finesse des résultats (ex : recherche étroite).  <br/><br/>" +
+            "Ce service est le complémentaire du service \"find-nonlinked-rc-sudoc\".",
                 parameters = {
-                    @Parameter(name = "ra_id", in = ParameterIn.QUERY, required = true, example = "076642860", description = "Identifiant d'une RA (le ppn) de la base IdRef"),
+                    @Parameter(name = "ra_id", in = ParameterIn.QUERY, required = true, example = "076642860", description = "Identifiant IdRef de notice d’autorité"),
                     @Parameter(name = "format", in = ParameterIn.QUERY, required = false, description = "Format de la réponse : xml, json (défaut)")
                 }
     )

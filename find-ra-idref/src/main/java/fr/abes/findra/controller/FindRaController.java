@@ -34,11 +34,12 @@ public class FindRaController {
 
 
     @GetMapping("req")
-    @Operation(description = "A partir d'un nom et prénom (name et lastname), renvoie les références d'autorités (RA) correspondantes dans la base de données IdRef. Un fichier de requêtes Solr peut être précisé (file)",
+    @Operation(description = "A partir d'une appellation (dont la forme la plus courante est firstName / lastName), le service renvoie les notices d’autorité de la base IdRef.  <br/><br/>" +
+            "Avec le paramètre \"file\", il est possible d’appeler un fichier de requêtes en particulier, afin d’ajuster les requêtes passées à l’appellation en entrée (ex : réduite à un lastName) ou le degré de finesse des résultats (ex : recherche étroite).",
                 parameters = {
                     @Parameter(name = "firstName", in = ParameterIn.QUERY, required = false, example = "valérie", description = "Prénom"),
                     @Parameter(name = "lastName", in = ParameterIn.QUERY, required = true, example = "robert", description = "Nom"),
-                    @Parameter(name = "file", in = ParameterIn.QUERY, required = false, description = "Fichier de requêtes Solr (ex : findra_light)"),
+                    @Parameter(name = "file", in = ParameterIn.QUERY, required = false, description = "Fichier de requêtes (ex : findra_light)"),
                     @Parameter(name = "format", in = ParameterIn.QUERY, required = false, description = "Format de la réponse : xml, json (défaut)")
                 }
     )
@@ -90,11 +91,12 @@ public class FindRaController {
     }
 
     @GetMapping(value="debug/req", produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(description = "Mode debug : à partir d'un nom et prénom (name et lastname), renvoie les références d'autorités (RA) correspondantes dans la base de données IdRef. Un fichier de requêtes Solr peut être précisé (file)",
+    @Operation(description = "Mode debug : à partir d'une appellation (dont la forme la plus courante est firstName / lastName), le service renvoie les notices d’autorité de la base IdRef.  <br/><br/>" +
+            "Avec le paramètre \"file\", il est possible d’appeler un fichier de requêtes en particulier, afin d’ajuster les requêtes passées à l’appellation en entrée (ex : réduite à un lastName) ou le degré de finesse des résultats (ex : recherche étroite).",
             parameters = {
                     @Parameter(name = "firstName", in = ParameterIn.QUERY, required = false, example = "valérie", description = "Prénom"),
                     @Parameter(name = "lastName", in = ParameterIn.QUERY, required = true, example = "robert", description = "Nom"),
-                    @Parameter(name = "file", in = ParameterIn.QUERY, required = false, description = "Fichier de requêtes Solr (ex : findra_light)")
+                    @Parameter(name = "file", in = ParameterIn.QUERY, required = false, description = "Fichier de requêtes (ex : findra_light)")
             }
     )
     public Flux<ReferenceAutoriteGetDtoModeDebug> getAllRaAsModeDebug(@RequestParam(required = false) String from,
