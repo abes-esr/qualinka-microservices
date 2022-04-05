@@ -2,10 +2,9 @@ package fr.abes.findrc.domain.service;
 
 import com.google.common.base.Strings;
 import fr.abes.findrc.domain.dto.ReferenceAutoriteDto;
-import fr.abes.findrc.domain.dto.ReferenceAutoriteGetDto;
 import fr.abes.findrc.domain.dto.ReferenceAutoriteDtoProxy;
+import fr.abes.findrc.domain.dto.ReferenceAutoriteGetDto;
 import fr.abes.findrc.domain.entity.ReferenceAutoriteFromOracle;
-import fr.abes.findrc.domain.entity.XmlRootRecord;
 import fr.abes.findrc.domain.repository.ReferenceAutoriteOracle;
 import fr.abes.findrc.domain.repository.ReferenceAutoriteProxy;
 import fr.abes.findrc.domain.utils.LuceneSearch;
@@ -13,8 +12,6 @@ import fr.abes.findrc.domain.utils.MapStructMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -22,6 +19,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
+import javax.validation.constraints.AssertFalse;
+import java.text.Normalizer;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -63,6 +62,8 @@ public class ReferenceContextuelService {
         referenceAutoriteGetDto.setQueries(fileName);
         referenceAutoriteGetDto.addQuery(firstName,lastName);
         AtomicInteger ppnCount = new AtomicInteger(1);
+        String finalLastName = Normalizer.normalize(lastName, Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
 
         Mono<ReferenceAutoriteDtoProxy> referenceAutoriteDtoProxyMono = Mono.defer(() -> referenceAutoriteProxy.findraExchangeProxy("fromFindrc", fileName, firstName, lastName))
                 .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(2)))
@@ -77,21 +78,23 @@ public class ReferenceContextuelService {
                 .filter(t -> {
                     try {
                         if (!Strings.isNullOrEmpty(t.getFirstName())) {
+
                             return
                                 !Strings.isNullOrEmpty(t.getLastName())
                                 &&
-                                (LuceneSearch.Search(t.getLastName(), lastName.replace("-", " ") + "~0.8") > 0)
+                                (LuceneSearch.Search(t.getLastName(), finalLastName.replace("-", " ") + "~0.8") > 0)
                                 &&
                                 (
                                     LuceneSearch.Search(t.getFirstName(), firstName.replace("-", " ") + "~0.8") > 0
                                     || LuceneSearch.Search(t.getFirstName(), firstName.charAt(0) + "*" + "~0.8") > 0
                                     || (firstName.replace(".", "").length() == 1 && t.getFirstName().equals(firstName))
+                                    || (t.getFirstName().replace(".", "").length() == 1 && firstName.charAt(0) == t.getFirstName().charAt(0))
                                 );
                         } else {
                             return
                                 !Strings.isNullOrEmpty(t.getLastName())
                                 &&
-                                (LuceneSearch.Search(t.getLastName(), lastName.replace("-", " ") + "~0.8") > 0);
+                                (LuceneSearch.Search(t.getLastName(), finalLastName.replace("-", " ") + "~0.8") > 0);
                         }
 
                     } catch (ParseException e) {

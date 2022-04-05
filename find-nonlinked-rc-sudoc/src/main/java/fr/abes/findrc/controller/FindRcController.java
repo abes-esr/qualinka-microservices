@@ -47,7 +47,7 @@ public class FindRcController {
         if (!Strings.isNullOrEmpty(file)) {
             getFile = file;
         } else {
-            getFile = "defaultv2-req-rc";
+            getFile = "rc_full";
         }
 
         if (firstName == null) {
@@ -80,9 +80,12 @@ public class FindRcController {
     ) {
 
         log.info("Connect to Findra Service");
+
         String getFile = null;
         if (!Strings.isNullOrEmpty(file)) {
             getFile = file;
+        } else {
+            getFile = "rc_full";
         }
 
         if (firstName == null) {

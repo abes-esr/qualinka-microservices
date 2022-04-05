@@ -64,18 +64,18 @@ public class FindRaController {
             } else {
 
                 if (!Strings.isNullOrEmpty(from) && from.equals("fromFindrc")) {
-                    getFile = "defaultv2-req-rc";
+                    getFile = "rc_full";
                 } else {
-                    getFile = "defaultv2-req";
+                    getFile = "ra_full";
                 }
                 log.warn("Can not found the file with name {}, loading default file : {}", file, getFile);
             }
 
         } else {
             if (!Strings.isNullOrEmpty(from) && from.equals("fromFindrc")) {
-                getFile = "defaultv2-req-rc";
+                getFile = "rc_full";
             } else {
-                getFile = "defaultv2-req";
+                getFile = "ra_full";
             }
             log.info("loading default file : {}", getFile);
         }
@@ -119,18 +119,18 @@ public class FindRaController {
             } else {
 
                 if (!Strings.isNullOrEmpty(from) && from.equals("fromFindrc")) {
-                    getFile = "defaultv2-req-rc";
+                    getFile = "rc_full";
                 } else {
-                    getFile = "defaultv2-req";
+                    getFile = "ra_full";
                 }
                 log.warn("Can not found the file with name {}, loading default file : {}", file, getFile);
             }
 
         } else {
             if (!Strings.isNullOrEmpty(from) && from.equals("fromFindrc")) {
-                getFile = "defaultv2-req-rc";
+                getFile = "rc_full";
             } else {
-                getFile = "defaultv2-req";
+                getFile = "ra_full";
             }
             log.info("loading default file : {}", getFile);
         }

@@ -41,9 +41,7 @@ public class ReferenceContextuelServiceDebug {
         return Flux.defer(() -> referenceAutoriteProxy.findraExchangeDebugProxy("fromFindrc", fileName, firstName, lastName))
                 .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(2)))
                 .doOnError(e -> log.warn("Can not fetch info from Findra service"))
-                .onErrorResume(t -> Flux.empty())
-                .switchIfEmpty(v -> Mono.just(new ReferenceAutoriteDtoDebugProxy()));
-
+                .onErrorResume(t -> Flux.empty());
     }
 
 }
