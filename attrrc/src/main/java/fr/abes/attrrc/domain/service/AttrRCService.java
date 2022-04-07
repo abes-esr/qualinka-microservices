@@ -452,10 +452,6 @@ public class AttrRCService {
                                     .filter(subfieldPredicateCodeB).findAny()
                                     .ifPresentOrElse(t -> rcDto.setLocation(true), () -> rcDto.setLocation(false)));
 
-
-
-
-
                     return Mono.just(rcDto);
 
                 })
