@@ -126,7 +126,7 @@ public class AttrRCService {
                     });
 
 
-                    List<Translitteration> appelationList = new ArrayList<>();
+                    List<Translitteration> appellationList = new ArrayList<>();
                     AtomicReference<String> subfieldCode6 = new AtomicReference<>();
 
                     streamSupplier.get().filter(subfieldPredicateCode6).findFirst()
@@ -141,14 +141,14 @@ public class AttrRCService {
                                     .stream().anyMatch(u -> u.getSubfield().equals(subfieldCode6.get())))
                             .forEach(s -> {
 
-                                Translitteration appelation = new Translitteration();
+                                Translitteration appellation = new Translitteration();
 
-                                appelation.setScript(s.getSubfieldList().stream().filter(subfieldPredicateCode7)
+                                appellation.setScript(s.getSubfieldList().stream().filter(subfieldPredicateCode7)
                                         .map(Subfield::getSubfield)
                                         .collect(Collectors.joining()));
 
 
-                                StringBuilder appelationValue = s.getSubfieldList().stream()
+                                StringBuilder appellationValue = s.getSubfieldList().stream()
                                         .filter(subfieldPredicateCodeA.or(subfieldPredicateCodeB))
                                         .map(i -> new StringBuilder(i.getSubfield()))
                                         .reduce(new StringBuilder(), (a, b) -> {
@@ -158,14 +158,14 @@ public class AttrRCService {
                                             a.append(b);
                                             return a;
                                         });
-                                appelation.setValue(appelationValue.toString());
+                                appellation.setValue(appellationValue.toString());
 
-                                appelationList.add(appelation);
+                                appellationList.add(appellation);
                             });
 
                     } else {
 
-                        StringBuilder appelationValue = streamSupplier.get().filter(subfieldPredicateCodeA.or(subfieldPredicateCodeB))
+                        StringBuilder appellationValue = streamSupplier.get().filter(subfieldPredicateCodeA.or(subfieldPredicateCodeB))
                             .map(t -> new StringBuilder(t.getSubfield()))
                             .reduce(new StringBuilder(), (a, b) -> {
                                 if (a.length() > 0) {
@@ -175,12 +175,12 @@ public class AttrRCService {
                                 return a;
                             });
 
-                        Translitteration appelation = new Translitteration();
-                        appelation.setValue(appelationValue.toString());
-                        appelationList.add(appelation);
+                        Translitteration appellation = new Translitteration();
+                        appellation.setValue(appellationValue.toString());
+                        appellationList.add(appellation);
                     }
 
-                    rcDto.setAppelation(appelationList);
+                    rcDto.setAppellation(appellationList);
 
                     // Set Role_Code
                     // On n'utilise pas cet attribut, on a besoin cette valeur pour chercher dans la base de données dans l'étape plus en bas "setRole"
@@ -451,10 +451,6 @@ public class AttrRCService {
                             .ifPresent(datafield -> datafield.getSubfieldList().stream()
                                     .filter(subfieldPredicateCodeB).findAny()
                                     .ifPresentOrElse(t -> rcDto.setLocation(true), () -> rcDto.setLocation(false)));
-
-
-
-
 
                     return Mono.just(rcDto);
 

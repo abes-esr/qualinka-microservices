@@ -20,7 +20,7 @@ public class RCDto {
     private String dateCreationNotice;
     private String citation;
     private String ppnAut;
-    private List<Translitteration> appelation;
+    private List<Translitteration> appellation;
     private List<String> rameau;
     @JsonIgnore
     private List<String> subject600new;

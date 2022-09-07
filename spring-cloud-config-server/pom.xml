@@ -14,7 +14,6 @@
 	<name>spring-cloud-config-server</name>
 	<description>Configuration Spring Cloud</description>
 	<properties>
-		<revision>1.0.1-SNAPSHOT</revision>
 		<java.version>11</java.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
@@ -22,6 +21,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring-cloud.version>2021.0.1</spring-cloud.version>
 		<finalName>${project.artifactId}</finalName>
+		<!--<revision>0.0.1-SNAPSHOT</revision>-->
+		<revision>1.0.0</revision>
 	</properties>
 	<dependencies>
 		<dependency>
