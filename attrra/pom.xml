@@ -22,7 +22,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
         <feign-reactor.version>3.1.1</feign-reactor.version>
-        <revision>0.0.1-SNAPSHOT</revision>
+        <!--<revision>0.0.1-SNAPSHOT</revision>-->
+        <revision>1.0.0</revision>
         <finalName>${project.artifactId}</finalName>
     </properties>
     <dependencies>
