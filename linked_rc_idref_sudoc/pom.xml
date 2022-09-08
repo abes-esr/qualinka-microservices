@@ -23,8 +23,7 @@
         <org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <finalName>${project.artifactId}</finalName>
-        <!--<revision>0.0.1-SNAPSHOT</revision>-->
-        <revision>1.0.0</revision>
+        <revision>0.0.1-SNAPSHOT</revision>
     </properties>
     <dependencies>
 
