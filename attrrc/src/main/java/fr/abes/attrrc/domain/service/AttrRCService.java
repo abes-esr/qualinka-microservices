@@ -111,7 +111,7 @@ public class AttrRCService {
                             .findFirst()
                             .ifPresent(t -> rcDto.setDateCreationNotice(t.getControlfield()));
 
-                    // Set PpnAuth et appellation
+                    // Set PpnAuth et  appellation
                     List<Datafield> datafields = v.getDatafieldList().stream()
                             .filter(t -> t.getTag().startsWith("70")).collect(Collectors.toList());
 
