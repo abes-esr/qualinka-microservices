@@ -21,8 +21,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring-cloud.version>2021.0.1</spring-cloud.version>
 		<finalName>${project.artifactId}</finalName>
-		<!--<revision>0.0.1-SNAPSHOT</revision>-->
-		<revision>1.0.0</revision>
+		<revision>0.0.1-SNAPSHOT</revision>
 	</properties>
 	<dependencies>
 		<dependency>
