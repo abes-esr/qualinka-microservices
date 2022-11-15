@@ -317,7 +317,13 @@ public class AttrRCService {
                                 });
 
                         String titleValue = t.getSubfieldList().stream().filter(subfieldPredicateCodeA.or(subfieldPredicateCodeE))
-                                .map(s -> new StringBuilder(s.getSubfield()))
+                                .map(s -> {
+                                            if (s.getSubfield()!=null)
+                                                return new StringBuilder(s.getSubfield());
+                                            else
+                                                return new StringBuilder();
+                                        }
+                                )
                                 .reduce(new StringBuilder(), (a, b) -> {
                                     if (a.length() > 0) {
                                         a.append(" : ");
