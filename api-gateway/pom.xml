@@ -20,7 +20,6 @@
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<revision>0.0.1-SNAPSHOT</revision>
-		<revision>1.0.0</revision>
 		<finalName>${project.artifactId}</finalName>
 	</properties>
 	<dependencies>
