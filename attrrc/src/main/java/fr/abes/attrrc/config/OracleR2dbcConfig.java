@@ -58,7 +58,7 @@ public class OracleR2dbcConfig {
                         // the maximum number of connections in the pool
                         //.maxPoolSize(Runtime.getRuntime().availableProcessors() * 5)
                         //Test :
-                        .maxPoolSize(1)
+                        .maxPoolSize(3)
 
                         .build();
         return Database.from(pool);
