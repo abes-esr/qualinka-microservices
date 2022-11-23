@@ -7,6 +7,7 @@ services:
     expose:
       - 8888
     restart: always
+    mem_limit: ${MEM_LIMIT}
     networks:
       - microservice
     labels:
@@ -21,6 +22,7 @@ services:
     ports:
       - '8761:8761'
     restart: always
+    mem_limit: ${MEM_LIMIT}
     networks:
       - microservice
     labels:
@@ -46,6 +48,7 @@ services:
       EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://eureka-naming-server:8761/eureka
       SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
     restart: always
+    mem_limit: ${MEM_LIMIT}
     networks:
       - microservice
     labels:
@@ -72,6 +75,7 @@ services:
       SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
       JASYPT.ENCRYPTOR.PASSWORD: ${MASTER_PASSWORD}
     restart: always
+    mem_limit: ${MEM_LIMIT}
     networks:
       - microservice
     labels:
@@ -100,6 +104,7 @@ services:
       JAVA_OPTS: "-Doracle.jdbc.timezoneAsRegion=false -Duser.timezone=CEST"
       JASYPT.ENCRYPTOR.PASSWORD: ${MASTER_PASSWORD}
     restart: always
+    mem_limit: ${MEM_LIMIT}
     networks:
       - microservice
     labels:
@@ -154,6 +159,7 @@ services:
       JAVA_OPTS: "-Doracle.jdbc.timezoneAsRegion=false -Duser.timezone=CEST"
       JASYPT.ENCRYPTOR.PASSWORD: ${MASTER_PASSWORD}
     restart: always
+    mem_limit: ${MEM_LIMIT}
     networks:
       - microservice
     labels:
@@ -181,6 +187,7 @@ services:
       JAVA_OPTS: "-Doracle.jdbc.timezoneAsRegion=false -Duser.timezone=CEST"
       JASYPT.ENCRYPTOR.PASSWORD: ${MASTER_PASSWORD}
     restart: always
+    mem_limit: ${MEM_LIMIT}
     networks:
       - microservice
     labels:
@@ -195,6 +202,7 @@ services:
     ports:
       - "9411:9411"
     restart: always
+    mem_limit: ${MEM_LIMIT}
     networks:
       - microservice
 
