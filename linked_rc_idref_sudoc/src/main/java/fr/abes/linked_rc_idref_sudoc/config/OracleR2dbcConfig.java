@@ -41,8 +41,9 @@ public class OracleR2dbcConfig {
         NonBlockingConnectionPool pool =
                 Pools.nonBlocking()
                         .connectionProvider(ConnectionProvider.from(url, user, password))
-                        // an unused connection will be closed after thirty minutes
-                        .maxIdleTime(5, TimeUnit.MINUTES)
+                        // an unused connection will be closed after one minute
+                        //.maxIdleTime(5, TimeUnit.MINUTES)
+                        .maxIdleTime(1, TimeUnit.MINUTES)
                         // connections are checked for healthiness on checkout if the connection
                         // has been idle for at least 5 seconds
                         .healthCheck(DatabaseType.ORACLE)
@@ -51,9 +52,10 @@ public class OracleR2dbcConfig {
                         .connectionRetryInterval(30, TimeUnit.SECONDS)
                         // the maximum number of connections in the pool
                         //.maxPoolSize(Runtime.getRuntime().availableProcessors() * 5)
-                        .maxPoolSize(3)
-
+                        .maxPoolSize(Runtime.getRuntime().availableProcessors())
+                        //.maxPoolSize(3)
                         .build();
+
         return Database.from(pool);
     }
 }
