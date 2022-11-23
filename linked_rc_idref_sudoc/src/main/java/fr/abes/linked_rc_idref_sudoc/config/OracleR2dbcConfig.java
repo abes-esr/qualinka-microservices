@@ -52,7 +52,7 @@ public class OracleR2dbcConfig {
                         .connectionRetryInterval(30, TimeUnit.SECONDS)
                         // the maximum number of connections in the pool
                         //.maxPoolSize(Runtime.getRuntime().availableProcessors() * 5)
-                        .maxPoolSize(Runtime.getRuntime().availableProcessors())
+                        .maxPoolSize(3)
                         //.maxPoolSize(3)
                         .build();
 
