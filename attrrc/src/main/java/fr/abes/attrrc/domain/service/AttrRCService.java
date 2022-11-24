@@ -492,7 +492,7 @@ public class AttrRCService {
                             v.setKeyword(keywordsList);
                             return v;
                         }))
-                .doOnError(e -> log.warn("Not found resultat from SQL with the PPN {}", ppnVal))
+                .doOnError(e -> log.error("Not found resultat from SQL, error : {}", e.getMessage()))
                 .onErrorResume(t -> Mono.empty())
                 .switchIfEmpty(Mono.just(rcDto));
 
