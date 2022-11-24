@@ -6,7 +6,7 @@ services:
     image: abesesr/microservice-spring-cloud-config-server:0.0.1-SNAPSHOT
     expose:
       - 8888
-    restart: always
+    restart: unless-stopped
     mem_limit: ${MEM_LIMIT}
     networks:
       - microservice
@@ -21,7 +21,7 @@ services:
     image: abesesr/microservice-eureka-naming-server:0.0.1-SNAPSHOT
     ports:
       - '8761:8761'
-    restart: always
+    restart: unless-stopped
     mem_limit: ${MEM_LIMIT}
     networks:
       - microservice
@@ -47,7 +47,7 @@ services:
       SPRING.CLOUD.CONFIG.PROFILE: localhost
       EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://eureka-naming-server:8761/eureka
       SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
-    restart: always
+    restart: unless-stopped
     mem_limit: ${MEM_LIMIT}
     networks:
       - microservice
@@ -74,7 +74,7 @@ services:
       EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://eureka-naming-server:8761/eureka
       SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
       JASYPT.ENCRYPTOR.PASSWORD: ${MASTER_PASSWORD}
-    restart: always
+    restart: unless-stopped
     mem_limit: ${MEM_LIMIT}
     networks:
       - microservice
@@ -103,7 +103,7 @@ services:
       SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
       JAVA_OPTS: "-Doracle.jdbc.timezoneAsRegion=false -Duser.timezone=CEST"
       JASYPT.ENCRYPTOR.PASSWORD: ${MASTER_PASSWORD}
-    restart: always
+    restart: unless-stopped
     mem_limit: ${MEM_LIMIT}
     networks:
       - microservice
@@ -131,7 +131,7 @@ services:
       SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
       JAVA_OPTS: "-Doracle.jdbc.timezoneAsRegion=false -Duser.timezone=CEST"
       JASYPT.ENCRYPTOR.PASSWORD: ${MASTER_PASSWORD}
-    restart: always
+    restart: unless-stopped
     networks:
       - microservice
     labels:
@@ -158,7 +158,7 @@ services:
       SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
       JAVA_OPTS: "-Doracle.jdbc.timezoneAsRegion=false -Duser.timezone=CEST"
       JASYPT.ENCRYPTOR.PASSWORD: ${MASTER_PASSWORD}
-    restart: always
+    restart: unless-stopped
     mem_limit: ${MEM_LIMIT}
     networks:
       - microservice
@@ -186,7 +186,7 @@ services:
       SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
       JAVA_OPTS: "-Doracle.jdbc.timezoneAsRegion=false -Duser.timezone=CEST"
       JASYPT.ENCRYPTOR.PASSWORD: ${MASTER_PASSWORD}
-    restart: always
+    restart: unless-stopped
     mem_limit: ${MEM_LIMIT}
     networks:
       - microservice
@@ -201,7 +201,7 @@ services:
     image: openzipkin/zipkin:2.23
     ports:
       - "9411:9411"
-    restart: always
+    restart: unless-stopped
     mem_limit: ${MEM_LIMIT}
     networks:
       - microservice
