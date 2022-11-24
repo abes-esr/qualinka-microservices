@@ -26,7 +26,7 @@ public class ReferenceAutoriteOracle {
                 "or a.tag='700$3' or a.tag='701$3' or a.tag='702$3'\n" +
                 "or a.tag='700$5' or a.tag='701$5' or a.tag='702$5')  and\n" +
                 "a.ppn=?\n" +
-                "order by posfield, possubfield")
+                "order by posfield, possubfield").queryTimeoutSec(30)
                 .parameter(ppn)
                 .autoMap(ReferenceAutoriteFromOracle.class);
 

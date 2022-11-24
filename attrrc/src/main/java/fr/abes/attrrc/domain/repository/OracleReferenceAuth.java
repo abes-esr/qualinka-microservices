@@ -18,6 +18,7 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.concurrent.Flow;
+import java.util.concurrent.TimeUnit;
 
 @Repository
 @RequiredArgsConstructor
@@ -28,7 +29,7 @@ public class OracleReferenceAuth {
     public Mono<XmlRootRecord> getXmlRootRecordOracle(String ppn){
 
         Flowable<XmlRootRecord> xmlRootRecordFlowable = db
-                .select("select data_xml from NOTICESBIBIO where ppn = ?")
+                .select("select data_xml from NOTICESBIBIO where ppn = ?").queryTimeoutSec(30)
                 .parameter(ppn)
                 .get(v -> {
                     JacksonXmlModule xmlModule = new JacksonXmlModule();
@@ -48,7 +49,7 @@ public class OracleReferenceAuth {
 
     public Mono<CitationDto> getCitationOracle(String ppn) {
 
-        Flowable<CitationDto> citationDtoFlowable = db.select("select citation1, citation3 from BIBLIO_TABLE_GENERALE where ppn=?")
+        Flowable<CitationDto> citationDtoFlowable = db.select("select citation1, citation3 from BIBLIO_TABLE_GENERALE where ppn=?").queryTimeoutSec(30)
                 .parameter(ppn)
                 .autoMap(CitationDto.class);
         return Mono.from(citationDtoFlowable);
@@ -56,7 +57,7 @@ public class OracleReferenceAuth {
 
     public Flux<DomainCodeDto> getDomainCodeAndValue(String ppn) {
 
-        Flowable<DomainCodeDto> domainCodeDtoFlowable = db.select("select code, valeure from BIBLIO_TABLE_LIEN_RAMEAU where ppn=? and valeure is not null")
+        Flowable<DomainCodeDto> domainCodeDtoFlowable = db.select("select code, valeure from BIBLIO_TABLE_LIEN_RAMEAU where ppn=? and valeure is not null").queryTimeoutSec(30)
                 .parameter(ppn)
                 .autoMap(DomainCodeDto.class);
         return Flux.from(domainCodeDtoFlowable);
@@ -65,7 +66,7 @@ public class OracleReferenceAuth {
 
     public Mono<LibRoleDto> getLibRoleOracle(String code) {
 
-        Flowable<LibRoleDto> libRoleDtoFlowable = db.select("select code, RELATIONSHIP_FR as fr, RELATIONSHIP_EN as en from FNCT_MARC21 where code=?")
+        Flowable<LibRoleDto> libRoleDtoFlowable = db.select("select code, RELATIONSHIP_FR as fr, RELATIONSHIP_EN as en from FNCT_MARC21 where code=?").queryTimeoutSec(30)
                 .parameter(code)
                 .autoMap(LibRoleDto.class);
 
@@ -74,7 +75,7 @@ public class OracleReferenceAuth {
     }
 
     public Flux<String> getkeywordOracle(String ppn) {
-        Flowable<String> keywords = db.select("select datas from BIBLIO_TABLE_FRBR_EXTEND where ppn= ? and tag = '610$a'")
+        Flowable<String> keywords = db.select("select datas from BIBLIO_TABLE_FRBR_EXTEND where ppn= ? and tag = '610$a'").queryTimeoutSec(30)
                 .parameter(ppn)
                 .get(v -> v.getString(1));
         return Flux.from(keywords);

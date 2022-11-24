@@ -24,7 +24,7 @@ public class OracleReferenceAuth {
     public Mono<XmlRootRecord> getXmlRootRecordOracle(String ppn){
 
         Flowable<XmlRootRecord> xmlRootRecordFlowable = db
-                .select("select data_xml from NOTICES where ppn = ?")
+                .select("select data_xml from NOTICES where ppn = ?").queryTimeoutSec(30)
                 .parameter(ppn)
                 .get(v -> {
                     JacksonXmlModule xmlModule = new JacksonXmlModule();

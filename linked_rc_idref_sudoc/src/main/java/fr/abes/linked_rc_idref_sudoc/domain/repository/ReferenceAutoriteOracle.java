@@ -25,7 +25,7 @@ public class ReferenceAutoriteOracle {
                     "or a.tag='700$5' or a.tag='701$5' or a.tag='702$5'\n" +
                     "or a.tag='700$7' or a.tag='701$7' or a.tag='702$7')  and\n" +
                     "a.ppn=?\n" +
-                    "order by posfield, possubfield")
+                    "order by posfield, possubfield").queryTimeoutSec(30)
                 .parameter(ppn)
                 .autoMap(ReferenceAutoriteFromOracle.class);
         return Flux.from(referenceAutoriteFromOracleFlowable);
