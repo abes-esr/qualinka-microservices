@@ -23,6 +23,6 @@ RUN mvn --batch-mode \
 
 ###
 # Image pour : le micro service Qualinka : find-ra-idref
-FROM openjdk:11 as microservice-find-ra-idref
+FROM openjdk:11 as find-ra-idref
 COPY --from=build-image /build/target/*.jar /app/find-ra-idref.jar
 CMD ["java", "-jar", "/app/find-ra-idref.jar"]

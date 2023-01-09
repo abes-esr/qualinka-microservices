@@ -3,7 +3,7 @@ version: '3.9'
 services:
 
   spring-config-server:
-    image: abesesr/microservice-spring-cloud-config-server:0.0.1-SNAPSHOT
+    image: abesesr/qualinka-ms:develop-spring-cloud-config-server
     expose:
       - 8888
     restart: unless-stopped
@@ -18,7 +18,7 @@ services:
       - "co.elastic.logs/processors.add_fields.fields.abes_appli=qualinka-ms-spring-cloud-config-server"
 
   eureka-naming-server:
-    image: abesesr/microservice-eureka-naming-server:0.0.1-SNAPSHOT
+    image: abesesr/qualinka-ms:develop-eureka-naming-server
     ports:
       - '8761:8761'
     restart: unless-stopped
@@ -33,7 +33,7 @@ services:
       - "co.elastic.logs/processors.add_fields.fields.abes_appli=qualinka-ms-eureka-naming-server"
 
   api-gateway:
-    image: abesesr/microservice-api-gateway:0.0.1-SNAPSHOT
+    image: abesesr/qualinka-ms:develop-api-gateway
     ports:
       - '8765:8765'
     depends_on:
@@ -59,7 +59,7 @@ services:
       - "co.elastic.logs/processors.add_fields.fields.abes_appli=qualinka-ms-api-gateway"
 
   find-ra-idref:
-    image: abesesr/microservice-find-ra-idref:0.0.1-SNAPSHOT
+    image: abesesr/qualinka-ms:develop-find-ra-idref
     expose:
       - 8780
     depends_on:
@@ -86,7 +86,7 @@ services:
       - "co.elastic.logs/processors.add_fields.fields.abes_appli=qualinka-ms-find-ra-idref"
 
   find-nonlinked-rc-sudoc:
-    image: abesesr/microservice-find-nonlinked-rc-sudoc:0.0.1-SNAPSHOT
+    image: abesesr/qualinka-ms:develop-find-nonlinked-rc-sudoc
     expose:
       - 8781
     depends_on:
@@ -115,7 +115,7 @@ services:
       - "co.elastic.logs/processors.add_fields.fields.abes_appli=qualinka-ms-find-nonlinked-rc-sudoc"
 
   linkedrc:
-    image: abesesr/microservice-linked_rc_idref_sudoc:0.0.1-SNAPSHOT
+    image: abesesr/qualinka-ms:develop-linked_rc_idref_sudoc
     expose:
       - 8782
     depends_on:
@@ -142,7 +142,7 @@ services:
       - "co.elastic.logs/processors.add_fields.fields.abes_appli=qualinka-ms-linked-rc-idref-sudoc"
 
   attrra:
-    image: abesesr/microservice-attrra:0.0.1-SNAPSHOT
+    image: abesesr/qualinka-ms:develop-attrra
     expose:
       - 8783
     depends_on:
@@ -170,7 +170,7 @@ services:
       - "co.elastic.logs/processors.add_fields.fields.abes_appli=qualinka-ms-attrra"
 
   attrrc:
-    image: abesesr/microservice-attrrc:0.0.1-SNAPSHOT
+    image: abesesr/qualinka-ms:develop-attrrc
     expose:
       - 8784
     depends_on:
