@@ -27,4 +27,6 @@ FROM openjdk:11 as find-nonlinked-rc-sudoc
 COPY ./wait-for-it.sh /app/
 RUN chmod +x /app/wait-for-it.sh
 COPY --from=build-image /build/target/*.jar /app/find-nonlinked-rc-sudoc.jar
+ENV TZ=Europe/Paris
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 CMD ["java", "-jar", "/app/find-nonlinked-rc-sudoc.jar"]
