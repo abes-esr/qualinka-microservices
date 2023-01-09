@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>fr.abes</groupId>
 	<artifactId>spring-cloud-config-server</artifactId>
-	<version>${revision}</version>
+	<version>0.0.3</version>
 	<name>spring-cloud-config-server</name>
 	<description>Configuration Spring Cloud</description>
 	<properties>
@@ -21,7 +21,6 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring-cloud.version>2021.0.1</spring-cloud.version>
 		<finalName>${project.artifactId}</finalName>
-		<revision>0.0.1-SNAPSHOT</revision>
 	</properties>
 	<dependencies>
 		<dependency>

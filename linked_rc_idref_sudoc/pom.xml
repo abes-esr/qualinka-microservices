@@ -10,7 +10,7 @@
     </parent>
     <groupId>fr.abes</groupId>
     <artifactId>linked_rc_idref_sudoc</artifactId>
-    <version>${revision}</version>
+    <version>0.0.3</version>
     <packaging>jar</packaging>
     <name>linked_rc_idref_sudoc</name>
     <description>Application Rc liées à une Ra</description>
@@ -23,7 +23,6 @@
         <org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <finalName>${project.artifactId}</finalName>
-        <revision>0.0.1-SNAPSHOT</revision>
     </properties>
     <dependencies>
 

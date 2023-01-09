@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>fr.abes</groupId>
 	<artifactId>eureka-naming-server</artifactId>
-	<version>${revision}</version>
+	<version>0.0.3</version>
 	<name>eureka-naming-server</name>
 	<description>Configuration Spring Cloud</description>
 	<properties>
@@ -19,7 +19,6 @@
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<revision>0.0.1-SNAPSHOT</revision>
 		<finalName>${project.artifactId}</finalName>
 	</properties>
 	<dependencies>

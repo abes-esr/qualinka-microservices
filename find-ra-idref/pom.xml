@@ -10,7 +10,7 @@
     </parent>
     <groupId>fr.abes</groupId>
     <artifactId>find-ra-idref</artifactId>
-    <version>${revision}</version>
+    <version>0.0.3</version>
     <packaging>jar</packaging>
     <name>find-ra-idref</name>
     <description>Application Reference Autorite</description>
@@ -22,7 +22,6 @@
         <org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <finalName>${project.artifactId}</finalName>
-        <revision>0.0.1-SNAPSHOT</revision>
     </properties>
     <dependencies>
 
