@@ -2,8 +2,9 @@ version: '3.9'
 
 services:
 
-  spring-config-server:
+  qualinka-ms-spring-config-server:
     image: abesesr/qualinka-ms:develop-spring-cloud-config-server
+    container_name: qualinka-ms-spring-config-server
     expose:
       - 8888
     restart: unless-stopped
@@ -16,9 +17,13 @@ services:
       - "co.elastic.logs/fileset.stderr=error"
       - "co.elastic.logs/processors.add_fields.target="
       - "co.elastic.logs/processors.add_fields.fields.abes_appli=qualinka-ms-spring-cloud-config-server"
+      # pour que les mises à jour de cette image soient auto-déployées
+      # par watchtower cf docker-compose.watchtower.yml
+      - "com.centurylinklabs.watchtower.scope=qualinka-ms-watchtower-scope"
 
-  eureka-naming-server:
+  qualinka-ms-eureka-naming-server:
     image: abesesr/qualinka-ms:develop-eureka-naming-server
+    container_name: qualinka-ms-eureka-naming-server
     ports:
       - '8761:8761'
     restart: unless-stopped
@@ -31,9 +36,13 @@ services:
       - "co.elastic.logs/fileset.stderr=error"
       - "co.elastic.logs/processors.add_fields.target="
       - "co.elastic.logs/processors.add_fields.fields.abes_appli=qualinka-ms-eureka-naming-server"
+      # pour que les mises à jour de cette image soient auto-déployées
+      # par watchtower cf docker-compose.watchtower.yml
+      - "com.centurylinklabs.watchtower.scope=qualinka-ms-watchtower-scope"
 
-  api-gateway:
+  qualinka-ms-api-gateway:
     image: abesesr/qualinka-ms:develop-api-gateway
+    container_name: qualinka-ms-api-gateway
     ports:
       - '8765:8765'
     depends_on:
@@ -57,9 +66,13 @@ services:
       - "co.elastic.logs/fileset.stderr=error"
       - "co.elastic.logs/processors.add_fields.target="
       - "co.elastic.logs/processors.add_fields.fields.abes_appli=qualinka-ms-api-gateway"
+      # pour que les mises à jour de cette image soient auto-déployées
+      # par watchtower cf docker-compose.watchtower.yml
+      - "com.centurylinklabs.watchtower.scope=qualinka-ms-watchtower-scope"
 
-  find-ra-idref:
+  qualinka-ms-find-ra-idref:
     image: abesesr/qualinka-ms:develop-find-ra-idref
+    container_name: qualinka-ms-find-ra-idref
     expose:
       - 8780
     depends_on:
@@ -84,9 +97,13 @@ services:
       - "co.elastic.logs/fileset.stderr=error"
       - "co.elastic.logs/processors.add_fields.target="
       - "co.elastic.logs/processors.add_fields.fields.abes_appli=qualinka-ms-find-ra-idref"
+      # pour que les mises à jour de cette image soient auto-déployées
+      # par watchtower cf docker-compose.watchtower.yml
+      - "com.centurylinklabs.watchtower.scope=qualinka-ms-watchtower-scope"
 
-  find-nonlinked-rc-sudoc:
+  qualinka-ms-find-nonlinked-rc-sudoc:
     image: abesesr/qualinka-ms:develop-find-nonlinked-rc-sudoc
+    container_name: qualinka-ms-find-nonlinked-rc-sudoc
     expose:
       - 8781
     depends_on:
@@ -113,9 +130,13 @@ services:
       - "co.elastic.logs/fileset.stderr=error"
       - "co.elastic.logs/processors.add_fields.target="
       - "co.elastic.logs/processors.add_fields.fields.abes_appli=qualinka-ms-find-nonlinked-rc-sudoc"
+      # pour que les mises à jour de cette image soient auto-déployées
+      # par watchtower cf docker-compose.watchtower.yml
+      - "com.centurylinklabs.watchtower.scope=qualinka-ms-watchtower-scope"
 
-  linkedrc:
+  qualinka-ms-linkedrc:
     image: abesesr/qualinka-ms:develop-linked_rc_idref_sudoc
+    container_name: qualinka-ms-linkedrc
     expose:
       - 8782
     depends_on:
@@ -140,9 +161,13 @@ services:
       - "co.elastic.logs/fileset.stderr=error"
       - "co.elastic.logs/processors.add_fields.target="
       - "co.elastic.logs/processors.add_fields.fields.abes_appli=qualinka-ms-linked-rc-idref-sudoc"
+      # pour que les mises à jour de cette image soient auto-déployées
+      # par watchtower cf docker-compose.watchtower.yml
+      - "com.centurylinklabs.watchtower.scope=qualinka-ms-watchtower-scope"
 
-  attrra:
+  qualinka-ms-attrra:
     image: abesesr/qualinka-ms:develop-attrra
+    container_name: qualinka-ms-attrra
     expose:
       - 8783
     depends_on:
@@ -168,9 +193,13 @@ services:
       - "co.elastic.logs/fileset.stderr=error"
       - "co.elastic.logs/processors.add_fields.target="
       - "co.elastic.logs/processors.add_fields.fields.abes_appli=qualinka-ms-attrra"
+      # pour que les mises à jour de cette image soient auto-déployées
+      # par watchtower cf docker-compose.watchtower.yml
+      - "com.centurylinklabs.watchtower.scope=qualinka-ms-watchtower-scope"
 
-  attrrc:
+  qualinka-ms-attrrc:
     image: abesesr/qualinka-ms:develop-attrrc
+    container_name: qualinka-ms-attrrc
     expose:
       - 8784
     depends_on:
@@ -196,8 +225,36 @@ services:
       - "co.elastic.logs/fileset.stderr=error"
       - "co.elastic.logs/processors.add_fields.target="
       - "co.elastic.logs/processors.add_fields.fields.abes_appli=qualinka-ms-attrrc"
+      # pour que les mises à jour de cette image soient auto-déployées
+      # par watchtower cf docker-compose.watchtower.yml
+      - "com.centurylinklabs.watchtower.scope=qualinka-ms-watchtower-scope"
 
-  zipkin-server:
+  #######################################
+  # qualinka-ms-watchtower
+  # Conteneur chargé de mettre à jour automatiquement toutes les 10 secondes
+  # les images docker des conteneurs qualinka-ms-* (passés en paramètre)
+  # plus d'info : https://containrrr.dev/watchtower
+  qualinka-ms-watchtower:
+    image: containrrr/watchtower:1.4.0
+    container_name: qualinka-ms-watchtower
+    restart: unless-stopped
+    mem_limit: ${MEM_LIMIT}
+    networks:
+      - microservice
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      WATCHTOWER_CLEANUP: "true"
+      WATCHTOWER_POLL_INTERVAL: 60
+      WATCHTOWER_DEBUG: "false"
+      WATCHTOWER_NO_STARTUP_MESSAGE: "true"
+      WATCHTOWER_WARN_ON_HEAD_FAILURE: "never"
+      WATCHTOWER_RUN_ONCE: ${QUALINKA_MS_WATCHTOWER_RUN_ONCE}
+      WATCHTOWER_SCOPE: "qualinka-ms-watchtower-scope"
+    labels:
+      - "com.centurylinklabs.watchtower.scope=qualinka-ms-watchtower-scope"
+
+  qualinka-ms-zipkin-server:
     image: openzipkin/zipkin:2.23
     ports:
       - "9411:9411"
