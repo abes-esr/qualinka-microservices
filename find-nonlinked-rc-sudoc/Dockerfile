@@ -24,6 +24,6 @@ RUN mvn --batch-mode \
 ###
 # Image pour : le micro service Qualinka : find-nonlinked-rc-sudoc
 FROM openjdk:11 as find-nonlinked-rc-sudoc
-COPY ./wait-for-it.sh /
+COPY ./../wait-for-it.sh /
 COPY --from=build-image /build/target/*.jar /app/find-nonlinked-rc-sudoc.jar
 CMD ["java", "-jar", "/app/find-nonlinked-rc-sudoc.jar"]
