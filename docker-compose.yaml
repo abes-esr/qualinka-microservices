@@ -52,10 +52,10 @@ services:
     environment:
       SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
       SPRING.PROFILES.ACTIVE: localhost
-      SPRING.CONFIG.IMPORT: optional:configserver:http://spring-config-server:8888
+      SPRING.CONFIG.IMPORT: optional:configserver:http://qualinka-ms-spring-config-server:8888
       SPRING.CLOUD.CONFIG.PROFILE: localhost
-      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://eureka-naming-server:8761/eureka
-      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://qualinka-ms-eureka-naming-server:8761/eureka
+      SPRING.ZIPKIN.BASEURL: http://qualinka-ms-zipkin-server:9411/
     restart: unless-stopped
     mem_limit: ${MEM_LIMIT}
     networks:
@@ -82,10 +82,10 @@ services:
     environment:
       SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
       SPRING.PROFILES.ACTIVE: localhost
-      SPRING.CONFIG.IMPORT: optional:configserver:http://spring-config-server:8888
+      SPRING.CONFIG.IMPORT: optional:configserver:http://qualinka-ms-spring-config-server:8888
       SPRING.CLOUD.CONFIG.PROFILE: localhost
-      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://eureka-naming-server:8761/eureka
-      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://qualinka-ms-eureka-naming-server:8761/eureka
+      SPRING.ZIPKIN.BASEURL: http://qualinka-ms-zipkin-server:9411/
       JASYPT.ENCRYPTOR.PASSWORD: ${MASTER_PASSWORD}
     restart: unless-stopped
     mem_limit: ${MEM_LIMIT}
@@ -114,10 +114,10 @@ services:
     environment:
       SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
       SPRING.PROFILES.ACTIVE: localhost
-      SPRING.CONFIG.IMPORT: optional:configserver:http://spring-config-server:8888
+      SPRING.CONFIG.IMPORT: optional:configserver:http://qualinka-ms-spring-config-server:8888
       SPRING.CLOUD.CONFIG.PROFILE: localhost
-      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://eureka-naming-server:8761/eureka
-      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://qualinka-ms-eureka-naming-server:8761/eureka
+      SPRING.ZIPKIN.BASEURL: http://qualinka-ms-zipkin-server:9411/
       JAVA_OPTS: "-Doracle.jdbc.timezoneAsRegion=false -Duser.timezone=CEST"
       JASYPT.ENCRYPTOR.PASSWORD: ${MASTER_PASSWORD}
     restart: unless-stopped
@@ -146,10 +146,10 @@ services:
     environment:
       SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
       SPRING.PROFILES.ACTIVE: localhost
-      SPRING.CONFIG.IMPORT: optional:configserver:http://spring-config-server:8888
+      SPRING.CONFIG.IMPORT: optional:configserver:http://qualinka-ms-spring-config-server:8888
       SPRING.CLOUD.CONFIG.PROFILE: localhost
-      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://eureka-naming-server:8761/eureka
-      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://qualinka-ms-eureka-naming-server:8761/eureka
+      SPRING.ZIPKIN.BASEURL: http://qualinka-ms-zipkin-server:9411/
       JAVA_OPTS: "-Doracle.jdbc.timezoneAsRegion=false -Duser.timezone=CEST"
       JASYPT.ENCRYPTOR.PASSWORD: ${MASTER_PASSWORD}
     restart: unless-stopped
@@ -177,10 +177,10 @@ services:
     environment:
       SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
       SPRING.PROFILES.ACTIVE: localhost
-      SPRING.CONFIG.IMPORT: optional:configserver:http://spring-config-server:8888
+      SPRING.CONFIG.IMPORT: optional:configserver:http://qualinka-ms-spring-config-server:8888
       SPRING.CLOUD.CONFIG.PROFILE: localhost
-      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://eureka-naming-server:8761/eureka
-      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://qualinka-ms-eureka-naming-server:8761/eureka
+      SPRING.ZIPKIN.BASEURL: http://qualinka-ms-zipkin-server:9411/
       JAVA_OPTS: "-Doracle.jdbc.timezoneAsRegion=false -Duser.timezone=CEST"
       JASYPT.ENCRYPTOR.PASSWORD: ${MASTER_PASSWORD}
     restart: unless-stopped
@@ -209,10 +209,10 @@ services:
     environment:
       SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
       SPRING.PROFILES.ACTIVE: localhost
-      SPRING.CONFIG.IMPORT: optional:configserver:http://spring-config-server:8888
+      SPRING.CONFIG.IMPORT: optional:configserver:http://qualinka-ms-spring-config-server:8888
       SPRING.CLOUD.CONFIG.PROFILE: localhost
-      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://eureka-naming-server:8761/eureka
-      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://qualinka-ms-eureka-naming-server:8761/eureka
+      SPRING.ZIPKIN.BASEURL: http://qualinka-ms-zipkin-server:9411/
       JAVA_OPTS: "-Doracle.jdbc.timezoneAsRegion=false -Duser.timezone=CEST"
       JASYPT.ENCRYPTOR.PASSWORD: ${MASTER_PASSWORD}
     restart: unless-stopped
