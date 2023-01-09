@@ -118,7 +118,6 @@ services:
       SPRING.CLOUD.CONFIG.PROFILE: localhost
       EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://qualinka-ms-eureka-naming-server:8761/eureka
       SPRING.ZIPKIN.BASEURL: http://qualinka-ms-zipkin-server:9411/
-      JAVA_OPTS: "-Doracle.jdbc.timezoneAsRegion=false -Duser.timezone=CEST"
       JASYPT.ENCRYPTOR.PASSWORD: ${MASTER_PASSWORD}
     restart: unless-stopped
     mem_limit: ${MEM_LIMIT}
@@ -150,7 +149,6 @@ services:
       SPRING.CLOUD.CONFIG.PROFILE: localhost
       EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://qualinka-ms-eureka-naming-server:8761/eureka
       SPRING.ZIPKIN.BASEURL: http://qualinka-ms-zipkin-server:9411/
-      JAVA_OPTS: "-Doracle.jdbc.timezoneAsRegion=false -Duser.timezone=CEST"
       JASYPT.ENCRYPTOR.PASSWORD: ${MASTER_PASSWORD}
     restart: unless-stopped
     networks:
@@ -181,7 +179,6 @@ services:
       SPRING.CLOUD.CONFIG.PROFILE: localhost
       EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://qualinka-ms-eureka-naming-server:8761/eureka
       SPRING.ZIPKIN.BASEURL: http://qualinka-ms-zipkin-server:9411/
-      JAVA_OPTS: "-Doracle.jdbc.timezoneAsRegion=false -Duser.timezone=CEST"
       JASYPT.ENCRYPTOR.PASSWORD: ${MASTER_PASSWORD}
     restart: unless-stopped
     mem_limit: ${MEM_LIMIT}
@@ -213,7 +210,6 @@ services:
       SPRING.CLOUD.CONFIG.PROFILE: localhost
       EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://qualinka-ms-eureka-naming-server:8761/eureka
       SPRING.ZIPKIN.BASEURL: http://qualinka-ms-zipkin-server:9411/
-      JAVA_OPTS: "-Doracle.jdbc.timezoneAsRegion=false -Duser.timezone=CEST"
       JASYPT.ENCRYPTOR.PASSWORD: ${MASTER_PASSWORD}
     restart: unless-stopped
     mem_limit: ${MEM_LIMIT}
