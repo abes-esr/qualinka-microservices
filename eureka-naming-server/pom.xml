@@ -51,7 +51,7 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
+				<!--configuration>
 					<image>
 						<name>abesesr/microservice-${finalName}:${revision}</name>
 						<publish>true</publish>
@@ -64,7 +64,7 @@
 						</publishRegistry>
 					</docker>
 					<pullPolicy>IF_NOT_PRESENT</pullPolicy>
-				</configuration>
+				</configuration-->
 			</plugin>
 		</plugins>
 	</build>
