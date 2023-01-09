@@ -48,7 +48,7 @@ services:
     depends_on:
       - qualinka-ms-spring-config-server
       - qualinka-ms-eureka-naming-server
-#    command: ["/app/wait-for-it.sh", "qualinka-ms-spring-config-server:8888"]
+    command: ["/app/wait-for-it.sh", "qualinka-ms-spring-config-server:8888"]
     environment:
       SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
       SPRING.PROFILES.ACTIVE: localhost
@@ -78,7 +78,7 @@ services:
     depends_on:
       - qualinka-ms-spring-config-server
       - qualinka-ms-eureka-naming-server
-#    command: ["/app/wait-for-it.sh", "qualinka-ms-spring-config-server:8888"]
+    command: ["/app/wait-for-it.sh", "qualinka-ms-spring-config-server:8888"]
     environment:
       SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
       SPRING.PROFILES.ACTIVE: localhost
@@ -110,7 +110,7 @@ services:
       - qualinka-ms-spring-config-server
       - qualinka-ms-eureka-naming-server
       - qualinka-ms-find-ra-idref
- #   command: ["/app/wait-for-it.sh", "qualinka-ms-spring-config-server:8888"]
+    command: ["/app/wait-for-it.sh", "qualinka-ms-spring-config-server:8888"]
     environment:
       SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
       SPRING.PROFILES.ACTIVE: localhost
@@ -142,7 +142,7 @@ services:
     depends_on:
       - qualinka-ms-spring-config-server
       - qualinka-ms-eureka-naming-server
-  #  command: [ "/app/wait-for-it.sh", "qualinka-ms-spring-config-server:8888" ]
+    command: [ "/app/wait-for-it.sh", "qualinka-ms-spring-config-server:8888" ]
     environment:
       SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
       SPRING.PROFILES.ACTIVE: localhost
@@ -173,7 +173,7 @@ services:
     depends_on:
       - qualinka-ms-spring-config-server
       - qualinka-ms-eureka-naming-server
- #   command: [ "/app/wait-for-it.sh", "qualinka-ms-spring-config-server:8888" ]
+    command: [ "/app/wait-for-it.sh", "qualinka-ms-spring-config-server:8888" ]
     environment:
       SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
       SPRING.PROFILES.ACTIVE: localhost
@@ -205,7 +205,7 @@ services:
     depends_on:
       - qualinka-ms-spring-config-server
       - qualinka-ms-eureka-naming-server
-  #  command: [ "/app/wait-for-it.sh", "qualinka-ms-spring-config-server:8888" ]
+    command: [ "/app/wait-for-it.sh", "qualinka-ms-spring-config-server:8888" ]
     environment:
       SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
       SPRING.PROFILES.ACTIVE: localhost
@@ -234,25 +234,7 @@ services:
   # Conteneur chargé de mettre à jour automatiquement toutes les 10 secondes
   # les images docker des conteneurs qualinka-ms-* (passés en paramètre)
   # plus d'info : https://containrrr.dev/watchtower
-  qualinka-ms-watchtower:
-    image: containrrr/watchtower:1.4.0
-    container_name: qualinka-ms-watchtower
-    restart: unless-stopped
-    mem_limit: ${MEM_LIMIT}
-    networks:
-      - microservice
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      WATCHTOWER_CLEANUP: "true"
-      WATCHTOWER_POLL_INTERVAL: 60
-      WATCHTOWER_DEBUG: "false"
-      WATCHTOWER_NO_STARTUP_MESSAGE: "true"
-      WATCHTOWER_WARN_ON_HEAD_FAILURE: "never"
-      WATCHTOWER_RUN_ONCE: ${QUALINKA_MS_WATCHTOWER_RUN_ONCE}
-      WATCHTOWER_SCOPE: "qualinka-ms-watchtower-scope"
-    labels:
-      - "com.centurylinklabs.watchtower.scope=qualinka-ms-watchtower-scope"
+
 
   qualinka-ms-zipkin-server:
     image: openzipkin/zipkin:2.23
