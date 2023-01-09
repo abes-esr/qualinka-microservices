@@ -24,6 +24,7 @@ RUN mvn --batch-mode \
 ###
 # Image pour : le micro service Qualinka : api-gateway
 FROM openjdk:11 as api-gateway
-COPY ./wait-for-it.sh /
+COPY ./wait-for-it.sh /app/
+RUN chown a+x /app/wait-for-it.sh
 COPY --from=build-image /build/target/*.jar /app/api-gateway.jar
 CMD ["java", "-jar", "/app/api-gateway.jar"]

@@ -24,6 +24,7 @@ RUN mvn --batch-mode \
 ###
 # Image pour : le micro service Qualinka : spring-cloud-config-server
 FROM openjdk:11 as spring-cloud-config-server
-COPY ./wait-for-it.sh /
+COPY ./wait-for-it.sh /app/
+RUN chown a+x /app/wait-for-it.sh
 COPY --from=build-image /build/target/*.jar /app/spring-cloud-config-server.jar
 CMD ["java", "-jar", "/app/spring-cloud-config-server.jar"]
