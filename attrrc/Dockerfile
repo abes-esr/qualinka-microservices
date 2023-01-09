@@ -24,5 +24,6 @@ RUN mvn --batch-mode \
 ###
 # Image pour : le micro service Qualinka : attrrc
 FROM openjdk:11 as attrrc
+COPY ./wait-for-it.sh /
 COPY --from=build-image /build/target/*.jar /app/attrrc.jar
 CMD ["java", "-jar", "/app/attrrc.jar"]
