@@ -173,7 +173,7 @@ services:
     depends_on:
       - qualinka-ms-spring-config-server
       - qualinka-ms-eureka-naming-server
-    command: [ "./wait-for-it.sh", "spring-config-server:8888" ]
+    command: [ "sudo ./wait-for-it.sh", "spring-config-server:8888" ]
     environment:
       SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
       SPRING.PROFILES.ACTIVE: localhost
@@ -205,7 +205,7 @@ services:
     depends_on:
       - qualinka-ms-spring-config-server
       - qualinka-ms-eureka-naming-server
-    command: [ "./wait-for-it.sh", "spring-config-server:8888" ]
+    command: [ "sudo ./wait-for-it.sh", "spring-config-server:8888" ]
     environment:
       SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
       SPRING.PROFILES.ACTIVE: localhost
