@@ -14,5 +14,15 @@ ENV LC_ALL fr_FR.UTF-8
 # éviter à maven de retélécharger toutes les dépendances
 #COPY ./.m2/    /root/.m2/
 COPY ./   /build/
-RUN mvn spring-boot:build-image \
-        -Dmaven.test.skip=true
+RUN mvn --batch-mode \
+        -Dmaven.test.skip=false \
+        -Duser.timezone=Europe/Paris \
+        -Duser.language=fr \
+        -f /build/pom.xml \
+        package
+
+###
+# Image pour : le micro service Qualinka : api-gateway
+FROM openjdk:11 as microservice-api-gateway
+COPY --from=build-image /build/target/*.jar /app/api-gateway.jar
+CMD ["java", "-jar", "/app/api-gateway.jar"]

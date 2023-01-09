@@ -161,11 +161,11 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
-					<image>
+					<!--image>
 						<name>microservice-${finalName}:${revision}</name>
-						<!--publish>true</publish-->
+						<publish>true</publish>
 					</image>
-					<!--docker>
+					<docker>
 						<publishRegistry>
 							<username>${docker.user}</username>
 							<password>${docker.password}</password>
