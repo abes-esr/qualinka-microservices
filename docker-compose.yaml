@@ -46,8 +46,8 @@ services:
     ports:
       - '8765:8765'
     depends_on:
-      - spring-config-server
-      - eureka-naming-server
+      - qualinka-ms-spring-config-server
+      - qualinka-ms-eureka-naming-server
     command: ["./wait-for-it.sh", "spring-config-server:8888"]
     environment:
       SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
@@ -76,8 +76,8 @@ services:
     expose:
       - 8780
     depends_on:
-      - spring-config-server
-      - eureka-naming-server
+      - qualinka-ms-spring-config-server
+      - qualinka-ms-eureka-naming-server
     command: ["./wait-for-it.sh", "spring-config-server:8888"]
     environment:
       SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
@@ -107,9 +107,9 @@ services:
     expose:
       - 8781
     depends_on:
-      - spring-config-server
-      - eureka-naming-server
-      - find-ra-idref
+      - qualinka-ms-spring-config-server
+      - qualinka-ms-eureka-naming-server
+      - qualinka-ms-find-ra-idref
     command: ["./wait-for-it.sh", "spring-config-server:8888"]
     environment:
       SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
@@ -140,8 +140,8 @@ services:
     expose:
       - 8782
     depends_on:
-      - spring-config-server
-      - eureka-naming-server
+      - qualinka-ms-spring-config-server
+      - qualinka-ms-eureka-naming-server
     command: [ "./wait-for-it.sh", "spring-config-server:8888" ]
     environment:
       SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
@@ -171,8 +171,8 @@ services:
     expose:
       - 8783
     depends_on:
-      - spring-config-server
-      - eureka-naming-server
+      - qualinka-ms-spring-config-server
+      - qualinka-ms-eureka-naming-server
     command: [ "./wait-for-it.sh", "spring-config-server:8888" ]
     environment:
       SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
@@ -203,8 +203,8 @@ services:
     expose:
       - 8784
     depends_on:
-      - spring-config-server
-      - eureka-naming-server
+      - qualinka-ms-spring-config-server
+      - qualinka-ms-eureka-naming-server
     command: [ "./wait-for-it.sh", "spring-config-server:8888" ]
     environment:
       SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
