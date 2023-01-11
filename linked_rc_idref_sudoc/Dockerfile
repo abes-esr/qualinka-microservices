@@ -22,7 +22,7 @@ RUN mvn --batch-mode \
         package
 
 ###
-# Image pour : le micro service Qualinka : linked_rc_idref_sudoc
+# Image pour : le micro service Qualinka linked_rc_idref_sudoc
 FROM openjdk:11 as linked_rc_idref_sudoc
 COPY --from=build-image /build/target/*.jar /app/linked_rc_idref_sudoc.jar
 ENV TZ=Europe/Paris

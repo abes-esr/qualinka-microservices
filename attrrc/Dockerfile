@@ -22,7 +22,7 @@ RUN mvn --batch-mode \
         package
 
 ###
-# Image pour : le micro service Qualinka : attrrc
+# Image pour : le micro service Qualinka attrrc
 FROM openjdk:11 as attrrc
 COPY --from=build-image /build/target/*.jar /app/attrrc.jar
 ENV TZ=Europe/Paris
