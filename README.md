@@ -1,6 +1,6 @@
 ## Microservices Qualinka
 
-Ce dépôt git contient le code source des microservices ci-dessous, ainsi que la configuration docker pour son déploiement.
+Ce dépôt git contient le code source des microservices ci-dessous.
 
 ### Description des microservices
 
