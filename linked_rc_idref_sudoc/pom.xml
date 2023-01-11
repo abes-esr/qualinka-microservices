@@ -9,7 +9,7 @@
     </parent>
     <groupId>fr.abes</groupId>
     <artifactId>linked_rc_idref_sudoc</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <packaging>jar</packaging>
     <name>linked_rc_idref_sudoc</name>
     <description>Application Rc liées à une Ra</description>
