@@ -48,7 +48,6 @@ services:
     depends_on:
       - qualinka-ms-spring-config-server
       - qualinka-ms-eureka-naming-server
- #   command: ["/app/wait-for-it.sh", "qualinka-ms-spring-config-server:8888"]
     environment:
       SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
       SPRING.PROFILES.ACTIVE: localhost
@@ -78,7 +77,6 @@ services:
     depends_on:
       - qualinka-ms-spring-config-server
       - qualinka-ms-eureka-naming-server
- #   command: ["/app/wait-for-it.sh", "qualinka-ms-spring-config-server:8888"]
     environment:
       SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
       SPRING.PROFILES.ACTIVE: localhost
@@ -110,7 +108,6 @@ services:
       - qualinka-ms-spring-config-server
       - qualinka-ms-eureka-naming-server
       - qualinka-ms-find-ra-idref
- #   command: ["/app/wait-for-it.sh", "qualinka-ms-spring-config-server:8888"]
     environment:
       SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
       SPRING.PROFILES.ACTIVE: localhost
@@ -141,7 +138,6 @@ services:
     depends_on:
       - qualinka-ms-spring-config-server
       - qualinka-ms-eureka-naming-server
- #   command: [ "/app/wait-for-it.sh", "qualinka-ms-spring-config-server:8888" ]
     environment:
       SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
       SPRING.PROFILES.ACTIVE: localhost
@@ -171,7 +167,6 @@ services:
     depends_on:
       - qualinka-ms-spring-config-server
       - qualinka-ms-eureka-naming-server
-#    command: [ "/app/wait-for-it.sh", "qualinka-ms-spring-config-server:8888" ]
     environment:
       SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
       SPRING.PROFILES.ACTIVE: localhost
@@ -202,7 +197,6 @@ services:
     depends_on:
       - qualinka-ms-spring-config-server
       - qualinka-ms-eureka-naming-server
- #   command: [ "/app/wait-for-it.sh", "qualinka-ms-spring-config-server:8888" ]
     environment:
       SPRING.CLOUD.CONFIG.FAIL-FAST: 'true'
       SPRING.PROFILES.ACTIVE: localhost

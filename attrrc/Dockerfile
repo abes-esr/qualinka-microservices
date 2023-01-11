@@ -24,8 +24,6 @@ RUN mvn --batch-mode \
 ###
 # Image pour : le micro service Qualinka : attrrc
 FROM openjdk:11 as attrrc
-COPY ./wait-for-it.sh /app/
-RUN chmod +x /app/wait-for-it.sh
 COPY --from=build-image /build/target/*.jar /app/attrrc.jar
 ENV TZ=Europe/Paris
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
