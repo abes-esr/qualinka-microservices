@@ -472,17 +472,12 @@ public class AttrRCService {
                             v.setDomain(t);
                             return v;
                         }))
-                .flatMap(v -> {
-                    List<LibRoleDto> libRoleDtoList = new ArrayList<>();
-                    v.getRole_code().forEach(r -> {
-                        oracleReferenceAuth.getLibRoleOracle(r)
-                                .doOnNext(libRoleDtoList::add)
-                                .block();
-                    });
-                    v.setRole(libRoleDtoList);
-                    return Mono.just(v);
-                    }
-                )
+                .flatMap(v -> oracleReferenceAuth.getLibRoleOracle(v.getRole_code())
+                        .collectList()
+                        .map(t -> {
+                            v.setRole(t);
+                            return v;
+                        }))
                 .flatMap(v -> oracleReferenceAuth.getkeywordOracle(ppnVal).collectList()
                         .map(t -> {
                             List<String> keywordsList = t.stream().map(e -> e.split("[,:;/.]"))

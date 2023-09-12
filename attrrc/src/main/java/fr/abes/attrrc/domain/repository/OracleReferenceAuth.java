@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.List;
 import java.util.concurrent.Flow;
 import java.util.concurrent.TimeUnit;
 
@@ -64,14 +65,12 @@ public class OracleReferenceAuth {
 
     }
 
-    public Mono<LibRoleDto> getLibRoleOracle(String code) {
+    public Flux<LibRoleDto> getLibRoleOracle(List<String> code) {
 
-        Flowable<LibRoleDto> libRoleDtoFlowable = db.select("select code, RELATIONSHIP_FR as fr, RELATIONSHIP_EN as en from FNCT_MARC21 where code=?").queryTimeoutSec(30)
-                .parameter(code)
+        Flowable<LibRoleDto> libRoleDtoFlowable = db.select("select code, RELATIONSHIP_FR as fr, RELATIONSHIP_EN as en from FNCT_MARC21 where code IN (?)").queryTimeoutSec(30)
+                .parameters(code)
                 .autoMap(LibRoleDto.class);
-
-        return Mono.from(libRoleDtoFlowable);
-
+        return Flux.from(libRoleDtoFlowable);
     }
 
     public Flux<String> getkeywordOracle(String ppn) {
