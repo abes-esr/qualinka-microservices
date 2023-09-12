@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>fr.abes</groupId>
 	<artifactId>eureka-naming-server</artifactId>
-	<version>1.0.5</version>
+	<version>1.0.6</version>
 	<name>eureka-naming-server</name>
 	<description>Configuration Spring Cloud</description>
 	<properties>
