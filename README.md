@@ -9,7 +9,7 @@ A partir d'une appellation (dont la forme la plus courante est firstName / lastN
 Avec le paramètre "file", il est possible d’appeler un fichier de requêtes en particulier, afin d’ajuster les requêtes passées à l’appellation en entrée (ex : réduite à un lastName) ou le degré de finesse des résultats (ex : recherche étroite).
   - Url : https://qualinka.idref.fr/data/find-ra-idref/api/v2/req?lastName=robert&firstName=val%C3%A9rie
   - Url avec fichier de requête : https://qualinka.idref.fr/data/find-ra-idref/api/v2/req?lastName=robert&firstName=val%C3%A9rie&file=findra_light
-  - Debug : https://qualinka.idref.fr/find-ra-idref/data/api/v2/debug/req?lastName=robert&firstName=val%C3%A9rie
+  - Debug : https://qualinka.idref.fr/data/find-ra-idref/api/v2/debug/req?lastName=robert&firstName=val%C3%A9rie
 
 #### find-nonlinked-rc-sudoc 
 A partir d'une appellation (dont la forme la plus courante est firstName / lastName), le service renvoie les points d’accès des notices bibliographiques Sudoc non liés à une autorité de la base IdRef (sous la forme ppn + "-" + sa position à partir des zones 70X ; ex. 123456789-1).  
