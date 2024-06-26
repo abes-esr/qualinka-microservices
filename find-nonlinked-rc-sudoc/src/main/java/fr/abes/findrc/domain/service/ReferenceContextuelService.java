@@ -75,8 +75,7 @@ public class ReferenceContextuelService {
                 .map(ReferenceAutoriteDtoProxy::getIds)
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(x -> referenceAutoriteMonoFromDatabase(x.getPpn()))
-                .filter(x -> ( !Strings.isNullOrEmpty(x.getLastName()) ))
-                /*.filter(t -> {
+                .filter(t -> {
                     try {
                         if (!Strings.isNullOrEmpty(t.getFirstName())) {
 
@@ -101,7 +100,7 @@ public class ReferenceContextuelService {
                         e.printStackTrace();
                         return false;
                     }
-                })*/
+                })
                 .map(e -> {
                     //System.out.println(e.getPpn() + ":" + e.getFirstName() + ":" + e.getLastName());
                     referenceAutoriteDtoList.add(e);
