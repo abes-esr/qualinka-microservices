@@ -77,7 +77,10 @@ public class ReferenceContextuelService {
                 .flatMap(x -> referenceAutoriteMonoFromDatabase(x.getPpn()))
                 .filter(t -> {
                     try {
-                        if (!Strings.isNullOrEmpty(t.getFirstName())) {
+                        //ACT 27/06/24 : on accepte * en firstName
+                        //if (!Strings.isNullOrEmpty(t.getFirstName())) {
+
+                        if (!Strings.isNullOrEmpty(t.getFirstName()) && firstName.charAt(0) != '*') {
 
                             return
                                 !Strings.isNullOrEmpty(t.getLastName())
