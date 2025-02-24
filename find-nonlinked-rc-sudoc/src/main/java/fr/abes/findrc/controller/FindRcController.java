@@ -56,11 +56,7 @@ public class FindRcController {
             firstName = "";
         }
 
-
-        //ACT 27/06/24 : on accepte * en firstName
-        //if (!Strings.isNullOrEmpty(firstName) && (firstName.charAt(0) == '*' || lastName.charAt(0) == '*')) {
-
-        if (!Strings.isNullOrEmpty(firstName) && (lastName.charAt(0) == '*')) {
+        if (!Strings.isNullOrEmpty(firstName) && (firstName.charAt(0) == '*' || lastName.charAt(0) == '*')) {
             ReferenceAutoriteGetDto referenceAutoriteGetDto = new ReferenceAutoriteGetDto(0, null, getFile,new ArrayList<>());
             return Mono.just(referenceAutoriteGetDto);
 
