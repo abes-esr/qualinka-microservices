@@ -23,7 +23,7 @@ RUN mvn --batch-mode \
 
 ###
 # Image pour : le micro service Qualinka find-nonlinked-rc-sudoc
-FROM openjdk:11 as find-nonlinked-rc-sudoc
+FROM eclipse-temurin:11-jre as find-nonlinked-rc-sudoc
 COPY --from=build-image /build/target/*.jar /app/find-nonlinked-rc-sudoc.jar
 ENV TZ=Europe/Paris
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone

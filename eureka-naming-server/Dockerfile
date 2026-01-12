@@ -23,6 +23,6 @@ RUN mvn --batch-mode \
 
 ###
 # Image pour : le micro service Qualinka eureka-naming-server
-FROM openjdk:11 as eureka-naming-server
+FROM eclipse-temurin:11-jre as eureka-naming-server
 COPY --from=build-image /build/target/*.jar /app/eureka-naming-server.jar
 CMD ["java", "-jar", "/app/eureka-naming-server.jar"]

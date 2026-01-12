@@ -23,7 +23,7 @@ RUN mvn --batch-mode \
 
 ###
 # Image pour : le micro service Qualinka attrrc
-FROM openjdk:11 as attrrc
+FROM eclipse-temurin:11-jre as attrrc
 COPY --from=build-image /build/target/*.jar /app/attrrc.jar
 ENV TZ=Europe/Paris
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone

@@ -23,6 +23,6 @@ RUN mvn --batch-mode \
 
 ###
 # Image pour : le micro service Qualinka spring-cloud-config-server
-FROM openjdk:11 as spring-cloud-config-server
+FROM eclipse-temurin:11-jre as spring-cloud-config-server
 COPY --from=build-image /build/target/*.jar /app/spring-cloud-config-server.jar
 CMD ["java", "-jar", "/app/spring-cloud-config-server.jar"]
