@@ -26,7 +26,7 @@
         -->
         <Console name="Console">
             <PatternLayout disableAnsi="false"
-                           pattern="%highlight{%d{HH:mm:ss.SSS} %-5level %logger{36}.%M() @%L - %msg%n}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=cyan, DEBUG=green bold, TRACE=blue}"/>
+                           pattern="%highlight{%d{dd-MM-yyyy HH:mm:ss.SSS} %-5level %logger{36}.%M() @%L - %msg%n}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=cyan, DEBUG=green bold, TRACE=blue}"/>
         </Console>
 
         <!-- LOG FILE -->
