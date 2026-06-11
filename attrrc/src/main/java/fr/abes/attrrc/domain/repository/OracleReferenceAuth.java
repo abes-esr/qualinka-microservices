@@ -58,7 +58,7 @@ public class OracleReferenceAuth {
 
     public Flux<DomainCodeDto> getDomainCodeAndValue(String ppn) {
 
-        Flowable<DomainCodeDto> domainCodeDtoFlowable = db.select("select code, valeure from BIBLIO_TABLE_LIEN_RAMEAU where ppn=? and valeure is not null").queryTimeoutSec(30)
+        Flowable<DomainCodeDto> domainCodeDtoFlowable = db.select("select code, valeure from BIBLIO_TABLE_LIEN_RAMEAU where ppn=? and valeure is not null and regexp_like(code, '^[0-9]{3}$')").queryTimeoutSec(30)
                 .parameter(ppn)
                 .autoMap(DomainCodeDto.class);
         return Flux.from(domainCodeDtoFlowable);
